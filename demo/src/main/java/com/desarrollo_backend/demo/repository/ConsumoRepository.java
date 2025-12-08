@@ -1,9 +1,9 @@
-package com.app.repository;
+package com.desarrollo_backend.demo.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.app.estadias.Consumo;
+import com.desarrollo_backend.demo.modelo.estadias.Consumo;
 
 @Repository
 public interface ConsumoRepository extends JpaRepository<Consumo, Integer> {}
