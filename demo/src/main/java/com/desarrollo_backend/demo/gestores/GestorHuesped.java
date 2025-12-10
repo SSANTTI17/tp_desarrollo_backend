@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
 
@@ -65,8 +66,23 @@ public class GestorHuesped{
     }
 
     private HuespedDTO convertirADTO(Huesped entidad) {
-    HuespedDTO dto = new HuespedDTO(entidad);
-    return dto;
-}
+        HuespedDTO dto = new HuespedDTO(entidad);
+        return dto;
+    }
+
+    public boolean huespedIsAlojado(HuespedDTO dto) {
+        HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+        Huesped huesped = huespedRepository.findById(id).get(); 
+        return huesped.isAlojado();
+    }
+    
+    //creo que le falta agregar para que elimine al responsable de pago (en que parte se asocia un responsable de pago al huesped?)
+    // porque si el huesped nunca se alojó (solo reserva) no debería tener un responsable de pago
+    public void eliminarHuesped(HuespedDTO dto) {
+        HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+        huespedRepository.deleteById(id);
+    }
+
+
 }
 
