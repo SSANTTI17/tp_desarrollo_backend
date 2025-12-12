@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.desarrollo_backend.demo.excepciones.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
+import com.desarrollo_backend.demo.repository.ReservaRepository;
 
 @Service
 public class GestorReservas {
@@ -25,6 +27,9 @@ public class GestorReservas {
 
     @Autowired
     private HabitacionRepository habitacionRepo;
+
+    @Autowired
+    private ReservaRepository reservaRepo;
 
     public List<Map<String, Object>> buscarDisponibilidad(String tipoString, String desdeStr, String hastaStr) {
         List<Map<String, Object>> listaResultado = new ArrayList<>();
@@ -92,12 +97,65 @@ public class GestorReservas {
 
             historialRepo.save(nuevo);
 
+            //faltan los datos del q reserva, hacer reservas para más de una habitacion
+            List<Habitacion> auxList = new ArrayList<>();
+            auxList.add(habitacionRef);
+            Reserva nuevaReserva = new Reserva("","","",fechaInicio,"14:00",fechaFin,"10:00",auxList);
+            reservaRepo.save(nuevaReserva);
+
             return "¡Reserva Exitosa!";
 
         } catch (Exception e) {
             e.printStackTrace();
             return "Error en el servidor: " + e.getMessage();
         }
+    }
+
+   public List<Reserva> consultarReservas(String nombre, String apellido) 
+        throws ReservaNotFoundException{
+
+        if(apellido == null || apellido.isBlank())
+            throw new ReservaNotFoundException("ingrese apellido");
+        
+        List<Reserva> reservas = new ArrayList<>();
+
+        if(nombre == null || nombre.isBlank()) reservas = reservaRepo.findByApellido(apellido);
+        else reservas = reservaRepo.findByApellidoAndNombre(apellido,nombre);
+
+        if(reservas.isEmpty()) 
+            throw new ReservaNotFoundException("no hay reservas a nombre de " + apellido
+                                                + ", " + nombre);
+
+        return reservas;
+    }
+
+    //retorno rebotadas
+    public List<Reserva> eliminarReservas(List<Reserva> reservas) {
+            
+        List<Reserva> rebotadas = new ArrayList<>();
+        
+        for(Reserva r : reservas){
+            if(!eliminarReserva(r)){
+                rebotadas.add(r);
+            }
+        }
+
+        return rebotadas;
+}
+    
+    //true para eliminacion exitosa, aca podría poner excepciones tambien, ya me gustó xddd ce
+    public boolean eliminarReserva(Reserva reserva){
+
+        if(reserva == null) return false;
+
+        //verifico q esté todo bien para q no se rompa
+        Reserva aux = reservaRepo.findById(reserva.getId()).orElse(null);
+
+        if(aux != null){
+            reservaRepo.delete(aux);
+            return true;
+        }
+        return false;
     }
 
     private TipoHabitacion normalizarTipo(String t) {
