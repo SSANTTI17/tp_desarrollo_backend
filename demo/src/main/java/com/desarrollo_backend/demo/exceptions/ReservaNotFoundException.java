@@ -1,12 +1,12 @@
-package com.desarrollo_backend.demo.excepciones;
+package com.desarrollo_backend.demo.exceptions;
 
-public class ReservaNotFoundExc extends Exception {
+public class ReservaNotFoundException extends Exception {
    
-    public ReservaNotFoundExc() {
+    public ReservaNotFoundException() {
         super();
     }
 
-    public ReservaNotFoundExc(String message) {
+    public ReservaNotFoundException(String message) {
         super(message);
     }
 }
