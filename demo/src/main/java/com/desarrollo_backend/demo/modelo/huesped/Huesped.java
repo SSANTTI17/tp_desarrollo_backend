@@ -1,8 +1,11 @@
 package com.desarrollo_backend.demo.modelo.huesped;
 
 import java.util.Date;
+import java.util.List;
+
 import jakarta.persistence.*;
 import com.desarrollo_backend.demo.modelo.direccion.Direccion;
+import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 
 @Entity
@@ -34,6 +37,9 @@ public class Huesped {
 
     @Column(nullable = false)
     private boolean alojado;
+
+    @OneToMany(mappedBy = "huespedRef")
+    private List<Reserva> reservasAsociadas;
 
     @ManyToOne
     @JoinColumn(name = "direccion_huesped")
@@ -115,5 +121,21 @@ public class Huesped {
 
     public void setAlojado(boolean alojado) {
         this.alojado = alojado;
+    }
+
+    public void setDireccion(Direccion direccion) {
+        this.direccion = direccion;
+    }
+
+    public void setHuesped(HuespedDTO huespedDto) {
+        this.nombre = huespedDto.getNombre();
+        this.apellido = huespedDto.getApellido();
+        this.id = new HuespedPK(huespedDto.getTipo_documento(), huespedDto.getNroDocumento());
+        this.fechaDeNacimiento = huespedDto.getFechaDeNacimiento();
+        this.nacionalidad = huespedDto.getNacionalidad();
+        this.email = huespedDto.getEmail();
+        this.telefono = huespedDto.getTelefono();
+        this.ocupacion = huespedDto.getOcupacion();
+        //alojado solo se modifica al pagar
     }
 }

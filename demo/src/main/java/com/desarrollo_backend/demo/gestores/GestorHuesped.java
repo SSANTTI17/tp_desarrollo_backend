@@ -6,10 +6,20 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import com.desarrollo_backend.demo.modelo.direccion.Direccion;
+import com.desarrollo_backend.demo.modelo.direccion.Localidad;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
+import com.desarrollo_backend.demo.modelo.responsablePago.PersonaFisica;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
+import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
+import com.desarrollo_backend.demo.repository.DireccionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
+import com.desarrollo_backend.demo.repository.LocalidadRepository;
+import com.desarrollo_backend.demo.repository.PersonaFisicaRepository;
+
+import jakarta.transaction.Transactional;
 
 
 @Service
@@ -18,6 +28,14 @@ public class GestorHuesped{
     @Autowired
     private HuespedRepository huespedRepository;
 
+    @Autowired
+    private DireccionRepository direccionRepository;
+
+    @Autowired
+    private LocalidadRepository localidadRepository;
+
+    @Autowired
+    private PersonaFisicaRepository personaFisicaRepository;
     
     public Huesped darDeAltaHuesped(HuespedDTO huespedDto) {
         if (huespedDto == null) return null;
@@ -81,6 +99,52 @@ public class GestorHuesped{
     public void eliminarHuesped(HuespedDTO dto) {
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
         huespedRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void modificarHuesped(HuespedDTO dto) {
+
+        HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+        Huesped existente = huespedRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Huésped no encontrado"));
+
+        if (existente == null) {
+            throw new RuntimeException("Huésped no encontrado");
+        }
+
+        existente.setHuesped(dto);
+
+        //MODIFICACION DE DIRECCION
+        Direccion direccion = existente.getDireccion();
+        Direccion aux = dto.getDireccion();
+        direccion.setCalle(aux.getCalle());
+        direccion.setAltura(aux.getAltura());
+        direccion.setDepartamento(aux.getDepartamento());
+        direccion.setPiso(aux.getPiso());
+        direccion.setCodigoPostal(aux.getCodigoPostal());
+
+        String nombreLocalidad = aux.getLocalidad().getNombre();
+        String nombreProvincia = aux.getLocalidad().getProvincia().getNombre();
+
+        Localidad localidad = localidadRepository
+             .findByNombreAndProvinciaNombre(nombreLocalidad, nombreProvincia)
+             .orElseThrow(() -> new RuntimeException("La localidad o provincia especificadas no existen"));
+
+
+        direccion.setLocalidad(localidad);
+
+        // Guardamos la dirección actualizada
+        direccionRepository.save(direccion);
+        
+        // Vinculamos y guardamos el huésped
+        existente.setDireccion(direccion);
+
+        
+        
+        
+        //set cuit, posIVA y direccion
+
+        huespedRepository.save(existente);
     }
 
 

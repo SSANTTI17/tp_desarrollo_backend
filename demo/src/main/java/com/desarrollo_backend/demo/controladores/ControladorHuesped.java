@@ -5,23 +5,19 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.desarrollo_backend.demo.gestores.GestorContable;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 /*
@@ -178,6 +174,25 @@ public class ControladorHuesped {
             );
         }
     }
+
+    @PutMapping("/api/huespedes/modificar")
+    public ResponseEntity<?> modificarHuesped(@RequestBody HuespedDTO huespedDTO) {
+        //el huespedDTO recibido tiene los datos modificados 
+
+        //hacer verificacion acá?
+
+        try {
+            gestorHuesped.modificarHuesped(huespedDTO);
+            return ResponseEntity.ok(
+                Map.of("message", "La operación ha culminado con éxito")
+            );
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", e.getMessage()));
+        }
+    }
+
 
     // verificar si el huesped puede ser eliminado
     @PostMapping("/verificar-baja")

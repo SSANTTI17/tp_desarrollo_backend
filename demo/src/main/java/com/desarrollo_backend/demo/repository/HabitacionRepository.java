@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 
 @Repository
-public interface HabitacionRepository extends JpaRepository<Habitacion, Integer> {
+public interface HabitacionRepository extends JpaRepository<Habitacion, HabitacionPK> {
 
     Habitacion findByIdNumeroAndIdTipo(int numero, TipoHabitacion tipo);
 

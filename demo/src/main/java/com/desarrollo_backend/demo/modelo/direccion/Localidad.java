@@ -31,4 +31,5 @@ public class Localidad {
     }
 
     public String getNombre(){ return nombre; }
+    public Provincia getProvincia(){return provincia;}
 }

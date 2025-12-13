@@ -31,4 +31,7 @@ public class PersonaFisica extends ResponsablePago {
         return RefHuesped;
     }
 
+    public void setPosicionIVA(String posicionIVA) {
+        this.PosicionIVA = posicionIVA;
+    }
 }
