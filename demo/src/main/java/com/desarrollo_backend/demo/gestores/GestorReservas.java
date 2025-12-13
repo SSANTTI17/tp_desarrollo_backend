@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
-
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
@@ -62,7 +61,7 @@ public class GestorReservas {
     }
 
     @Transactional
-    public String crearReserva(String tipoStr, int numeroHab, String fechaInicioStr, String fechaFinStr) {
+    public String crearReserva(HuespedDTO huesped, String tipoStr, int numeroHab, String fechaInicioStr, String fechaFinStr) {
         try {
             Date fechaInicio = parsearFechaFront(fechaInicioStr);
             Date fechaFin = parsearFechaFront(fechaFinStr);
@@ -98,10 +97,10 @@ public class GestorReservas {
 
             historialRepo.save(nuevo);
 
-            //faltan los datos del q reserva, hacer reservas para más de una habitacion
+            //hacer reservas para más de una habitacion
             List<Habitacion> auxList = new ArrayList<>();
             auxList.add(habitacionRef);
-            Reserva nuevaReserva = new Reserva("","","",fechaInicio,"14:00",fechaFin,"10:00",auxList);
+            Reserva nuevaReserva = new Reserva(huesped.getNombre(),huesped.getApellido(),huesped.getTelefono(),fechaInicio,"14:00",fechaFin,"10:00",auxList);
             reservaRepo.save(nuevaReserva);
 
             return "¡Reserva Exitosa!";

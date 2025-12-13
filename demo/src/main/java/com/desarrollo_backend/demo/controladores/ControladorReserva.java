@@ -22,6 +22,8 @@ public class ControladorReserva {
         return gestorReservas.buscarDisponibilidad(tipo, desde, hasta);
     }
 
+    /*
+    VER
     @PostMapping("/crear")
     public String crearReserva(
             @RequestParam String tipo,
@@ -30,6 +32,6 @@ public class ControladorReserva {
             @RequestParam String fechaFin // yyyy-MM-dd
     ) {
         return gestorReservas.crearReserva(tipo, numero, fechaInicio, fechaFin);
-    }
+    }*/
 
 }
