@@ -17,6 +17,14 @@ public interface HistorialEstadoHabitacionRepository
       @Param("numero") int numero,
       @Param("tipo") TipoHabitacion tipo);
 
+      //necesito buscar por fecha y tipo y numero
+      @Query("SELECT h FROM HistorialEstadoHabitacion h " +
+          "WHERE h.id.numero = :numero AND h.id.tipo = :tipo AND h.id.fecha = :fecha")
+      List<HistorialEstadoHabitacion> findByHabitacionAndFecha(
+          @Param("numero") int numero,
+          @Param("tipo") TipoHabitacion tipo,
+          @Param("fecha") Date fecha);
+
   @Query("""
       SELECT h FROM HistorialEstadoHabitacion h
       WHERE h.id.numero = :numero

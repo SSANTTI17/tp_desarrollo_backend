@@ -4,6 +4,8 @@ import java.util.Date;
 import java.util.List;
 
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
+import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+
 import jakarta.persistence.*;
 
 @Entity(name = "reservas")
@@ -32,6 +34,10 @@ public class Reserva {
 
     @OneToOne(mappedBy = "reserva")
     private Estadia estadia;
+
+    @ManyToOne
+    @JoinColumn(name = "huespedRef")
+    Huesped huespedRef;
 
     //constructores
 

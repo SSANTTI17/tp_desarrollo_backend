@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 
@@ -111,25 +112,26 @@ public class GestorReservas {
         }
     }
 
-   public List<Reserva> consultarReservas(String nombre, String apellido) 
+   public List<Reserva> consultarReservas(HuespedDTO huesped) 
         throws ReservaNotFoundException{
 
-        if(apellido == null || apellido.isBlank())
+        if(huesped.getApellido() == null || huesped.getApellido().isBlank())
             throw new ReservaNotFoundException("ingrese apellido");
         
         List<Reserva> reservas = new ArrayList<>();
 
-        if(nombre == null || nombre.isBlank()) reservas = reservaRepo.findByApellido(apellido);
-        else reservas = reservaRepo.findByApellidoAndNombre(apellido,nombre);
+        if(huesped.getNombre() == null || huesped.getNombre().isBlank()) reservas = reservaRepo.findByApellido(huesped.getApellido());
+        else reservas = reservaRepo.findByApellidoAndNombre(huesped.getApellido(),huesped.getNombre());
 
         if(reservas.isEmpty()) 
-            throw new ReservaNotFoundException("no hay reservas a nombre de " + apellido
-                                                + ", " + nombre);
+            throw new ReservaNotFoundException("no hay reservas a nombre de " + huesped.getApellido()
+                                                + ", " + huesped.getNombre());
 
         return reservas;
     }
 
     //retorno rebotadas
+    @Transactional
     public List<Reserva> eliminarReservas(List<Reserva> reservas) {
             
         List<Reserva> rebotadas = new ArrayList<>();
@@ -144,15 +146,29 @@ public class GestorReservas {
 }
     
     //true para eliminacion exitosa, aca podría poner excepciones tambien, ya me gustó xddd ce
-    public boolean eliminarReserva(Reserva reserva){
+    @Transactional
+    public boolean eliminarReserva(Reserva reservaEliminar){
 
-        if(reserva == null) return false;
+        if(reservaEliminar == null) return false;
 
-        //verifico q esté todo bien para q no se rompa
-        Reserva aux = reservaRepo.findById(reserva.getId()).orElse(null);
+        //encuentro la reserva
+        Reserva reserva = reservaRepo.findById(reservaEliminar.getId()).orElse(null);
 
-        if(aux != null){
-            reservaRepo.delete(aux);
+        if(reserva != null){
+            //habitaciones asociadas a la reserva
+            for(Habitacion hab : reserva.getHabitacionesReservadas()){
+                //de cada habitacion necesito eliminar en la fecha de la reserva
+                List<HistorialEstadoHabitacion> listaEstados = historialRepo.findByHabitacion(hab.getNumero(),hab.getTipo());
+                listaEstados.stream()
+                    .filter(h ->  h.getEstado() == EstadoHabitacion.Reservada
+                            && reserva.getFechaIngreso().equals(h.getFechaInicio())   
+                            && reserva.getFechaEgreso().equals(h.getFechaFin()))
+                    .findFirst()  
+                    .ifPresent(historico -> historialRepo.delete(historico));
+            }
+
+            reservaRepo.delete(reserva);
+
             return true;
         }
         return false;
