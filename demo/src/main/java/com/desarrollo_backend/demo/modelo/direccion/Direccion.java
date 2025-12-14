@@ -1,9 +1,6 @@
 package com.desarrollo_backend.demo.modelo.direccion;
 
 import jakarta.persistence.*;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import java.util.List;
-import java.util.ArrayList;
 
 @Entity
 @Table(name = "direcciones")
@@ -32,9 +29,6 @@ public class Direccion {
     @JoinColumn(name = "localidad_nombre")
     private Localidad localidad;
 
-    @OneToMany(mappedBy = "direccion")
-    private List<Huesped> huespedes;
-
     public Direccion(){}
 
     public Direccion(String calle, String departamento, int altura, int piso, int codigoPostal, Localidad localidad) {
@@ -44,11 +38,6 @@ public class Direccion {
         this.departamento = departamento;
         this.codigoPostal = codigoPostal;
         this.localidad = localidad;
-        huespedes = new ArrayList<>();
-    }
-
-    public void agregarHuesped(Huesped h){
-        huespedes.add(h);
     }
 
     //Getters

@@ -40,8 +40,7 @@ public class Huesped {
     @OneToMany(mappedBy = "huespedRef")
     private List<Reserva> reservasAsociadas;
 
-    @ManyToOne
-    @JoinColumn(name = "direccion_huesped")
+    @Column(nullable = false)
     private String direccion;
 
     public Huesped() {
