@@ -179,9 +179,8 @@ public class ControladorHuesped {
     public ResponseEntity<?> modificarHuesped(@RequestBody HuespedDTO huespedDTO) {
         //el huespedDTO recibido tiene los datos modificados 
 
-        //hacer verificacion acá?
-
         try {
+            gestorContable.modificarHuesped(huespedDTO);
             gestorHuesped.modificarHuesped(huespedDTO);
             return ResponseEntity.ok(
                 Map.of("message", "La operación ha culminado con éxito")
@@ -206,7 +205,7 @@ public class ControladorHuesped {
                 "mensaje", "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad. PRESIONE CUALQUIER TECLA PARA CONTINUAR…"
             ));
         } else {
-            // Retorna mensaje de confirmación          VERIFICAR
+            // Retorna mensaje de confirmación
             String mensaje = String.format(
                 "Los datos del huésped %s %s, %s y %s serán eliminados del sistema",
                 huespedDTO.getNombre(),

@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.*;
-import com.desarrollo_backend.demo.modelo.direccion.Direccion;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 
@@ -43,7 +42,7 @@ public class Huesped {
 
     @ManyToOne
     @JoinColumn(name = "direccion_huesped")
-    private Direccion direccion;
+    private String direccion;
 
     public Huesped() {
     }
@@ -115,7 +114,7 @@ public class Huesped {
         return alojado;
     }
 
-    public Direccion getDireccion() {
+    public String getDireccion() {
         return direccion;
     }
 
@@ -123,7 +122,7 @@ public class Huesped {
         this.alojado = alojado;
     }
 
-    public void setDireccion(Direccion direccion) {
+    public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
 

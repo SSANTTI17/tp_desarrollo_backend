@@ -7,17 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import com.desarrollo_backend.demo.modelo.direccion.Direccion;
-import com.desarrollo_backend.demo.modelo.direccion.Localidad;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
-import com.desarrollo_backend.demo.modelo.responsablePago.PersonaFisica;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
-import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
-import com.desarrollo_backend.demo.repository.DireccionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
-import com.desarrollo_backend.demo.repository.LocalidadRepository;
-import com.desarrollo_backend.demo.repository.PersonaFisicaRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -27,15 +20,6 @@ public class GestorHuesped{
     
     @Autowired
     private HuespedRepository huespedRepository;
-
-    @Autowired
-    private DireccionRepository direccionRepository;
-
-    @Autowired
-    private LocalidadRepository localidadRepository;
-
-    @Autowired
-    private PersonaFisicaRepository personaFisicaRepository;
     
     public Huesped darDeAltaHuesped(HuespedDTO huespedDto) {
         if (huespedDto == null) return null;
@@ -94,7 +78,7 @@ public class GestorHuesped{
         return huesped.isAlojado();
     }
     
-    //creo que le falta agregar para que elimine al responsable de pago (en que parte se asocia un responsable de pago al huesped?)
+    //debería agregar para que elimine al responsable de pago? (en que parte se asocia un responsable de pago al huesped?)
     // porque si el huesped nunca se alojó (solo reserva) no debería tener un responsable de pago
     public void eliminarHuesped(HuespedDTO dto) {
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
@@ -106,45 +90,30 @@ public class GestorHuesped{
 
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
         Huesped existente = huespedRepository.findById(id)
-        .orElseThrow(() -> new RuntimeException("Huésped no encontrado"));
+        .orElse(null);
 
-        if (existente == null) {
-            throw new RuntimeException("Huésped no encontrado");
+        //FALTA TERMINAR, VERIFICAR QUE AL MODIFICAR NO SE SELECCIONE UN TIPODOC Y NRODOC QUE COINCIDAN CON OTRO HUESPED
+        Huesped huesped = new Huesped(dto);
+        if(huesped.equals(existente)){ //el huesped que coincide en tipoDoc y nroDoc es el mismo y no uno distinto (todos los campos iguales)
+
         }
 
-        existente.setHuesped(dto);
+        //si se modifica el dni no se va a encontrar el huesped a menos que coincida con otro
+        if (existente == null) {
+            existente = new Huesped(dto);
 
-        //MODIFICACION DE DIRECCION
-        Direccion direccion = existente.getDireccion();
-        Direccion aux = dto.getDireccion();
-        direccion.setCalle(aux.getCalle());
-        direccion.setAltura(aux.getAltura());
-        direccion.setDepartamento(aux.getDepartamento());
-        direccion.setPiso(aux.getPiso());
-        direccion.setCodigoPostal(aux.getCodigoPostal());
+        } else {
+            existente.setHuesped(dto);
+        }
 
-        String nombreLocalidad = aux.getLocalidad().getNombre();
-        String nombreProvincia = aux.getLocalidad().getProvincia().getNombre();
-
-        Localidad localidad = localidadRepository
-             .findByNombreAndProvinciaNombre(nombreLocalidad, nombreProvincia)
-             .orElseThrow(() -> new RuntimeException("La localidad o provincia especificadas no existen"));
-
-
-        direccion.setLocalidad(localidad);
-
-        // Guardamos la dirección actualizada
-        direccionRepository.save(direccion);
-        
-        // Vinculamos y guardamos el huésped
-        existente.setDireccion(direccion);
-
-        
-        
-        
-        //set cuit, posIVA y direccion
+        existente.setDireccion(dto.getDireccion());
 
         huespedRepository.save(existente);
+    }
+
+    public Huesped obtenerHuespedPorId(HuespedPK id) {
+        return huespedRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("El huésped no existe."));
     }
 
 

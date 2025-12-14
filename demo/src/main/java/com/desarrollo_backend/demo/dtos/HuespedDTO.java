@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.desarrollo_backend.demo.modelo.direccion.Direccion;
 import com.desarrollo_backend.demo.modelo.huesped.*;
 
 public class HuespedDTO {
@@ -20,7 +19,9 @@ public class HuespedDTO {
     private String telefono;
     private String ocupacion;
     private boolean alojado;
-    private Direccion direccion;
+    private String direccion;
+    private String CUIT;
+    private String posicionIVA;
 
     // Constructor desde Huesped
     public HuespedDTO(Huesped huesped) {
@@ -93,8 +94,16 @@ public class HuespedDTO {
         return alojado;
     }
 
-    public Direccion getDireccion() {
+    public String getDireccion() {
         return direccion;
+    }
+
+    public String getCUIT() {
+        return CUIT;
+    }
+
+    public String getPosicionIVA() {
+        return posicionIVA;
     }
 
     // Setters
@@ -119,7 +128,7 @@ public class HuespedDTO {
         this.fechaDeNacimiento = fechaDeNacimiento;
     }
 
-    public void setDireccion(Direccion direccion) {
+    public void setDireccion(String direccion) {
         this.direccion = direccion;
     }
 
