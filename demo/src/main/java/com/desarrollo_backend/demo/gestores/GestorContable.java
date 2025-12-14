@@ -9,7 +9,6 @@ import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
 import com.desarrollo_backend.demo.modelo.responsablePago.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
-import com.desarrollo_backend.demo.repository.HuespedRepository;
 import com.desarrollo_backend.demo.repository.PersonaFisicaRepository;
 import com.desarrollo_backend.demo.repository.PersonaJuridicaRepository;
 import com.desarrollo_backend.demo.repository.ResponsablePagoRepository;

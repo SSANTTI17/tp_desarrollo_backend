@@ -36,8 +36,12 @@ public class Reserva {
     private Estadia estadia;
 
     @ManyToOne
-    @JoinColumn(name = "huespedRef")
+    @JoinColumns({
+        @JoinColumn(name = "huesped_tipo_doc", referencedColumnName = "tipo_documento"),
+        @JoinColumn(name = "huesped_numero_doc", referencedColumnName = "nroDocumento")
+    })
     Huesped huespedRef;
+
 
     //constructores
 

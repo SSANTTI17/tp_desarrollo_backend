@@ -12,7 +12,7 @@ public class PersonaFisica extends ResponsablePago {
     private String PosicionIVA;
 
     @OneToOne
-    private Huesped RefHuesped;
+    private Huesped refHuesped;
 
     protected PersonaFisica() {
     }
@@ -20,7 +20,7 @@ public class PersonaFisica extends ResponsablePago {
     public PersonaFisica(String PosicionIVA, String CUIT, Huesped RefHuesped) {
         super(CUIT);
         this.PosicionIVA = PosicionIVA;
-        this.RefHuesped = RefHuesped;
+        this.refHuesped = RefHuesped;
     }
 
     public String getPosicionIVA() {
@@ -28,7 +28,7 @@ public class PersonaFisica extends ResponsablePago {
     }
 
     public Huesped getHuesped() {
-        return RefHuesped;
+        return refHuesped;
     }
 
     public void setPosicionIVA(String posicionIVA) {
