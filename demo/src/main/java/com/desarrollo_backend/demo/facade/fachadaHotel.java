@@ -1,6 +1,8 @@
 package com.desarrollo_backend.demo.facade;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +28,13 @@ public class fachadaHotel {
 
     @Autowired
     private GestorContable gestorContable;
+
+    @Autowired
+    private GestorHabitaciones gestorHabitaciones;
+
+    public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
+        return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
+    }
 
     public List<Huesped> obtenerHuespedesParaFacturacion(EstadiaDTO estadiaDTO, HabitacionDTO habitacionDTO) {
         // Delegamos al gestor pasándole los datos primitivos necesarios
