@@ -16,9 +16,11 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK; // Importante para buscar por ID
 import com.desarrollo_backend.demo.observers.*;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
+import com.desarrollo_backend.demo.repository.HuespedRepository;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
 
 @Service
@@ -32,6 +34,9 @@ public class GestorReservas {
 
     @Autowired
     private ReservaRepository reservaRepo;
+
+    @Autowired
+    private HuespedRepository huespedRepo;
 
     @Autowired
     private List<ReservaObserver> observers;
@@ -101,11 +106,33 @@ public class GestorReservas {
                 return "Error: La habitación no existe (Revise número y tipo)";
             }
 
+            // CORRECCIÓN CRÍTICA: Gestionar la entidad Huesped antes de Reservar
+            Huesped huespedEntidad = null;
+
+            // 1. Intentamos buscar si ya existe en la BD
+            if (huesped.getTipo_documento() != null && huesped.getNroDocumento() != null) {
+                HuespedPK pk = new HuespedPK(huesped.getTipo_documento(), huesped.getNroDocumento());
+                huespedEntidad = huespedRepo.findById(pk).orElse(null);
+            }
+
+            // 2. Si no existe, lo creamos y guardamos
+            if (huespedEntidad == null) {
+                huespedEntidad = new Huesped(huesped);
+                // Aseguramos que tenga dirección para no fallar por restricción NOT NULL
+                if (huespedEntidad.getDireccion() == null) {
+                    huespedEntidad.setDireccion("Desconocida");
+                }
+                huespedRepo.save(huespedEntidad);
+            }
+
             // hacer reservas para más de una habitacion
             List<Habitacion> auxList = new ArrayList<>();
             auxList.add(habitacionRef);
-            Reserva nuevaReserva = new Reserva(new Huesped(huesped),
+
+            // 3. Usamos la entidad 'huespedEntidad' ya persistida
+            Reserva nuevaReserva = new Reserva(huespedEntidad,
                     fechaInicio, "14:00", fechaFin, "10:00", auxList);
+
             reservaRepo.save(nuevaReserva);
 
             observers.forEach(obs -> obs.onReservaCreada(nuevaReserva));
@@ -158,7 +185,9 @@ public class GestorReservas {
         List<Reserva> rebotadas = new ArrayList<>();
 
         for (Reserva r : reservas) {
-            if (!eliminarReserva(r).equals("Reserva eliminada exitosamente")) {
+            // CORRECCIÓN: Validar contra el mensaje real de éxito ("con exito" vs
+            // "exitosamente")
+            if (!eliminarReserva(r).equals("Reserva eliminada con exito")) {
                 rebotadas.add(r);
             }
         }

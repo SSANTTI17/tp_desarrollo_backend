@@ -35,8 +35,8 @@ public class HuespedDTO {
         this.telefono = huesped.getTelefono();
         this.ocupacion = huesped.getOcupacion();
         this.alojado = huesped.isAlojado();
-        this.direccion = null;
-
+        // CORRECCIÓN: Obtener la dirección real
+        this.direccion = huesped.getDireccion();
     }
 
     public HuespedDTO() {

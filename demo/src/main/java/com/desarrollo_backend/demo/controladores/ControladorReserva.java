@@ -18,6 +18,7 @@ public class ControladorReserva {
     @Autowired
     private GestorReservas gestorReservas;
 
+    // CU04 - Paso 1: Buscar disponibilidad
     @GetMapping("/buscar")
     public List<Map<String, Object>> buscar(
             @RequestParam String tipo,
@@ -26,7 +27,30 @@ public class ControladorReserva {
         return gestorReservas.buscarDisponibilidad(tipo, desde, hasta);
     }
 
-    // 1. Buscar reservas de un huésped (para mostrarlas en la tabla de cancelar)
+    // CU04 - Paso 2: Crear Reserva (DESCOMENTADO Y CORREGIDO)
+    @PostMapping("/crear")
+    public ResponseEntity<?> crearReserva(
+            @RequestParam String tipo,
+            @RequestParam int numero,
+            @RequestParam String fechaInicio,
+            @RequestParam String fechaFin,
+            @RequestBody(required = false) HuespedDTO titular // Recibimos el titular en el cuerpo
+    ) {
+        // Si el front no manda titular, creamos uno vacío para evitar
+        // NullPointerException
+        if (titular == null) {
+            titular = new HuespedDTO();
+        }
+
+        String resultado = gestorReservas.crearReserva(titular, tipo, numero, fechaInicio, fechaFin);
+
+        if (resultado.startsWith("Error")) {
+            return ResponseEntity.badRequest().body(Map.of("error", resultado));
+        }
+        return ResponseEntity.ok(Map.of("message", resultado));
+    }
+
+    // CU06 - Buscar reservas por huésped
     @GetMapping("/por-huesped")
     public ResponseEntity<?> buscarPorHuesped(
             @RequestParam String apellido,
@@ -42,13 +66,12 @@ public class ControladorReserva {
         }
     }
 
-    // 2. Cancelar una reserva
+    // CU06 - Cancelar reserva
     @DeleteMapping("/cancelar/{id}")
     public ResponseEntity<?> cancelarReserva(@PathVariable int id) {
         try {
             Reserva reservaDummy = new Reserva();
-
-            reservaDummy.setId(id);
+            reservaDummy.setId(id); // Esto ahora funciona gracias a tu corrección en el Modelo
 
             String resultado = gestorReservas.eliminarReserva(reservaDummy);
 
@@ -61,17 +84,4 @@ public class ControladorReserva {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
-
-    /*
-    VER
-    @PostMapping("/crear")
-    public String crearReserva(
-            @RequestParam String tipo,
-            @RequestParam int numero,
-            @RequestParam String fechaInicio, // yyyy-MM-dd
-            @RequestParam String fechaFin // yyyy-MM-dd
-    ) {
-        return gestorReservas.crearReserva(tipo, numero, fechaInicio, fechaFin);
-    }*/
-
 }

@@ -49,9 +49,10 @@ public class Huesped {
     public Huesped() {
     }
 
+    // Constructor completo actualizado con dirección
     public Huesped(String nombre, String apellido, TipoDoc tipo_documento, String nroDocumento,
             Date fechaDeNacimiento, String nacionalidad, String email,
-            String telefono, String ocupacion, boolean alojado) {
+            String telefono, String ocupacion, boolean alojado, String direccion) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.id = new HuespedPK(tipo_documento, nroDocumento);
@@ -61,8 +62,10 @@ public class Huesped {
         this.telefono = telefono;
         this.ocupacion = ocupacion;
         this.alojado = alojado;
+        this.direccion = direccion;
     }
 
+    // Constructor desde DTO actualizado
     public Huesped(HuespedDTO huespedDto) {
         this.nombre = huespedDto.getNombre();
         this.apellido = huespedDto.getApellido();
@@ -73,6 +76,8 @@ public class Huesped {
         this.telefono = huespedDto.getTelefono();
         this.ocupacion = huespedDto.getOcupacion();
         this.alojado = huespedDto.isAlojado();
+        // CORRECCIÓN: Asignar la dirección desde el DTO
+        this.direccion = huespedDto.getDireccion() != null ? huespedDto.getDireccion() : "Sin dirección";
     }
 
     // Getters
@@ -137,11 +142,15 @@ public class Huesped {
         this.email = huespedDto.getEmail();
         this.telefono = huespedDto.getTelefono();
         this.ocupacion = huespedDto.getOcupacion();
-        //alojado solo se modifica al pagar
+        // CORRECCIÓN: Actualizar dirección también
+        if (huespedDto.getDireccion() != null) {
+            this.direccion = huespedDto.getDireccion();
+        }
     }
 
     public int calcularEdad() {
-        if (this.fechaDeNacimiento == null) return 0;
+        if (this.fechaDeNacimiento == null)
+            return 0;
         LocalDate nacimiento = this.fechaDeNacimiento.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDate ahora = LocalDate.now();
         return Period.between(nacimiento, ahora).getYears();

@@ -55,6 +55,7 @@ public class Reserva {
         this.fechaEgreso = fechaEgreso;
         HoraEgreso = horaEgreso;
         this.habitacionesReservadas = habitacionesReservadas;
+        this.huespedRef = huesped;
     }
 
     // getters
@@ -137,5 +138,9 @@ public class Reserva {
 
     public void setEstadia(Estadia estadia) {
         this.estadia = estadia;
+    }
+
+    public Huesped getHuespedRef() {
+        return huespedRef;
     }
 }

@@ -1,5 +1,6 @@
 package com.desarrollo_backend.demo.modelo.factura;
 
+import com.desarrollo_backend.demo.dtos.FacturaDTO;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import java.util.List;
 import java.util.ArrayList;
@@ -50,6 +51,17 @@ public class Factura {
         this.totalAPagar = totalAPagar;
         this.valorEstadia = valorEstadia;
         formasDePago = new ArrayList<>();
+    }
+
+    // contrsuctor correcto
+    public Factura(FacturaDTO dto) {
+        this.tipoFactura = dto.getTipoFactura();
+        this.valorEstadia = dto.getValorEstadia();
+        this.totalAPagar = dto.getTotalAPagar();
+        this.vuelto = dto.getVuelto();
+        this.pagado = dto.getPagado();
+        this.responsablePago = dto.getResponsablePago();
+        this.formasDePago = new ArrayList<>(); // Inicializamos lista vacía
     }
 
     public int getId() {
