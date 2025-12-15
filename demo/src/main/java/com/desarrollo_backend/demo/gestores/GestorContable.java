@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
-
+import java.util.Date;
 import com.desarrollo_backend.demo.modelo.responsablePago.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
@@ -16,6 +16,11 @@ import com.desarrollo_backend.demo.repository.ResponsablePagoRepository;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
+import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
+import com.desarrollo_backend.demo.repository.EstadiaRepository;
+import com.desarrollo_backend.demo.repository.FacturaRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class GestorContable {
@@ -28,6 +33,11 @@ public class GestorContable {
     private ResponsablePagoRepository responsablePagoRepository;
     @Autowired
     private GestorHuesped gestorHuesped;
+    @Autowired
+    private EstadiaRepository estadiaRepository;
+    @Autowired
+    private FacturaRepository FacturaRepository;
+
 
     public ResponsablePago registrarResponsable(ResponsablePago responsable) {
 
@@ -119,9 +129,9 @@ public class GestorContable {
         ResponsablePago responsable = null;
 
         if (huesped != null) {
-        //    responsable = this.buscarResponsablePorHuesped(huesped);
+            responsable = this.buscarResponsablePorHuesped(huesped);
         } else if (CUIT != null && !CUIT.isEmpty()) {
-        //    responsable = this.buscarResponsablePorCuit(CUIT);
+            responsable = this.buscarResponsablePorCuit(CUIT);
         }
 
         // No se encontró responsable (Huesped es null y Cuit es null)
@@ -130,15 +140,13 @@ public class GestorContable {
         }
 
         float valorEstadia = estadia.getPrecio(); 
-
         // Consumos
-        float totalConsumos = estadia.totalConsumos(); // Método que ya existe en tu entidad Estadia
-
+        float totalConsumos = estadia.totalConsumos(); 
         float totalAPagar = valorEstadia + totalConsumos;
 
         // 5. DETERMINAR TIPO FACTURA (A o B)
         TipoFactura tipoFactura;
-        if(responsable instanceof PersonaFisica pf){
+        if(responsable instanceof PersonaFisica){
             tipoFactura = TipoFactura.A; 
         }else{
             tipoFactura = TipoFactura.B; // (Consumidor Final)
@@ -153,10 +161,35 @@ public class GestorContable {
         factura.setPagado(false); // Aún no se paga
         factura.setVuelto(0);
 
+        estadia.setFactura(factura);
         return factura;
     }
 
+    public ResponsablePago buscarResponsablePorCuit(String cuit) {
+        return responsablePagoRepository.findById(cuit).orElse(null);
+    }
 
+    public ResponsablePago buscarResponsablePorHuesped(Huesped huesped) {
+        return personaFisicaRepository.findByRefHuesped(huesped).orElse(null);
+    }
+
+    public Estadia buscarEstadiaPorCheckout(int numero, TipoHabitacion tipo, Date fechaFin) {
+        return estadiaRepository.buscarPorHabitacionYFechaFin(numero, tipo, fechaFin)
+                .orElse(null);
+    }
+
+    public Estadia buscarEstadia(int idEstadia) {
+        return estadiaRepository.findById(idEstadia)
+            .orElseThrow(() -> new RuntimeException("Estadía no encontrada"));
+    }
+
+    @Transactional
+    public Factura crearFacturaReal(Factura factura, Estadia estadia) {
+        
+        estadia.setFactura(factura);
+        estadiaRepository.save(estadia);
+        return FacturaRepository.save(factura);
+    }
 }
 
 

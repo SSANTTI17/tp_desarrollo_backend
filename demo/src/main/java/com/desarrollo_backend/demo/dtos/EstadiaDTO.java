@@ -18,6 +18,7 @@ public class EstadiaDTO {
     private Factura factura;
     private Reserva reserva;
     private List<Consumo> consumos;
+    private int id;
 
     public void agregarConsumo(Consumo c) {
         consumos.add(c);
@@ -43,7 +44,9 @@ public class EstadiaDTO {
     public TipoHabitacion geTipoHabitacion() {
         return habitacion.getTipo();
     }
-
+    public int getId() {
+        return id;
+    }
     public float getPrecio() {
         return precio;
     }
@@ -69,6 +72,10 @@ public class EstadiaDTO {
         this.precio = precio;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+    
     public void geTipoHabitacion(TipoHabitacion t) {
         habitacion.setTipo(t);
     }

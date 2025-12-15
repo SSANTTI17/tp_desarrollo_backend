@@ -1,19 +1,20 @@
 package facade;
 
 import java.util.List;
-import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.desarrollo_backend.demo.dtos.EstadiaDTO;
+import com.desarrollo_backend.demo.dtos.FacturaDTO;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.*;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
-
+@Service
 public class fachadaHotel {
 
     @Autowired
@@ -43,21 +44,39 @@ public class fachadaHotel {
         return huespedes;
     }
 
-    //public Factura generarFactura(HuespedDTO huesped, String CUIT, EstadiaDTO estadia) {
-        //Huesped entidad = null;
-        //if(huesped.getNroDocumento() != null){
-            //List<Huesped> entidades = gestorHuespedes.buscarHuespedes(huesped); NICO TIENE QUE ARREGLAR ESTO
+    public Factura generarFactura(HuespedDTO huesped, String CUIT, EstadiaDTO estadia, HabitacionDTO habitacion) {
+        Huesped entidad = null;
+        if(huesped.getNroDocumento() != null){
+            List<Huesped> entidades = gestorHuespedes.buscarHuespedes(huesped); 
             //NUNCA debería entrar acá porque el huésped fue seleccionado antes
-            //if (entidades.isEmpty()) {
-            //    throw new RuntimeException("No existe el huésped");
-            //}
-            //entidad = entidades.get(0);
-        //}
-        //Estadia entidadEstadia = new Estadia(estadia); HACER EL CONSTRUCTOR EN ESTADIA DTO->ESTADIA
-        //Estadia entidadEstadia = new Estadia();
-        //Factura factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, entidadEstadia);
+            if (entidades.isEmpty()) {
+                throw new RuntimeException("No existe el huésped");
+            }
+            entidad = entidades.get(0);
+        }
+        Estadia estadiaReal = gestorContable.buscarEstadiaPorCheckout(
+            habitacion.getNumero(),
+            habitacion.getTipo(),
+            estadia.getFechaFin() // Fecha de Check-out
+        );
+
+        Factura factura = null;
+        try{
+            factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
+        }catch(Exception e){
+            throw new RuntimeException("El huesped debe ser mayor a 18 años" + e.getMessage());
+        }
+        return factura;
+    }
+
+    public Factura confirmarFactura(Integer idEstadia, FacturaDTO factura, String cuitResponsable) {
         
-        //return factura;
+        Estadia estadia = gestorContable.buscarEstadia(idEstadia);
         
-    //}
+        ResponsablePago responsable = gestorContable.buscarResponsablePorCuit(cuitResponsable); // El CUIT es el ID
+        
+        if (responsable == null) throw new RuntimeException("Responsable no encontrado");
+        Factura facturaReal = new Factura(factura);
+        return gestorContable.crearFacturaReal(facturaReal, estadia);
+    }
 }
