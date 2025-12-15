@@ -18,96 +18,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.desarrollo_backend.demo.gestores.GestorContable;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
-/*
-@Controller
-public class ControladorHuesped {
-
-    @Autowired
-    private GestorHuesped gestorHuesped;
-
-    @Autowired
-    private GestorContable gestorContable;
-
-    @GetMapping("/altaHuesped")
-    public String altaHuesped(Model model) {
-        model.addAttribute("huesped", new HuespedDTO());
-        model.addAttribute("tiposDocumento", TipoDoc.values());
-        return "altaHuesped";
-    }
-
-    @PostMapping("/altaHuesped")
-    public String crearHuesped(@ModelAttribute HuespedDTO huespedDTO) {
-        gestorHuesped.darDeAltaHuesped(huespedDTO);
-        return "redirect:/";
-    }
-
-    @GetMapping("/buscarHuesped")
-    public String buscarHuesped(Model model) {
-        model.addAttribute("tiposDocumento", TipoDoc.values());
-        return "buscarHuesped";
-    }
-
-    @GetMapping("/api/huespedes/buscar")
-    @ResponseBody
-    public ResponseEntity<List<HuespedDTO>> buscarHuespedesAPI(
-            @RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String apellido,
-            @RequestParam(required = false) String tipoDocumento,
-            @RequestParam(required = false) String documento) {
-
-        HuespedDTO filtro = new HuespedDTO();
-
-        if (nombre != null && !nombre.isEmpty())
-            filtro.setNombre(nombre);
-        if (apellido != null && !apellido.isEmpty())
-            filtro.setApellido(apellido);
-        if (tipoDocumento != null && !tipoDocumento.trim().isEmpty()) {
-            try {
-                filtro.setTipo_documento(TipoDoc.valueOf(tipoDocumento));
-            } catch (IllegalArgumentException e) {
-                System.out.println("Tipo de documento inválido: " + tipoDocumento);
-            }
-        }
-        if (documento != null && !documento.isEmpty())
-            filtro.setNroDocumento(documento);
-
-        List<HuespedDTO> resultados = gestorHuesped.buscarHuespedes(filtro);
-        return ResponseEntity.ok(resultados);
-    }
-
-    @GetMapping("/estado")
-    public String mostrarPaginaEstado() {
-        return "estadoHabitacion";
-    }
-
-    @GetMapping("/reservar")
-    public String mostrarPaginaReserva() {
-        return "reservarHabitacion";
-    }
-
-    @PostMapping("/api/huespedes/crear")
-    @ResponseBody
-    public ResponseEntity<?> crearHuespedAPI(@RequestBody ContenedorDeAltaHuesped request) {
-        try {
-            Huesped huespedGuardado = gestorHuesped.darDeAltaHuesped(request.getHuesped());
-            if (request.getPersonaFisica() != null &&
-                    request.getPersonaFisica().getCUIT() != null &&
-                    !request.getPersonaFisica().getCUIT().isEmpty()) {
-
-                gestorContable.registrarPersonaFisica(request.getPersonaFisica(), huespedGuardado);
-            }
-
-            return ResponseEntity.ok().body("{\"message\": \"Huesped y Responsable creados exitosamente\"}");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
-    }
-}
-*/
 
 @RestController
 @RequestMapping("/api/huespedes")
@@ -175,20 +88,34 @@ public class ControladorHuesped {
         }
     }
 
-    @PutMapping("/api/huespedes/modificar")
-    public ResponseEntity<?> modificarHuesped(@RequestBody HuespedDTO huespedDTO) {
-        //el huespedDTO recibido tiene los datos modificados 
+    @PutMapping("/modificar")
+    public ResponseEntity<?> modificarHuesped(@RequestBody HuespedDTO modificado, @RequestParam boolean modificoPK) {
 
+        // 1. Verificamos si la "nueva" PK ya existe en la base de datos
+        HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
+        Huesped huespedExistente = gestorHuesped.obtenerHuespedPorId(idNuevo);
+
+        // 2. Validación: Si cambió la PK y ya existe alguien con ese documento -> ERROR
+        if (modificoPK && huespedExistente != null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "El tipo y número de documento ya existen en el sistema"));
+        }
+
+        // 3. Si pasa la validación, procedemos a guardar
         try {
-            gestorContable.modificarHuesped(huespedDTO);
-            gestorHuesped.modificarHuesped(huespedDTO);
+            // Actualizamos datos contables 
+            gestorContable.modificarHuesped(modificado);
+            
+            // Actualizamos datos del huésped y dirección
+            gestorHuesped.modificarHuesped(modificado);
+
             return ResponseEntity.ok(
                 Map.of("message", "La operación ha culminado con éxito")
             );
 
         } catch (Exception e) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", e.getMessage()));
+                    .body(Map.of("error", "Error al procesar la modificación: " + e.getMessage()));
         }
     }
 

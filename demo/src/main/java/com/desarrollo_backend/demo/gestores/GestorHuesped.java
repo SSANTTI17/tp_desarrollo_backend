@@ -113,7 +113,7 @@ public class GestorHuesped{
 
     public Huesped obtenerHuespedPorId(HuespedPK id) {
         return huespedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("El huésped no existe."));
+                .orElse(null); // (new RuntimeException("El huésped no existe."))
     }
 
 
