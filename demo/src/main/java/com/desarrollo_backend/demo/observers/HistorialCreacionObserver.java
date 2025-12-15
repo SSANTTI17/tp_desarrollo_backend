@@ -3,6 +3,7 @@ package com.desarrollo_backend.demo.observers;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.desarrollo_backend.demo.modelo.habitacion.EstadoHabitacion;
 import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
@@ -11,6 +12,7 @@ import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 
+@Component
 public class HistorialCreacionObserver implements ReservaObserver {
 
     @Autowired
