@@ -38,8 +38,7 @@ public class GestorReservas {
 
     /**
      * Busca la disponibilidad de habitaciones de un tipo dado para un rango de
-     * fechas.
-     * Retorna una lista de pares fecha - disponibilidad.
+     * fechas. Retorna una lista de pares fecha - disponibilidad.
      */
     public List<Map<String, Object>> buscarDisponibilidad(String tipoString, String desdeStr, String hastaStr) {
         List<Map<String, Object>> listaResultado = new ArrayList<>();
@@ -121,8 +120,7 @@ public class GestorReservas {
 
     /**
      * Consulta reservas por huesped. Si no se especifica nombre, consulta por
-     * apellido.
-     * Si no se especifica apellido, lanza ReservaNotFoundException.
+     * apellido. Si no se especifica apellido, lanza ReservaNotFoundException.
      */
     public List<Reserva> consultarReservas(HuespedDTO huesped)
             throws ReservaNotFoundException {
@@ -144,6 +142,9 @@ public class GestorReservas {
         return reservas;
     }
 
+    /**
+     * Consulta reservas por habitacion, dado numero y tipo, y fecha en la bd
+     */
     public Reserva consultarReservas(int numeroHabitacion, TipoHabitacion tipoHabitacion, Date fecha) {
         return reservaRepo.ReservasPorHabitacionYFecha(numeroHabitacion, tipoHabitacion, fecha);
     }

@@ -7,8 +7,11 @@ import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
+import com.desarrollo_backend.demo.modelo.habitacion.HistorialEstadoHabitacion;
+import com.desarrollo_backend.demo.modelo.habitacion.EstadoHabitacion;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
+import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,21 +39,25 @@ public class GestorReservasTest {
     @Autowired
     private HabitacionRepository habitacionRepo;
 
+    @Autowired
+    private HistorialEstadoHabitacionRepository historialRepo;
+
     /**
-     * Prueba de Integración: Verifica que la creación de una reserva
-     * no solo pasa la lógica, sino que también guarda correctamente
-     * el registro en la base de datos (H2).
+     * Prueba de Integración: Verificar que la creación de una reserva
+     * guarda correctamente el registro en la base de datos (H2).
      */
     @Test
     public void testCrearReserva_PersistenciaExitosa() {
         // --- ARRANGE (Preparación de datos) ---
         HuespedDTO huesped = null;
 
-        huesped = new HuespedDTO(new Huesped("Laura", "Gomez", TipoDoc.DNI,
-                "87654321", null, "Chile", "laura@test.com", "1122334455", "Hermana", false));
+        huesped = new HuespedDTO();
+        huesped.setApellido("Gomez");
+        huesped.setNombre("Laura");
+        huesped.setTelefono("12345678");
 
         int numeroHab = 101;
-        String fechaInicioStr = "15/12/2026"; // Usamos una fecha futura para no chocar
+        String fechaInicioStr = "15/12/2026";
         String fechaFinStr = "17/12/2026";
 
         Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
@@ -81,18 +88,87 @@ public class GestorReservasTest {
 
     }
 
+    /**
+     * Prueba de integración: verifico que al crear una reserva
+     * también se esté creando su historial correspondiente
+     */
+    @Test
+    public void testCrearReserva_PersistenciaExitosaHistorial() {
+        // --- ARRANGE (Preparación de datos) ---
+        HuespedDTO huesped = null;
+
+        huesped = new HuespedDTO();
+        huesped.setApellido("Gomez");
+        huesped.setNombre("Laura");
+        huesped.setTelefono("12345678");
+
+        int numeroHab = 101;
+        String fechaInicioStr = "15/12/2026"; // Usamos una fecha futura para no chocar
+        String fechaFinStr = "17/12/2026";
+
+        Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
+        habitacionRepo.save(hab);
+        reservaRepo.findByApellido("Gomez").forEach(reservaRepo::delete);
+
+        // --- ACT (Ejecución de la lógica completa) ---
+        // Esto llama al GestorReservas, que utiliza el ReservaRepository REAL para
+        // guardar en H2
+        String resultadoOperacion = gestorReservas.crearReserva(
+                huesped, TipoHabitacion.DE.toString(), numeroHab, fechaInicioStr, fechaFinStr);
+
+        // --- ASSERT (Verificación) ---
+
+        // 1. Verificar la respuesta del Gestor
+        assertEquals("¡Reserva Exitosa!", resultadoOperacion,
+                "El gestor debería retornar éxito al insertar.");
+
+        // Buscar la reserva recién creada por el apellido del huésped
+        List<Reserva> reservas = reservaRepo.findByApellido("Gomez");
+
+        // 2. Verificar que el Observer creó el historial correctamente
+        List<HistorialEstadoHabitacion> listaEstados = historialRepo.findByHabitacion(
+                hab.getNumero(),
+                hab.getTipo());
+
+        // Aseguramos que se encontró exactamente UNA reserva para ese huésped
+        assertFalse(reservas.isEmpty(), "La reserva no se encontró en la base de datos.");
+        assertEquals(1, reservas.size(), "Se debe haber guardado una sola reserva.");
+
+        // 3. Verificar que el Observer creó el historial con el estado correcto
+        assertFalse(listaEstados.isEmpty(),
+                "El Observer debería haber creado un registro en el historial.");
+
+        // Verificar que el estado es "Reservada"
+        HistorialEstadoHabitacion historial = listaEstados.stream()
+                .filter(h -> h.getEstado() == EstadoHabitacion.Reservada)
+                .findFirst()
+                .orElse(null);
+
+        assertNotNull(historial,
+                "Debería existir un historial con estado 'Reservada'.");
+
+        // Verificar que las fechas coinciden con la reserva
+        Reserva reservaCreada = reservas.get(0);
+        assertEquals(reservaCreada.getFechaIngreso(), historial.getFechaInicio(),
+                "La fecha de inicio del historial debe coincidir con la reserva.");
+        assertEquals(reservaCreada.getFechaEgreso(), historial.getFechaFin(),
+                "La fecha de fin del historial debe coincidir con la reserva.");
+
+    }
+
     @Test
     public void testEliminarReserva_EliminacionExitosa() {
 
         // preparo la reserva a eliminar
         int numeroHab = 101;
-        Date fechaInicio = null;
-        Date fechaFin = null;
+        final Date fechaInicio;
+        final Date fechaFin;
         try {
             fechaInicio = new SimpleDateFormat("yyyy/MM/dd").parse("2026/12/15");
             fechaFin = new SimpleDateFormat("yyyy/MM/dd").parse("2026/12/18");
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("Error parseando fechas en el test", e);
         }
         Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
         habitacionRepo.save(hab);
@@ -106,6 +182,18 @@ public class GestorReservasTest {
                 habitacionesReservadas);
 
         reservaRepo.save(reservaAEliminar);
+
+        // Crear manualmente el historial (simulando que el Observer de creación ya se
+        // ejecutó)
+        HistorialEstadoHabitacion historialCreado = new HistorialEstadoHabitacion(
+                hab, "14:00", fechaInicio, "14:00", fechaFin, EstadoHabitacion.Reservada);
+        historialRepo.save(historialCreado);
+
+        // Verificar que el historial existe antes de eliminar
+        List<HistorialEstadoHabitacion> historialAntes = historialRepo.findByHabitacion(
+                hab.getNumero(), hab.getTipo());
+        assertFalse(historialAntes.isEmpty(),
+                "El historial debería existir antes de eliminar la reserva.");
 
         // ejecuto el test
         String resultadoOperacion = gestorReservas.eliminarReserva(reservaAEliminar);
@@ -124,6 +212,108 @@ public class GestorReservasTest {
 
         // Aseguramos que la reserva fue eliminada correctamente de la base de datos
         assertTrue(reservas.isEmpty(), "La reserva debería haber sido eliminada de la base de datos.");
+
+        // 3. Verificar que el Observer también eliminó el historial
+        List<HistorialEstadoHabitacion> historialDespues = historialRepo.findByHabitacion(
+                hab.getNumero(), hab.getTipo());
+
+        // Verificar que el historial con estado "Reservada" fue eliminado
+        boolean existeHistorialReservada = historialDespues.stream()
+                .anyMatch(h -> h.getEstado() == EstadoHabitacion.Reservada
+                        && h.getFechaInicio().equals(fechaInicio)
+                        && h.getFechaFin().equals(fechaFin));
+
+        assertFalse(existeHistorialReservada,
+                "El Observer debería haber eliminado el historial con estado 'Reservada'.");
+
+    }
+
+    /**
+     * test de integracion: verifico que los observers se
+     * eliminan correctamente al eliminar una reserva
+     */
+    @Test
+    public void testEliminarReserva_EliminacionExitosaHistorial() {
+
+        // preparo la reserva a eliminar
+
+        // habitacion asociada
+        int numeroHab = 101;
+        final Date fechaInicio;
+        final Date fechaFin;
+        try {
+            fechaInicio = new SimpleDateFormat("yyyy/MM/dd").parse("2026/12/15");
+            fechaFin = new SimpleDateFormat("yyyy/MM/dd").parse("2026/12/18");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error parseando fechas en el test", e);
+        }
+        Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
+        habitacionRepo.save(hab);
+
+        // formato para guardar en la reserva
+        List<Habitacion> habitacionesReservadas = new ArrayList<>();
+        habitacionesReservadas.add(hab);
+
+        // huesped asociado (solo campos necesarios para reservar)
+        HuespedDTO huesped = new HuespedDTO();
+        huesped.setApellido("Gomez");
+        huesped.setNombre("Laura");
+        huesped.setTelefono("12345678");
+
+        // creacion de la reserva
+        Reserva reservaAEliminar = new Reserva();
+        reservaAEliminar.setApellido(huesped.getApellido());
+        reservaAEliminar.setNombre(huesped.getNombre());
+        reservaAEliminar.setTelefono(huesped.getTelefono());
+        reservaAEliminar.setFechaIngreso(fechaInicio);
+        reservaAEliminar.setFechaEgreso(fechaFin);
+        reservaAEliminar.setHabitacionesReservadas(habitacionesReservadas);
+
+        reservaRepo.save(reservaAEliminar);
+
+        // creacion del historial asociado a la reserva como si se hubiera
+        // guardado con Observer
+        HistorialEstadoHabitacion historialCreado = new HistorialEstadoHabitacion(
+                hab, "14:00", fechaInicio, "14:00", fechaFin, EstadoHabitacion.Reservada);
+        historialRepo.save(historialCreado);
+
+        // Verificar que el historial existe antes de eliminar
+        List<HistorialEstadoHabitacion> historialAntes = historialRepo.findByHabitacion(
+                hab.getNumero(), hab.getTipo());
+        assertFalse(historialAntes.isEmpty(),
+                "El historial debería existir antes de eliminar la reserva.");
+
+        // ejecuto el test
+        String resultadoOperacion = gestorReservas.eliminarReserva(reservaAEliminar);
+
+        // verificacion
+
+        // 1. Verificar la respuesta del Gestor
+        assertEquals("Reserva eliminada con exito", resultadoOperacion,
+                "El gestor debería retornar éxito en eliminar.");
+
+        // 2. Verificar la Persistencia REAL en H2 (La clave de la prueba de
+        // integración)
+
+        // Buscar la reserva eliminada por el apellido del huésped
+        List<Reserva> reservas = reservaRepo.findByApellido("Perez");
+
+        // Aseguramos que la reserva fue eliminada correctamente de la base de datos
+        assertTrue(reservas.isEmpty(), "La reserva debería haber sido eliminada de la base de datos.");
+
+        // 3. Verificar que el Observer también eliminó el historial
+        List<HistorialEstadoHabitacion> historialDespues = historialRepo.findByHabitacion(
+                hab.getNumero(), hab.getTipo());
+
+        // Verificar que el historial con estado "Reservada" fue eliminado
+        boolean existeHistorialReservada = historialDespues.stream()
+                .anyMatch(h -> h.getEstado() == EstadoHabitacion.Reservada
+                        && h.getFechaInicio().equals(fechaInicio)
+                        && h.getFechaFin().equals(fechaFin));
+
+        assertFalse(existeHistorialReservada,
+                "El Observer debería haber eliminado el historial con estado 'Reservada'.");
 
     }
 
