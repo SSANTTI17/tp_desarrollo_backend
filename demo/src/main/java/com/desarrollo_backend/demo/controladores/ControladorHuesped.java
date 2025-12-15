@@ -2,6 +2,7 @@ package com.desarrollo_backend.demo.controladores;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -59,8 +60,14 @@ public class ControladorHuesped {
         if (documento != null && !documento.isEmpty())
             filtro.setNroDocumento(documento);
 
-        List<HuespedDTO> resultados = gestorHuesped.buscarHuespedes(filtro);
-        return ResponseEntity.ok(resultados);
+        List<Huesped> resultados = gestorHuesped.buscarHuespedes(filtro);
+        
+        //transformacion de huesped a HuespedDTO
+        List<HuespedDTO> dtos = resultados.stream()
+            .map(huesped -> new HuespedDTO(huesped)) 
+            .collect(Collectors.toList());
+
+        return ResponseEntity.ok(dtos);
     }
 
     @PostMapping("/crear")

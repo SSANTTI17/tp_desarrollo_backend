@@ -2,7 +2,6 @@ package com.desarrollo_backend.demo.gestores;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,7 +29,7 @@ public class GestorHuesped{
         return huespedRepository.save(huespedGuardar);
     }
 
-    public List<HuespedDTO> buscarHuespedes(HuespedDTO filtro) {
+    public List<Huesped> buscarHuespedes(HuespedDTO filtro) {
         Specification<Huesped> spec = Specification.unrestricted(); // base vacía
         String apellido = filtro.getApellido();
         String nombre = filtro.getNombre();
@@ -64,9 +63,7 @@ public class GestorHuesped{
         List<Huesped> entidades = huespedRepository.findAll(spec);
 
         
-        return entidades.stream()
-            .map(this::convertirADTO) // Llamamos a un método auxiliar por cada huesped
-            .collect(Collectors.toList());
+        return entidades;
     }
 
     private HuespedDTO convertirADTO(Huesped entidad) {
