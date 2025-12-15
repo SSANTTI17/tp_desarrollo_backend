@@ -144,6 +144,10 @@ public class GestorReservas {
         return reservas;
     }
 
+    public Reserva consultarReservas(int numeroHabitacion, TipoHabitacion tipoHabitacion, Date fecha) {
+        return reservaRepo.ReservasPorHabitacionYFecha(numeroHabitacion, tipoHabitacion, fecha);
+    }
+
     /**
      * Elimina una lista de reservas. Actualiza observers. Transactional
      */

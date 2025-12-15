@@ -1,5 +1,6 @@
 package com.desarrollo_backend.demo.gestores;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
@@ -116,6 +118,12 @@ public class GestorHuesped{
                 .orElse(null); // (new RuntimeException("El huésped no existe."))
     }
 
+    public List<Huesped> buscarPorReservas(Reserva reserva) {
+    if (reserva == null) {
+        return new ArrayList<>();
+    }
+    return huespedRepository.findByReservas(reserva);
+    }
 
 }
 

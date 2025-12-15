@@ -75,7 +75,7 @@ public class GestorHabitaciones {
         List<Habitacion> habitaciones = habitacionRepository.findAll();
         List<HabitacionDTO> dtos = new ArrayList<>();
 
-        // Generamos la lista de fechas segura sin desplazamiento horario
+        // Generamos la lista de fechas entre inicio y fin
         List<Date> rangoFechas = generarRangoFechas(fechaInicio, fechaFin);
 
         for (Habitacion h : habitaciones) {
@@ -86,7 +86,8 @@ public class GestorHabitaciones {
             dto.setCostoNoche(h.getCostoNoche());
 
             List<EstadoHabitacion> estados = new ArrayList<>();
-
+            
+            // Para cada día, preguntamos el estado a la entidad
             for (Date fecha : rangoFechas) {
                 estados.add(h.getEstadoEnFecha(fecha));
             }
@@ -176,7 +177,6 @@ public class GestorHabitaciones {
         while (!current.isAfter(end)) {
             // Convertimos LocalDate a Date usando el inicio del día en la zona horaria del
             // sistema
-            // Esto evita que se convierta en "21:00 del día anterior"
             dates.add(Date.from(current.atStartOfDay(ZoneId.systemDefault()).toInstant()));
             current = current.plusDays(1);
         }

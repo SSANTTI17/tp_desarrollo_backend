@@ -1,5 +1,8 @@
 package com.desarrollo_backend.demo.modelo.huesped;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
@@ -135,5 +138,12 @@ public class Huesped {
         this.telefono = huespedDto.getTelefono();
         this.ocupacion = huespedDto.getOcupacion();
         //alojado solo se modifica al pagar
+    }
+
+    public int calcularEdad() {
+        if (this.fechaDeNacimiento == null) return 0;
+        LocalDate nacimiento = this.fechaDeNacimiento.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate ahora = LocalDate.now();
+        return Period.between(nacimiento, ahora).getYears();
     }
 }

@@ -3,6 +3,7 @@ package com.desarrollo_backend.demo.gestores;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
 
@@ -12,6 +13,9 @@ import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.repository.PersonaFisicaRepository;
 import com.desarrollo_backend.demo.repository.PersonaJuridicaRepository;
 import com.desarrollo_backend.demo.repository.ResponsablePagoRepository;
+import com.desarrollo_backend.demo.modelo.estadias.Estadia;
+import com.desarrollo_backend.demo.modelo.factura.Factura;
+import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
 
 @Service
 public class GestorContable {
@@ -101,4 +105,59 @@ public class GestorContable {
         }
 
     }
+
+    public Factura generarFacturaParaHuesped(Huesped huesped, String CUIT, Estadia estadia) throws Exception {
+
+        // VALIDACIÓN: MENOR DE EDAD
+        if (huesped != null) {
+            if (huesped.calcularEdad() < 18) {
+                throw new Exception("Error: El huésped seleccionado es menor de edad y no puede ser responsable de pago.");
+            }
+        }
+
+        // 2. OBTENER RESPONSABLE DE PAGO
+        ResponsablePago responsable = null;
+
+        if (huesped != null) {
+        //    responsable = this.buscarResponsablePorHuesped(huesped);
+        } else if (CUIT != null && !CUIT.isEmpty()) {
+        //    responsable = this.buscarResponsablePorCuit(CUIT);
+        }
+
+        // No se encontró responsable (Huesped es null y Cuit es null)
+        if (responsable == null) {
+            return null; // Retornar NULL indicará al Controller que debe redirigir a "Alta Responsable"
+        }
+
+        float valorEstadia = estadia.getPrecio(); 
+
+        // Consumos
+        float totalConsumos = estadia.totalConsumos(); // Método que ya existe en tu entidad Estadia
+
+        float totalAPagar = valorEstadia + totalConsumos;
+
+        // 5. DETERMINAR TIPO FACTURA (A o B)
+        TipoFactura tipoFactura;
+        if(responsable instanceof PersonaFisica pf){
+            tipoFactura = TipoFactura.A; 
+        }else{
+            tipoFactura = TipoFactura.B; // (Consumidor Final)
+        }
+
+        // 6. ARMAR EL OBJETO FACTURA
+        Factura factura = new Factura();
+        factura.setResponsablePago(responsable);
+        factura.setTipoFactura(tipoFactura);
+        factura.setValorEstadia(valorEstadia);
+        factura.setTotalAPagar(totalAPagar);
+        factura.setPagado(false); // Aún no se paga
+        factura.setVuelto(0);
+
+        return factura;
+    }
+
+
 }
+
+
+
