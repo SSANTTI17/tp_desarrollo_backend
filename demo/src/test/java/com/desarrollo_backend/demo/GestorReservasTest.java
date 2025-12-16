@@ -1,6 +1,5 @@
 package com.desarrollo_backend.demo;
 
-import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorReservas;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
@@ -21,11 +20,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,85 +46,31 @@ public class GestorReservasTest {
 
         @Autowired
         private HuespedRepository huespedRepo; // AGREGADO
-        /*
-         * @Test
-         * public void buscarDisponibilidad_Exitosa()
-         * String tipoString; String desdeStr; String hastaStr;
-         * List<Map<String, Object>> listaResultado = new ArrayList<>();
-         * 
-         * TipoHabitacion tipoEnum = TipoHabitacion.fromString(tipoString);
-         * if (tipoEnum == null)
-         * return listaResultado;
-         * 
-         * Date desde = parsearFechaFront(desdeStr);
-         * Date hasta = parsearFechaFront(hastaStr);
-         * 
-         * if (desde == null || hasta == null || desde.after(hasta))
-         * return listaResultado;
-         * 
-         * List<Date> rango = generarRangoFechas(desde, hasta);
-         * 
-         * for (Date fecha : rango) {
-         * boolean sd1 = verificarLibre(1, tipoEnum, fecha);
-         * boolean sd2 = verificarLibre(2, tipoEnum, fecha);
-         * 
-         * Map<String, Object> fila = new HashMap<>();
-         * fila.put("fecha", new SimpleDateFormat("dd/MM/yyyy").format(fecha));
-         * fila.put("sd1", sd1);
-         * fila.put("sd2", sd2);
-         * 
-         * listaResultado.add(fila);
-         * }
-         * return listaResultado;
-         * }
-         * 
-         * /**
-         * Test unitario: parseo de string a Date
-         * (tipo de dato de la base de datos)
-         */
-
+        
         @Test
-        private void parsearFechaFront_ExitoCasoGuion() {
-                // String f = "2025-12-12";
-                // Date resultado = gestorReservas.parsearFechaFront(f);
+        public void buscarDisponibilidad_Exitosa(){
+        
+        TipoHabitacion tipoEnum = TipoHabitacion.DE;
+        int numeroHab = 1;
+        Habitacion hab = new Habitacion(tipoEnum, numeroHab, 0);
+        habitacionRepo.save(hab);
 
-                // VER
-        }
+        final String desdeStr = "15/12/2026";
+        final String hastaStr = "16/12/2026";
 
-        /**
-         * Genera un rango de fechas entre dos fechas dadas
-         */
-        /*
-         * private List<Date> generarRangoFechas() {
-         * 
-         * Date d1 = new S
-         * List<Date> lista = new ArrayList<>();
-         * Calendar cal = Calendar.getInstance();
-         * cal.setTime(d1);
-         * while (!cal.getTime().after(d2)) {
-         * lista.add(cal.getTime());
-         * cal.add(Calendar.DAY_OF_MONTH, 1);
-         * }
-         * return lista;
-         * }
-         */
-
-        /**
-         * Verifica si una habitacion esta libre en una fecha dada
-         */
-        private boolean verificarLibre(int numero, TipoHabitacion tipo, Date fecha) {
-                List<HistorialEstadoHabitacion> historial = historialRepo.findByHabitacion(numero, tipo);
-                for (HistorialEstadoHabitacion h : historial) {
-                        if (!fecha.before(h.getFechaInicio()) && !fecha.after(h.getFechaFin())) {
-                                if (h.getEstado() == EstadoHabitacion.Ocupada
-                                                || h.getEstado() == EstadoHabitacion.Reservada) {
-                                        return false;
-                                }
-                        }
-                }
-                return true;
-        }
-
+        List<Map<String, Object>> listaResultado = gestorReservas.buscarDisponibilidad(tipoEnum.toString(), desdeStr,hastaStr);
+        
+        assertNotNull(listaResultado, "La lista no debería ser nula.");
+        assertFalse(listaResultado.isEmpty(), "La lista no debería estar vacía.");
+        assertEquals(2, listaResultado.size(), "Debería devolver 2 fechas en el rango 15-16 dic");
+        
+        // Verificar estructura del primer Map  
+        Map<String, Object> primerDia = listaResultado.get(0);
+        assertEquals("15/12/2026", primerDia.get("fecha"), "Primera fecha debe ser 15/12/2026");
+        assertTrue(primerDia.containsKey(tipoEnum.toString()+"-"+hab.getNumero()), "Map debe contener clave DE-1");
+        
+}
+        
         /**
          * Prueba de Integración: Verificar que la creación de una reserva
          * guarda correctamente el registro en la base de datos (H2).

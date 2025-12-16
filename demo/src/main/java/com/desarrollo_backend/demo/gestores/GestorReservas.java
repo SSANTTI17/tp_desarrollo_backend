@@ -37,7 +37,8 @@ public class GestorReservas {
 
     /**
      * Busca la disponibilidad de habitaciones de un tipo dado para un rango de
-     * fechas. Retorna una lista de pares fecha - disponibilidad.
+     * fechas en formato "dd/MM/yyyy". Retorna una lista de {fecha , Tipo-nro , tipo-nro etc} .
+     * con formato {dd/MM/yyyy" - true/false , etc}.
      */
     public List<Map<String, Object>> buscarDisponibilidad(String tipoString, String desdeStr, String hastaStr) {
         List<Map<String, Object>> listaResultado = new ArrayList<>();
@@ -54,14 +55,17 @@ public class GestorReservas {
 
         List<Date> rango = generarRangoFechas(desde, hasta);
 
-        for (Date fecha : rango) {
-            boolean sd1 = verificarLibre(1, tipoEnum, fecha);
-            boolean sd2 = verificarLibre(2, tipoEnum, fecha);
+        List<Habitacion> habitaciones = habitacionRepo.findByIdTipo(tipoEnum);
 
+        for (Date fecha : rango) {
             Map<String, Object> fila = new HashMap<>();
             fila.put("fecha", new SimpleDateFormat("dd/MM/yyyy").format(fecha));
-            fila.put("sd1", sd1);
-            fila.put("sd2", sd2);
+                
+            for(Habitacion h : habitaciones){
+                boolean sd = verificarLibre(h.getNumero(), tipoEnum, fecha);
+                fila.put(tipoEnum.toString() + "-" + h.getNumero(), sd);
+            }    
+            
 
             listaResultado.add(fila);
         }

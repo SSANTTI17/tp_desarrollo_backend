@@ -5,6 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 
+import java.util.List;
+
 @Repository
 public interface HabitacionRepository extends JpaRepository<Habitacion, HabitacionPK> {
 
@@ -13,4 +15,7 @@ public interface HabitacionRepository extends JpaRepository<Habitacion, Habitaci
     default Habitacion findByNumeroAndTipo(int numero, TipoHabitacion tipo) {
         return findByIdNumeroAndIdTipo(numero, tipo);
     }
+
+    //devuelve habitaciones de un tipo dado
+    List<Habitacion> findByIdTipo(TipoHabitacion tipo);
 }
