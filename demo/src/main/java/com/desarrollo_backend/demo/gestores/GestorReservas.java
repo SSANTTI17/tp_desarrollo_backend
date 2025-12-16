@@ -15,13 +15,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.huesped.HuespedPK; // Importante para buscar por ID
-import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.observers.*;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
-import com.desarrollo_backend.demo.repository.HuespedRepository;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
 
 @Service
@@ -35,9 +31,6 @@ public class GestorReservas {
 
     @Autowired
     private ReservaRepository reservaRepo;
-
-    @Autowired
-    private HuespedRepository huespedRepo;
 
     @Autowired
     private List<ReservaObserver> observers;

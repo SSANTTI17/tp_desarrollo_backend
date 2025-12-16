@@ -6,6 +6,9 @@ public class Conserje {
 
     private String contrasenia;
 
+    public Conserje() {
+    }
+
     public Conserje(String nombre, String contrasenia) {
         this.nombre = nombre;
         this.contrasenia = contrasenia;
