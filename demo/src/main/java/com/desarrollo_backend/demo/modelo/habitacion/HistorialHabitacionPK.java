@@ -15,7 +15,6 @@ public class HistorialHabitacionPK implements Serializable {
     @Column(name = "numero", nullable = false)
     private int numero;
 
-    @Temporal(TemporalType.DATE)
     @Column(nullable = false)
     private Date fecha;
 
