@@ -76,10 +76,7 @@ public class ControladorReserva {
             @RequestParam String apellido,
             @RequestParam(required = false) String nombre) {
         try {
-            HuespedDTO filtro = new HuespedDTO();
-            filtro.setApellido(apellido);
-            filtro.setNombre(nombre);
-            List<Reserva> reservas = gestorReservas.consultarReservas(filtro);
+            List<Reserva> reservas = gestorReservas.consultarReservas(apellido, nombre);
             return ResponseEntity.ok(reservas);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));

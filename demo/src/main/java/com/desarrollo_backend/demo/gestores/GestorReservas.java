@@ -37,7 +37,8 @@ public class GestorReservas {
 
     /**
      * Busca la disponibilidad de habitaciones de un tipo dado para un rango de
-     * fechas en formato "dd/MM/yyyy". Retorna una lista de {fecha , Tipo-nro , tipo-nro etc} .
+     * fechas en formato "dd/MM/yyyy". Retorna una lista de {fecha , Tipo-nro ,
+     * tipo-nro etc} .
      * con formato {dd/MM/yyyy" - true/false , etc}.
      */
     public List<Map<String, Object>> buscarDisponibilidad(String tipoString, String desdeStr, String hastaStr) {
@@ -60,12 +61,11 @@ public class GestorReservas {
         for (Date fecha : rango) {
             Map<String, Object> fila = new HashMap<>();
             fila.put("fecha", new SimpleDateFormat("dd/MM/yyyy").format(fecha));
-                
-            for(Habitacion h : habitaciones){
+
+            for (Habitacion h : habitaciones) {
                 boolean sd = verificarLibre(h.getNumero(), tipoEnum, fecha);
                 fila.put(tipoEnum.toString() + "-" + h.getNumero(), sd);
-            }    
-            
+            }
 
             listaResultado.add(fila);
         }
@@ -149,22 +149,21 @@ public class GestorReservas {
      * Consulta reservas por huesped. Si no se especifica nombre, consulta por
      * apellido. Si no se especifica apellido, lanza ReservaNotFoundException.
      */
-    public List<Reserva> consultarReservas(HuespedDTO huesped)
-            throws ReservaNotFoundException {
+    public List<Reserva> consultarReservas(String apellido, String nombre) throws ReservaNotFoundException {
 
-        if (huesped.getApellido() == null || huesped.getApellido().isBlank())
-            throw new ReservaNotFoundException("ingrese apellido");
+        if (apellido == null || apellido.isBlank())
+            throw new ReservaNotFoundException("Ingrese apellido");
 
         List<Reserva> reservas = new ArrayList<>();
 
-        if (huesped.getNombre() == null || huesped.getNombre().isBlank())
-            reservas = reservaRepo.findByApellido(huesped.getApellido());
+        if (nombre == null || nombre.isBlank())
+            reservas = reservaRepo.findByApellido(apellido);
         else
-            reservas = reservaRepo.findByApellidoAndNombre(huesped.getApellido(), huesped.getNombre());
+            reservas = reservaRepo.findByApellidoAndNombre(apellido, nombre);
 
         if (reservas.isEmpty())
-            throw new ReservaNotFoundException("no hay reservas a nombre de " + huesped.getApellido()
-                    + ", " + huesped.getNombre());
+            throw new ReservaNotFoundException("No hay reservas a nombre de " + apellido
+                    + ", " + nombre);
 
         return reservas;
     }

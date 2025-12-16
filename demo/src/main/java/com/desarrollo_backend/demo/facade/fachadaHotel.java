@@ -18,7 +18,7 @@ import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 
 @Service
-public class fachadaHotel {
+public class FachadaHotel {
 
     @Autowired
     private GestorReservas gestorReservas;
@@ -31,6 +31,9 @@ public class fachadaHotel {
 
     @Autowired
     private GestorHabitaciones gestorHabitaciones;
+
+    @Autowired
+    private GestorConserje gestorConserje;
 
     public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
@@ -89,4 +92,23 @@ public class fachadaHotel {
         Factura facturaReal = new Factura(factura);
         return gestorContable.crearFacturaReal(facturaReal, estadia);
     }
+
+    // METODOS CONSERJE
+
+    // Autentica al conserje verificando usuario y contraseña.
+    public boolean autenticarConserje(String usuario, String password) {
+        return gestorConserje.autenticar(usuario, password);
+    }
+
+    //  Cambia la contraseña del conserje.
+    public String cambiarContraseniaConserje(String usuario, String nuevaPass) {
+        return gestorConserje.cambiarContrasenia(usuario, nuevaPass);
+    }
+
+
+     // Inicializa un conserje por defecto si la BD está vacía.
+    public void inicializarConserje() {
+        gestorConserje.crearConserjeInicialSiNoExiste();
+    }
+
 }
