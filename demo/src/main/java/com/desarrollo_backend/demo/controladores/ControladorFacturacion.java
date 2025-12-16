@@ -1,19 +1,21 @@
 package com.desarrollo_backend.demo.controladores;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.desarrollo_backend.demo.dtos.ContenedorEstadiaYFacturaDTO;
+import com.desarrollo_backend.demo.dtos.EstadiaDTO;
+import com.desarrollo_backend.demo.dtos.FacturaDTO;
+import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.facade.FachadaHotel;
-import com.desarrollo_backend.demo.gestores.GestorContable;
-import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
+import com.desarrollo_backend.demo.dtos.requests.*;
 
 @RestController
 @RequestMapping("/api/facturacion")
@@ -23,78 +25,74 @@ public class ControladorFacturacion {
     @Autowired
     private FachadaHotel fachada;
 
-    @Autowired
-    private GestorContable gestorContable;
 
     // CU07 - Paso 1: Buscar ocupantes
     @GetMapping("/ocupantes")
-    public ResponseEntity<?> buscarOcupantes(
-            @RequestParam int numeroHabitacion,
-            @RequestParam String horaSalida) {
+    public ResponseEntity<?> obtenerHuespedesParaFacturacion(
+            @RequestParam String habitacion, // Ejemplo: "IE101", "SFP606"
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaSalida) {
         try {
-            // Lógica simplificada para encontrar la estadía activa de hoy
-            Estadia estadia = null;
-            // Probamos los tipos de habitación más comunes hasta encontrar la ocupada
-            for (TipoHabitacion t : TipoHabitacion.values()) {
-                estadia = gestorContable.buscarEstadiaPorCheckout(numeroHabitacion, t, new Date());
-                if (estadia != null)
-                    break;
+            // Lógica de presentación: Separar el string de habitación
+            if (habitacion == null || habitacion.length() < 4) {
+                return ResponseEntity.badRequest().body("Formato de habitación inválido. Debe ser Tipo+Numero (ej: IE101)");
             }
 
-            if (estadia == null) {
-                // Si no encuentra con fecha exacta, simulamos respuesta vacía o error
-                return ResponseEntity.badRequest().body(Map.of("error",
-                        "No se encontró estadía para checkout hoy en la habitación " + numeroHabitacion));
-            }
+            // Los últimos 3 caracteres son el número, el resto es el tipo
+            String tipoStr = habitacion.substring(0, habitacion.length() - 3);
+            String numeroStr = habitacion.substring(habitacion.length() - 3);
 
-            // Extraer el huésped titular de la reserva
-            List<HuespedDTO> ocupantes = new ArrayList<>();
-            // Nota: Aquí adaptamos según tu modelo. Si la reserva tiene 'huespedRef', lo
-            // usamos.
-            // Asumimos que estadia -> reserva -> huespedRef es el camino.
-            if (estadia.getReserva() != null) {
-                if (estadia.getReserva().getHuespedRef() != null) {
-                    ocupantes.add(new HuespedDTO(estadia.getReserva().getHuespedRef()));
-                }
-            }
+            // Crear y configurar HabitacionDTO
+            HabitacionDTO habitacionDTO = new HabitacionDTO();
+            habitacionDTO.setNumero(Integer.parseInt(numeroStr));
+            habitacionDTO.setTipo(TipoHabitacion.fromString(tipoStr));
 
-            return ResponseEntity.ok(ocupantes);
+            // Crear y configurar EstadiaDTO con la fecha que llega del front
+            EstadiaDTO estadiaDTO = new EstadiaDTO();
+            estadiaDTO.setFechaFin(fechaSalida);
+
+            // Llamada a la fachada
+            List<HuespedDTO> huespedes = fachada.obtenerHuespedesParaFacturacion(estadiaDTO, habitacionDTO);
+
+            return ResponseEntity.ok(huespedes);
 
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Error buscando ocupantes: " + e.getMessage()));
+            return ResponseEntity.badRequest().body("Error buscando ocupantes: " + e.getMessage());
         }
     }
 
     // CU07 - Paso 2: Obtener ítems pendientes
-    @GetMapping("/pendientes")
-    public ResponseEntity<?> obtenerPendientes(@RequestParam String documentoOcupante) {
+    @PostMapping("/generar")
+    public ResponseEntity<?> generarFactura(@RequestBody GenerarFacturaRequest request) {
         try {
-            // Retornamos una lista simulada basada en la lógica de negocio para que el
-            // front no falle
-            // En una implementación completa, buscaríamos los consumos de la estadía
-            // asociada al documento
-            List<Map<String, Object>> items = new ArrayList<>();
-
-            items.add(Map.of(
-                    "id", 1,
-                    "fecha", "12/04/2025", // Formato string para el front
-                    "consumo", "Alojamiento",
-                    "monto", 50000.0));
-
-            return ResponseEntity.ok(items);
+            // Llamada a la fachada pasando los DTOs recibidos
+            ContenedorEstadiaYFacturaDTO contenedor = fachada.generarFactura(
+                    request.getHuesped(),
+                    request.getCuit(),
+                    request.getEstadia(),
+                    request.getHabitacion()
+            );
+            return ResponseEntity.ok(contenedor);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body("Error al generar factura: " + e.getMessage());
         }
     }
 
-    // CU07 - Paso 3: Generar Factura
-    @PostMapping("/generar")
-    public ResponseEntity<?> generarFactura(@RequestBody Map<String, Object> payload) {
+
+    // CU07 - Paso final: Confirmar Factura
+    @PostMapping("/confirmar")
+    public ResponseEntity<?> confirmarFactura(@RequestBody ConfirmarFacturaRequest request) {
         try {
-            // Aquí llamarías a fachada.generarFactura(...)
-            return ResponseEntity.ok(Map.of("message", "Factura generada con éxito"));
+            // Llamada a la fachada
+            FacturaDTO facturaConfirmada = fachada.confirmarFactura(
+                    request.getIdEstadia(),
+                    request.getFactura(),
+                    request.getHuesped(),
+                    request.getResponsable(),
+                    request.getConsumos()
+            );
+            return ResponseEntity.ok(facturaConfirmada);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.badRequest().body("Error al confirmar factura: " + e.getMessage());
         }
     }
 }

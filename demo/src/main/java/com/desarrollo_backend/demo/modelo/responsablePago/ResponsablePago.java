@@ -18,5 +18,6 @@ public class ResponsablePago {
     public String getCUIT() {
         return CUIT;
     }
+    
 
 }
