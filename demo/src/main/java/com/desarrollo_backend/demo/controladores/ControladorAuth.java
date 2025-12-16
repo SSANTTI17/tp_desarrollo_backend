@@ -20,7 +20,7 @@ public class ControladorAuth {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> credenciales) {
         String user = credenciales.get("usuario");
-        String pass = credenciales.get("clave"); // El frontend manda "clave"
+        String pass = credenciales.get("clave");
 
         Optional<Conserje> conserjeOpt = conserjeRepo.findByUsuario(user);
 
@@ -35,6 +35,9 @@ public class ControladorAuth {
                                 "rol", "CONSERJE")));
             }
         }
-        return ResponseEntity.status(401).body(Map.of("error", "Credenciales inválidas"));
+
+        // --- CAMBIO AQUÍ: Mensaje más humano ---
+        return ResponseEntity.status(401).body(Map.of(
+                "error", "El usuario o la contraseña son incorrectos. Por favor, verificá tus datos."));
     }
 }
