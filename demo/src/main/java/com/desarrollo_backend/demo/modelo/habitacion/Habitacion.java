@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.ArrayList;
 import jakarta.persistence.*;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "habitaciones")
@@ -19,6 +20,7 @@ public class Habitacion {
     private List<HistorialEstadoHabitacion> historialEstados;
 
     @ManyToMany(mappedBy = "habitacionesReservadas")
+    @JsonIgnore // Evita bucle infinito y errores de deserialización
     private List<Reserva> reservas;
 
     // constructores
