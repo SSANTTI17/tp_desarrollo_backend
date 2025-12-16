@@ -6,7 +6,7 @@ import com.desarrollo_backend.demo.modelo.conserje.Conserje;
 import java.util.Optional;
 
 @Repository
-public interface ConserjeRepository extends JpaRepository<Conserje, Integer> {
+public interface ConserjeRepository extends JpaRepository<Conserje, Long> {
 
     Optional<Conserje> findByNombre(String nombre);
 }

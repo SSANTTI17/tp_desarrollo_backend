@@ -30,41 +30,37 @@ public class GestorHuesped{
     }
 
     public List<Huesped> buscarHuespedes(HuespedDTO filtro) {
-        Specification<Huesped> spec = Specification.unrestricted(); // base vacía
-        String apellido = filtro.getApellido();
-        String nombre = filtro.getNombre();
-        String dni = filtro.getNroDocumento();
-        //String tipoDocumento = filtro.getTipo_documento().toString();
+    Specification<Huesped> spec = Specification.unrestricted(); // base vacía
+    String apellido = filtro.getApellido();
+    String nombre = filtro.getNombre();
+    String dni = filtro.getNroDocumento();
 
-        if (apellido != null && !apellido.isEmpty()) {
-            spec = spec.and((root, query, cb) -> 
-                cb.equal(cb.lower(root.get("apellido")), apellido.toLowerCase())
-            );
-        }
-
-        if (nombre != null && !nombre.isEmpty()) {
-            spec = spec.and((root, query, cb) -> 
-                cb.equal(cb.lower(root.get("nombre")), nombre.toLowerCase())
-            );
-        }
-
-        if (dni != null && !dni.isEmpty()) {
-            spec = spec.and((root, query, cb) -> 
-                cb.equal(root.get("id").get("nroDocumento"), dni)
-            );
-        }
-
-        if (filtro.getTipo_documento() != null) {
-            spec = spec.and((root, query, cb) -> 
-                cb.equal(root.get("id").get("tipo_documento"), filtro.getTipo_documento())
-            );
-        }
-
-        List<Huesped> entidades = huespedRepository.findAll(spec);
-
-        
-        return entidades;
+    if (apellido != null && !apellido.isEmpty()) {
+        spec = spec.and((root, query, cb) -> 
+            cb.like(cb.lower(root.get("apellido")), apellido.toLowerCase() + "%")
+        );
     }
+
+    if (nombre != null && !nombre.isEmpty()) {
+        spec = spec.and((root, query, cb) -> 
+            cb.like(cb.lower(root.get("nombre")), nombre.toLowerCase() + "%")
+        );
+    }
+
+    if (dni != null && !dni.isEmpty()) {
+        spec = spec.and((root, query, cb) -> 
+            cb.like(root.get("id").get("nroDocumento"), dni + "%")
+        );
+    }
+
+    if (filtro.getTipo_documento() != null) {
+        spec = spec.and((root, query, cb) -> 
+            cb.equal(root.get("id").get("tipo_documento"), filtro.getTipo_documento())
+        );
+    }
+
+    return huespedRepository.findAll(spec);
+}
 
     private HuespedDTO convertirADTO(Huesped entidad) {
         HuespedDTO dto = new HuespedDTO(entidad);
