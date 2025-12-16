@@ -22,6 +22,7 @@ public class HuespedDTO {
     private String direccion;
     private String CUIT;
     private String posicionIVA;
+    private Boolean borradoLogico;
 
     // Constructor desde Huesped
     public HuespedDTO(Huesped huesped) {
@@ -37,6 +38,7 @@ public class HuespedDTO {
         this.alojado = huesped.isAlojado();
         // CORRECCIÓN: Obtener la dirección real
         this.direccion = huesped.getDireccion();
+        this.borradoLogico = huesped.getBorrado();
     }
 
     public HuespedDTO() {
@@ -51,6 +53,7 @@ public class HuespedDTO {
         this.ocupacion = "";
         this.alojado = false;
         this.direccion = null;
+        this.borradoLogico=false;
     }
     // Getters
 
@@ -104,6 +107,10 @@ public class HuespedDTO {
 
     public String getPosicionIVA() {
         return posicionIVA;
+    }
+
+    public Boolean getBorrado(){
+        return borradoLogico;
     }
 
     // Setters

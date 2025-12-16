@@ -27,7 +27,7 @@ public class GestorHuespedTest {
     public void testGuardarHuesped_PersistenciaExitosa() {
         // --- ARRANGE (Preparación de datos) ---
         HuespedDTO huesped = new HuespedDTO(new Huesped("Laura", "Gomez", TipoDoc.DNI,
-                "87654321", null, "Chile", "laura@test.com", "1122334455", "Hermana", false, "Calle Falsa 123")); // AGREGADO
+                "87654321", null, "Chile", "laura@test.com", "1122334455", "Hermana", false, "Calle Falsa 123", false)); // AGREGADO
                                                                                                                   // DIRECCION
         // --- ACT (Ejecución del método a probar) ---
         Huesped huespedCreado = gestorHuesped.darDeAltaHuesped(huesped);

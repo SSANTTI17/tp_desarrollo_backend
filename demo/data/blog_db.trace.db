@@ -14,3 +14,203 @@ create global temporary table HTE_personas_juridicas(rn_ integer not null, Razon
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
 Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
 create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:01:56.377307-03:00 jdbc[16]: null
+org.h2.message.DbException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:217)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:134)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:752)
+	at com.zaxxer.hikari.pool.HikariPool$PoolEntryCreator.call(HikariPool.java:731)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:328)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
+	at java.base/java.lang.Thread.run(Thread.java:1474)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 16 more
+2025-12-16 15:36:48.974256-03:00 jdbc[34]: null
+org.h2.message.DbException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-240]
+	at org.h2.message.DbException.get(DbException.java:223)
+	at org.h2.message.DbException.get(DbException.java:199)
+	at org.h2.message.DbException.get(DbException.java:188)
+	at org.h2.jdbc.JdbcConnection.closeOld(JdbcConnection.java:217)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:134)
+	at org.h2.Driver.connect(Driver.java:59)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:144)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:373)
+	at com.zaxxer.hikari.pool.PoolBase.newPoolEntry(PoolBase.java:210)
+	at com.zaxxer.hikari.pool.HikariPool.createPoolEntry(HikariPool.java:488)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:576)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:97)
+	at com.zaxxer.hikari.HikariDataSource.getConnection(HikariDataSource.java:111)
+	at org.hibernate.engine.jdbc.connections.internal.DatasourceConnectionProviderImpl.getConnection(DatasourceConnectionProviderImpl.java:138)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator$ConnectionProviderJdbcConnectionAccess.obtainConnection(JdbcEnvironmentInitiator.java:499)
+	at org.hibernate.resource.transaction.backend.jdbc.internal.JdbcIsolationDelegate.delegateWork(JdbcIsolationDelegate.java:48)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironmentUsingJdbcMetadata(JdbcEnvironmentInitiator.java:355)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.getJdbcEnvironment(JdbcEnvironmentInitiator.java:149)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:127)
+	at org.hibernate.engine.jdbc.env.internal.JdbcEnvironmentInitiator.initiateService(JdbcEnvironmentInitiator.java:82)
+	at org.hibernate.boot.registry.internal.StandardServiceRegistryImpl.initiateService(StandardServiceRegistryImpl.java:133)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.createService(AbstractServiceRegistryImpl.java:262)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.initializeService(AbstractServiceRegistryImpl.java:237)
+	at org.hibernate.service.internal.AbstractServiceRegistryImpl.getService(AbstractServiceRegistryImpl.java:214)
+	at org.hibernate.boot.model.relational.Database.<init>(Database.java:44)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.getDatabase(InFlightMetadataCollectorImpl.java:255)
+	at org.hibernate.boot.internal.InFlightMetadataCollectorImpl.<init>(InFlightMetadataCollectorImpl.java:207)
+	at org.hibernate.boot.model.process.spi.MetadataBuildingProcess.complete(MetadataBuildingProcess.java:185)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.metadata(EntityManagerFactoryBuilderImpl.java:1395)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.populateSessionFactoryBuilder(EntityManagerFactoryBuilderImpl.java:1475)
+	at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1457)
+	at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:66)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:433)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:416)
+	at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
+	at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:409)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1864)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1813)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:201)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:966)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:620)
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:765)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:454)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1374)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1363)
+	at com.desarrollo_backend.demo.DemoApplication.main(DemoApplication.java:10)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:104)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:565)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52)
+Caused by: org.h2.jdbc.JdbcSQLNonTransientConnectionException: La conexión no fue cerrada por la aplicación y esta siendo limpiada (garbage collected)
+The connection was not closed by the application and is garbage collected [90018-240]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:690)
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:489)
+	... 56 more
+2025-12-16 15:36:49.705028-03:00 jdbc[34]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:36:49.713054-03:00 jdbc[34]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:36:49.715060-03:00 jdbc[34]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:36:49.724088-03:00 jdbc[34]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:38:12.099787-03:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:38:12.101292-03:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:38:12.102796-03:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:38:12.105806-03:00 jdbc[45]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:28.710739-03:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:49:28.714753-03:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:28.720771-03:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:28.724282-03:00 jdbc[56]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:32.564750-03:00 jdbc[66]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:49:32.585815-03:00 jdbc[66]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:32.595849-03:00 jdbc[66]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:49:32.600863-03:00 jdbc[66]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:05.181834-03:00 jdbc[76]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:52:05.182838-03:00 jdbc[76]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:05.183840-03:00 jdbc[76]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:05.185846-03:00 jdbc[76]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:54.100776-03:00 jdbc[86]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:52:54.101779-03:00 jdbc[86]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:54.102781-03:00 jdbc[86]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:52:54.105289-03:00 jdbc[86]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:58:30.363639-03:00 jdbc[96]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-16 15:58:30.383198-03:00 jdbc[96]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:58:30.425830-03:00 jdbc[96]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-16 15:58:30.442382-03:00 jdbc[96]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]

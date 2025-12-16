@@ -96,31 +96,59 @@ public class ControladorHuesped {
     }
 
     @PutMapping("/modificar")
-    public ResponseEntity<?> modificarHuesped(@RequestBody HuespedDTO modificado, @RequestParam boolean modificoPK) {
+    public ResponseEntity<?> modificarHuesped(
+           @RequestBody HuespedDTO modificado, 
+            @RequestParam boolean modificoPK,
+            @RequestParam(required = false) String oldTipo, // Tipo anterior
+            @RequestParam(required = false) String oldDni  // DNI anterior
+    ) {
 
-        // 1. Verificamos si la "nueva" PK ya existe en la base de datos
-        HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
-        Huesped huespedExistente = gestorHuesped.obtenerHuespedPorId(idNuevo);
-
-        // 2. Validación: Si cambió la PK y ya existe alguien con ese documento -> ERROR
-        if (modificoPK && huespedExistente != null) {
+        // 1. Validaciones
+        // Si dice que modificó PK, es obligatorio que vengan los datos viejos
+        if (modificoPK && (oldTipo == null || oldDni == null)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "El tipo y número de documento ya existen en el sistema"));
+                .body(Map.of("error", "Si se modifica la clave, debe enviar oldTipo y oldDni"));
         }
 
-        // 3. Si pasa la validación, procedemos a guardar
-        try {
-            // Actualizamos datos contables 
-            gestorContable.modificarHuesped(modificado);
+        // 2. Verificamos si la "nueva" PK ya existe (si es que cambió)
+        // Solo nos preocupa si modificoPK es true, porque si es false, es el mismo huésped
+        if (modificoPK) {
+            HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
+            Huesped huespedExistente = gestorHuesped.obtenerHuespedPorId(idNuevo);
             
-            // Actualizamos datos del huésped y dirección
-            gestorHuesped.modificarHuesped(modificado);
+            // Si existe y NO está borrado lógicamente 
+            if (huespedExistente != null && !Boolean.TRUE.equals(huespedExistente.getBorrado())) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "El nuevo tipo y número de documento ya están ocupados por otro huésped activo."));
+            }
+        }
 
-            return ResponseEntity.ok(
-                Map.of("message", "La operación ha culminado con éxito")
-            );
+        try {
+            // 3. Preparar la PK anterior
+            HuespedPK pkAnterior = null;
+            if (modificoPK) {
+                // Convertimos el string oldTipo al Enum. Manejar excepción si el string es inválido.
+                try {
+                    TipoDoc tipoAnteriorEnum = TipoDoc.valueOf(oldTipo);
+                    pkAnterior = new HuespedPK(tipoAnteriorEnum, oldDni);
+                } catch (IllegalArgumentException e) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Tipo de documento anterior inválido"));
+                }
+            } else {
+                // Si no modificó PK, la anterior es igual a la nueva
+                pkAnterior = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
+            }
+
+            // 4. Llamar al Gestor con AMBOS datos
+            gestorHuesped.modificarHuesped(modificado, pkAnterior, modificoPK);
+
+            // Actualizar datos contables (Si aplica)
+            gestorContable.modificarHuesped(modificado);
+
+            return ResponseEntity.ok(Map.of("message", "La operación ha culminado con éxito"));
 
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Error al procesar la modificación: " + e.getMessage()));
         }

@@ -73,37 +73,42 @@ public class GestorHuesped{
         return huesped.isAlojado();
     }
     
-    //debería agregar para que elimine al responsable de pago? (en que parte se asocia un responsable de pago al huesped?)
-    // porque si el huesped nunca se alojó (solo reserva) no debería tener un responsable de pago
     public void eliminarHuesped(HuespedDTO dto) {
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
         huespedRepository.deleteById(id);
     }
 
     @Transactional
-    public void modificarHuesped(HuespedDTO dto) {
+    public void modificarHuesped(HuespedDTO dto, HuespedPK pkAnterior, boolean modificoPK) {
 
-        HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
-        Huesped existente = huespedRepository.findById(id)
-        .orElse(null);
+        if (modificoPK) {
+            //CASO 1: Cambio de Identidad (PK) 
+            
+            // A. Dar de baja lógica al anterior
+            Huesped huespedAnterior = huespedRepository.findById(pkAnterior).orElse(null);
+            if (huespedAnterior != null) {
+                huespedAnterior.setBorradoLogico(true); 
+                huespedRepository.save(huespedAnterior);
+            }
 
-        //FALTA TERMINAR, VERIFICAR QUE AL MODIFICAR NO SE SELECCIONE UN TIPODOC Y NRODOC QUE COINCIDAN CON OTRO HUESPED
-        Huesped huesped = new Huesped(dto);
-        if(huesped.equals(existente)){ //el huesped que coincide en tipoDoc y nroDoc es el mismo y no uno distinto (todos los campos iguales)
-
-        }
-
-        //si se modifica el dni no se va a encontrar el huesped a menos que coincida con otro
-        if (existente == null) {
-            existente = new Huesped(dto);
+            // B. Crear el nuevo huésped
+            Huesped huespedNuevo = new Huesped(dto);
+            huespedNuevo.setBorradoLogico(false);
+            huespedRepository.save(huespedNuevo);
 
         } else {
-            existente.setHuesped(dto);
+            
+            //CASO 2: Modificación de datos simples (Nombre, mail, etc)
+            HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+            Huesped existente = huespedRepository.findById(id).orElse(null);
+
+            if (existente != null) {
+                existente.setHuesped(dto); // Actualiza campos básicos
+                existente.setDireccion(dto.getDireccion());
+                existente.setBorradoLogico(false); // Aseguramos que no esté borrado
+                huespedRepository.save(existente);
+            }
         }
-
-        existente.setDireccion(dto.getDireccion());
-
-        huespedRepository.save(existente);
     }
 
     public Huesped obtenerHuespedPorId(HuespedPK id) {

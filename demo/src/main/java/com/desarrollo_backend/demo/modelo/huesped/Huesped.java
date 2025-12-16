@@ -46,13 +46,16 @@ public class Huesped {
     @Column(nullable = false)
     private String direccion;
 
+    @Column(nullable = false)
+    private Boolean borradoLogico;
+
     public Huesped() {
     }
 
     // Constructor completo actualizado con dirección
     public Huesped(String nombre, String apellido, TipoDoc tipo_documento, String nroDocumento,
             Date fechaDeNacimiento, String nacionalidad, String email,
-            String telefono, String ocupacion, boolean alojado, String direccion) {
+            String telefono, String ocupacion, boolean alojado, String direccion, boolean borradoLogico) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.id = new HuespedPK(tipo_documento, nroDocumento);
@@ -63,6 +66,7 @@ public class Huesped {
         this.ocupacion = ocupacion;
         this.alojado = alojado;
         this.direccion = direccion;
+        this.borradoLogico = false;
     }
 
     // Constructor desde DTO actualizado
@@ -78,6 +82,7 @@ public class Huesped {
         this.alojado = huespedDto.isAlojado();
         // CORRECCIÓN: Asignar la dirección desde el DTO
         this.direccion = huespedDto.getDireccion() != null ? huespedDto.getDireccion() : "Sin dirección";
+        this.borradoLogico = huespedDto.getBorrado();
     }
 
     // Getters
@@ -125,6 +130,14 @@ public class Huesped {
         return direccion;
     }
 
+    public Boolean getBorrado(){
+        return borradoLogico;
+    }
+
+    public void setBorradoLogico(Boolean borradoLogico) {
+        this.borradoLogico = borradoLogico;
+    }
+
     public void setAlojado(boolean alojado) {
         this.alojado = alojado;
     }
@@ -146,6 +159,7 @@ public class Huesped {
         if (huespedDto.getDireccion() != null) {
             this.direccion = huespedDto.getDireccion();
         }
+        this.borradoLogico = huespedDto.getBorrado();
     }
 
     public int calcularEdad() {

@@ -192,7 +192,7 @@ public class GestorReservasTest {
                 // CORRECCIÓN 1: Constructor con Dirección
                 Huesped huesped = new Huesped("Juan", "Perez", TipoDoc.DNI,
                                 "87654321", null, "Chile", "laura@test.com", "1122334455", "Hermana", false,
-                                "Calle Falsa 123");
+                                "Calle Falsa 123", false);
 
                 // CORRECCIÓN 2: Guardar Huesped ANTES de crear reserva para evitar
                 // TransientPropertyValueException
@@ -257,7 +257,7 @@ public class GestorReservasTest {
                 // Huesped asociado (CORRECCIÓN: Creamos y guardamos uno real)
                 Huesped huesped = new Huesped("Juan", "Perez", TipoDoc.DNI,
                                 "87654321", null, "Chile", "laura@test.com", "1122334455", "Hermana", false,
-                                "Calle Falsa 123");
+                                "Calle Falsa 123", false);
                 huespedRepo.save(huesped);
 
                 // Creación de la reserva usando los setters (estilo DTO->Entidad)
