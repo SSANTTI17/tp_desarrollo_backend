@@ -1,6 +1,7 @@
 package com.desarrollo_backend.demo.dtos;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
+
 public class ContenedorEstadiaYFacturaDTO {
     private EstadiaDTO estadia;
     private FacturaDTO factura;
