@@ -53,7 +53,7 @@ public class HuespedDTO {
         this.ocupacion = "";
         this.alojado = false;
         this.direccion = null;
-        this.borradoLogico=false;
+        this.borradoLogico = false;
     }
     // Getters
 
@@ -109,7 +109,7 @@ public class HuespedDTO {
         return posicionIVA;
     }
 
-    public Boolean getBorrado(){
+    public Boolean getBorrado() {
         return borradoLogico;
     }
 
@@ -121,6 +121,14 @@ public class HuespedDTO {
 
     public void setApellido(String apellido) {
         this.apellido = apellido;
+    }
+
+    public void setCUIT(String CUIT) {
+        this.CUIT = CUIT;
+    }
+
+    public void setPosicionIVA(String posicionIVA) {
+        this.posicionIVA = posicionIVA;
     }
 
     public void setTipo_documento(TipoDoc tipo_documento) {
@@ -176,5 +184,5 @@ public class HuespedDTO {
     public void setAlojado(boolean alojado) {
         this.alojado = alojado;
     }
-    
+
 }

@@ -21,7 +21,7 @@ public class Huesped {
     private String apellido;
 
     @EmbeddedId
-    private HuespedPK id; // id tipo y nro de documento
+    private HuespedPK id;
 
     private Date fechaDeNacimiento;
 
@@ -50,9 +50,16 @@ public class Huesped {
     private Boolean borradoLogico;
 
     public Huesped() {
+        this.borradoLogico = false;
+        this.direccion = "Sin dirección";
+        this.alojado = false;
+        this.nacionalidad = "Argentina";
+        this.telefono = "000000";
+        this.ocupacion = "Ninguna";
+        this.apellido = "Test";
     }
 
-    // Constructor completo actualizado con dirección
+    // Constructor completo
     public Huesped(String nombre, String apellido, TipoDoc tipo_documento, String nroDocumento,
             Date fechaDeNacimiento, String nacionalidad, String email,
             String telefono, String ocupacion, boolean alojado, String direccion, boolean borradoLogico) {
@@ -66,10 +73,10 @@ public class Huesped {
         this.ocupacion = ocupacion;
         this.alojado = alojado;
         this.direccion = direccion;
-        this.borradoLogico = false;
+        this.borradoLogico = borradoLogico;
     }
 
-    // Constructor desde DTO actualizado
+    // Constructor desde DTO
     public Huesped(HuespedDTO huespedDto) {
         this.nombre = huespedDto.getNombre();
         this.apellido = huespedDto.getApellido();
@@ -80,12 +87,11 @@ public class Huesped {
         this.telefono = huespedDto.getTelefono();
         this.ocupacion = huespedDto.getOcupacion();
         this.alojado = huespedDto.isAlojado();
-        // CORRECCIÓN: Asignar la dirección desde el DTO
         this.direccion = huespedDto.getDireccion() != null ? huespedDto.getDireccion() : "Sin dirección";
         this.borradoLogico = huespedDto.getBorrado();
     }
 
-    // Getters
+    // --- GETTERS ---
     public String getNombre() {
         return nombre;
     }
@@ -130,7 +136,7 @@ public class Huesped {
         return direccion;
     }
 
-    public Boolean getBorrado(){
+    public Boolean getBorrado() {
         return borradoLogico;
     }
 
@@ -146,6 +152,10 @@ public class Huesped {
         this.direccion = direccion;
     }
 
+    public void setDocumento(TipoDoc tipo_documento, String nroDocumento) {
+        this.id = new HuespedPK(tipo_documento, nroDocumento);
+    }
+
     public void setHuesped(HuespedDTO huespedDto) {
         this.nombre = huespedDto.getNombre();
         this.apellido = huespedDto.getApellido();
@@ -155,13 +165,37 @@ public class Huesped {
         this.email = huespedDto.getEmail();
         this.telefono = huespedDto.getTelefono();
         this.ocupacion = huespedDto.getOcupacion();
-        // CORRECCIÓN: Actualizar dirección también
         if (huespedDto.getDireccion() != null) {
             this.direccion = huespedDto.getDireccion();
         }
         this.borradoLogico = huespedDto.getBorrado();
     }
 
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public void setFechaDeNacimiento(Date fechaDeNacimiento) {
+        this.fechaDeNacimiento = fechaDeNacimiento;
+    }
+
+    public void setNacionalidad(String nacionalidad) {
+        this.nacionalidad = nacionalidad;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public void setOcupacion(String ocupacion) {
+        this.ocupacion = ocupacion;
+    }
+
+    // --- LÓGICA DE NEGOCIO ---
     public int calcularEdad() {
         if (this.fechaDeNacimiento == null)
             return 0;

@@ -50,25 +50,26 @@ public class Estadia {
         float total = 0;
         for (Consumo c : consumos) {
             if (c.isFacturado() == false)
-            total += c.getMonto();
+                total += c.getMonto();
         }
         return total;
     }
 
     // consutructores
     public Estadia() {
+        consumos = new ArrayList<Consumo>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio) {
         this.reserva = reserva;
         this.fechaInicio = fechaInicio;
-        consumos = new ArrayList<>();
+        consumos = new ArrayList<Consumo>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio, Date fechaFin) {
         this.reserva = reserva;
         this.fechaInicio = fechaInicio;
-        consumos = new ArrayList<>();
+        consumos = new ArrayList<Consumo>();
     }
 
     // getters
@@ -99,9 +100,11 @@ public class Estadia {
     public Reserva getReserva() {
         return reserva;
     }
+
     public Habitacion getHabitacion() {
         return habitacion;
     }
+
     public List<Consumo> getConsumos() {
         return consumos;
     }
@@ -111,7 +114,11 @@ public class Estadia {
         this.precio = precio;
     }
 
-    public void geTipoHabitacion(TipoHabitacion t) {
+    public void setHabitacion(Habitacion h) {
+        this.habitacion = h;
+    }
+
+    public void setTipoHabitacion(TipoHabitacion t) {
         habitacion.setTipo(t);
     }
 
