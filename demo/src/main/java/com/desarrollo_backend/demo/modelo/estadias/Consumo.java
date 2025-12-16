@@ -21,6 +21,9 @@ public class Consumo {
     @Enumerated(EnumType.STRING)
     private Moneda moneda;
 
+    @Column(nullable = false)
+    private Boolean facturado = false;
+
     @ManyToOne
     @JoinColumn(name = "estadia_id")
     private Estadia estadia;
@@ -34,13 +37,18 @@ public class Consumo {
     }
 
     //getter
+    public int getId() { return id; }
     public TipoConsumo getTipo() { return tipo; }
     public float getMonto() { return monto; }
     public Moneda getMoneda() { return moneda; }
+    public boolean isFacturado() { return facturado; }
+
 
     //setter
+    public void setId(int id) { this.id = id; }
     public void setTipo(TipoConsumo tipo) { this.tipo = tipo; }
     public void setMonto(float monto) { this.monto = monto; }
     public void setMoneda(Moneda moneda) { this.moneda = moneda; }
+    public void setFacturado(boolean facturado) { this.facturado = facturado; }
 
 }

@@ -4,8 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 
-import com.desarrollo_backend.demo.dtos.HuespedDTO;
-import com.desarrollo_backend.demo.dtos.PersonaFisicaDTO;
+
 import java.util.Date;
 import com.desarrollo_backend.demo.modelo.responsablePago.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
@@ -19,6 +18,8 @@ import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.repository.EstadiaRepository;
 import com.desarrollo_backend.demo.repository.FacturaRepository;
+import com.desarrollo_backend.demo.dtos.*;
+import java.util.List;
 
 import jakarta.transaction.Transactional;
 
@@ -189,11 +190,30 @@ public class GestorContable {
     }
 
     @Transactional
-    public Factura crearFacturaReal(Factura factura, Estadia estadia) {
+    public void crearFacturaReal(Factura factura, Estadia estadia) {
         
         estadia.setFactura(factura);
         estadiaRepository.save(estadia);
-        return FacturaRepository.save(factura);
+        FacturaRepository.save(factura);
+    }
+
+    public void guardarResponsablePago(ResponsablePago responsable) {
+        responsablePagoRepository.save(responsable);
+    }
+
+    @Transactional
+    public void actualizarConsumosEstadia(Estadia estadia, List<ConsumoDTO> consumosDTO) {
+
+        for (ConsumoDTO dto : consumosDTO) {
+        estadia.getConsumos().stream()
+            .filter(consumo -> consumo.getId() == dto.getId()) 
+            .findFirst()
+            .ifPresent(consumoEncontrado -> {
+                // Actualizamos el estado a facturado
+                consumoEncontrado.setFacturado(true);
+            });
+    }
+        estadiaRepository.save(estadia);
     }
 }
 

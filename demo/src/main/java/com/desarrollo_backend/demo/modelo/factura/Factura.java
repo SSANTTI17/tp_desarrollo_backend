@@ -53,15 +53,14 @@ public class Factura {
         formasDePago = new ArrayList<>();
     }
 
-    // contrsuctor correcto
-    public Factura(FacturaDTO dto) {
-        this.tipoFactura = dto.getTipoFactura();
-        this.valorEstadia = dto.getValorEstadia();
-        this.totalAPagar = dto.getTotalAPagar();
-        this.vuelto = dto.getVuelto();
-        this.pagado = dto.getPagado();
-        this.responsablePago = dto.getResponsablePago();
-        this.formasDePago = new ArrayList<>(); // Inicializamos lista vacía
+    public Factura(FacturaDTO FacturaDTO){
+        this.tipoFactura = FacturaDTO.getTipoFactura();
+        this.valorEstadia = FacturaDTO.getValorEstadia();   
+        this.totalAPagar = FacturaDTO.getTotalAPagar();
+        this.vuelto = FacturaDTO.getVuelto();
+        this.pagado = FacturaDTO.getPagado();
+        this.responsablePago = FacturaDTO.getResponsablePago();
+
     }
 
     public int getId() {

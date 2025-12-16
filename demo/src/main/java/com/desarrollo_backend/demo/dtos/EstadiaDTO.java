@@ -6,6 +6,7 @@ import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.modelo.estadias.Consumo;
+import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -28,6 +29,16 @@ public class EstadiaDTO {
     public EstadiaDTO() {
     }
 
+    public EstadiaDTO(Estadia estadia){
+        this.id = estadia.getId();
+        this.habitacion = estadia.getHabitacion();
+        this.precio = estadia.getPrecio();
+        this.fechaInicio = estadia.getFechaInicio();
+        this.fechaFin = estadia.getFechaFin();
+        this.factura = estadia.getFactura();
+        this.reserva = estadia.getReserva();
+        this.consumos = estadia.getConsumos();
+    }
     public EstadiaDTO(Reserva reserva, Date fechaInicio) {
         this.reserva = reserva;
         this.fechaInicio = fechaInicio;

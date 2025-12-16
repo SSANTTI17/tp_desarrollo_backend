@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
-import com.desarrollo_backend.demo.facade.fachadaHotel;
+import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.gestores.GestorContable;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
@@ -21,7 +21,7 @@ import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 public class ControladorFacturacion {
 
     @Autowired
-    private fachadaHotel fachada;
+    private FachadaHotel fachada;
 
     @Autowired
     private GestorContable gestorContable;

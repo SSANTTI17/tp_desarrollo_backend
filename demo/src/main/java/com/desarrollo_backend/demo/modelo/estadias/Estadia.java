@@ -49,6 +49,7 @@ public class Estadia {
     public float totalConsumos() {
         float total = 0;
         for (Consumo c : consumos) {
+            if (c.isFacturado() == false)
             total += c.getMonto();
         }
         return total;
@@ -97,6 +98,12 @@ public class Estadia {
 
     public Reserva getReserva() {
         return reserva;
+    }
+    public Habitacion getHabitacion() {
+        return habitacion;
+    }
+    public List<Consumo> getConsumos() {
+        return consumos;
     }
 
     // setters

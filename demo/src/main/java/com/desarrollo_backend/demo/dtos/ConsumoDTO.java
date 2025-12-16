@@ -3,7 +3,7 @@ package com.desarrollo_backend.demo.dtos;
 import com.desarrollo_backend.demo.modelo.estadias.*;
 
 public class ConsumoDTO {
-    
+    private int id;
     private TipoConsumo tipo;
     private float monto;
     private Moneda moneda;
@@ -19,12 +19,14 @@ public class ConsumoDTO {
     }
 
     //getter
+    public int getId() { return id; }
     public TipoConsumo getTipo() { return tipo; }
     public float getMonto() { return monto; }
     public Moneda getMoneda() { return moneda; }
     public Estadia getEstadia() { return estadia; }
 
     //setter
+    public void setId(int id) { this.id = id; }
     public void setTipo(TipoConsumo tipo) { this.tipo = tipo; }
     public void setMonto(float monto) { this.monto = monto; }
     public void setMoneda(Moneda moneda) { this.moneda = moneda; }
