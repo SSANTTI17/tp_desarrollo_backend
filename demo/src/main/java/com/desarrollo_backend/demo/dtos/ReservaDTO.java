@@ -7,9 +7,11 @@ public class ReservaDTO {
     private String apellido;
     private int telefono;
     private Date fechaIngreso;
-    private String HoraIngreso;
+
+    // Corregido a minúscula para evitar confusión
+    private String horaIngreso;
     private Date fechaEgreso;
-    private String HoraEgreso;
+    private String horaEgreso;
 
     public ReservaDTO(String nombre, String apellido, int telefono, Date fechaIngreso, String horaIngreso,
             Date fechaEgreso, String horaEgreso) {
@@ -17,66 +19,64 @@ public class ReservaDTO {
         this.apellido = apellido;
         this.telefono = telefono;
         this.fechaIngreso = fechaIngreso;
-        HoraIngreso = horaIngreso;
+        this.horaIngreso = horaIngreso;
         this.fechaEgreso = fechaEgreso;
-        HoraEgreso = horaEgreso;
+        this.horaEgreso = horaEgreso;
     }
 
-    // getters
     public String getNombre() {
         return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 
     public String getApellido() {
         return apellido;
     }
 
-    public int getTelefono() {
-        return telefono;
-    }
-
-    public Date getFechaIngreso() {
-        return fechaIngreso;
-    }
-
-    public String getHoraIngreso() {
-        return HoraIngreso;
-    }
-
-    public Date getFechaEgreso() {
-        return fechaEgreso;
-    }
-
-    public String getHoraEgreso() {
-        return HoraEgreso;
-    }
-
-    // setters
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public void setApellido(String apellido) {
         this.apellido = apellido;
+    }
+
+    public int getTelefono() {
+        return telefono;
     }
 
     public void setTelefono(int telefono) {
         this.telefono = telefono;
     }
 
+    public Date getFechaIngreso() {
+        return fechaIngreso;
+    }
+
     public void setFechaIngreso(Date fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
     }
 
+    public String getHoraIngreso() {
+        return horaIngreso;
+    }
+
     public void setHoraIngreso(String horaIngreso) {
-        HoraIngreso = horaIngreso;
+        this.horaIngreso = horaIngreso;
+    }
+
+    public Date getFechaEgreso() {
+        return fechaEgreso;
     }
 
     public void setFechaEgreso(Date fechaEgreso) {
         this.fechaEgreso = fechaEgreso;
     }
 
+    public String getHoraEgreso() {
+        return horaEgreso;
+    }
+
     public void setHoraEgreso(String horaEgreso) {
-        HoraEgreso = horaEgreso;
+        this.horaEgreso = horaEgreso;
     }
 }

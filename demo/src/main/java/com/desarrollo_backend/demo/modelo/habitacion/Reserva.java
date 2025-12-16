@@ -7,6 +7,7 @@ import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity(name = "reservas")
 public class Reserva {
@@ -19,15 +20,18 @@ public class Reserva {
     private String apellido;
     private String telefono;
     private Date fechaIngreso;
-    private String HoraIngreso;
+
+    // Atributos en minúscula (Estándar Java)
+    private String horaIngreso;
     private Date fechaEgreso;
-    private String HoraEgreso;
+    private String horaEgreso;
 
     @ManyToMany
     @JoinTable(name = "habitaciones_reservadas", joinColumns = @JoinColumn(name = "reserva_id"), inverseJoinColumns = {
             @JoinColumn(name = "habitacion_numero", referencedColumnName = "numero"),
             @JoinColumn(name = "habitacion_tipo", referencedColumnName = "tipo")
     })
+    @JsonIgnoreProperties("reservas") // Evita bucle infinito al enviar al front
     private List<Habitacion> habitacionesReservadas;
 
     @OneToOne(mappedBy = "reserva")
@@ -40,8 +44,6 @@ public class Reserva {
     })
     Huesped huespedRef;
 
-    // constructores
-
     public Reserva() {
     }
 
@@ -51,89 +53,91 @@ public class Reserva {
         this.apellido = huesped.getApellido();
         this.telefono = huesped.getTelefono();
         this.fechaIngreso = fechaIngreso;
-        HoraIngreso = horaIngreso;
+        this.horaIngreso = horaIngreso;
         this.fechaEgreso = fechaEgreso;
-        HoraEgreso = horaEgreso;
+        this.horaEgreso = horaEgreso;
         this.habitacionesReservadas = habitacionesReservadas;
         this.huespedRef = huesped;
     }
 
-    // getters
+    // --- GETTERS Y SETTERS CORREGIDOS (CamelCase) ---
+
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
         return nombre;
     }
 
-    public String getApellido() {
-        return apellido;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public Date getFechaIngreso() {
-        return fechaIngreso;
-    }
-
-    public String getHoraIngreso() {
-        return HoraIngreso;
-    }
-
-    public Date getFechaEgreso() {
-        return fechaEgreso;
-    }
-
-    public String getHoraEgreso() {
-        return HoraEgreso;
-    }
-
-    public List<Habitacion> getHabitacionesReservadas() {
-        return habitacionesReservadas;
-    }
-
-    public Estadia getEstadia() {
-        return estadia;
-    }
-
-    // setters
-    public void setId(int id) {
-        this.id = id;
-    }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
     }
 
     public void setApellido(String apellido) {
         this.apellido = apellido;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
     public void setTelefono(String telefono) {
         this.telefono = telefono;
+    }
+
+    public Date getFechaIngreso() {
+        return fechaIngreso;
     }
 
     public void setFechaIngreso(Date fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
     }
 
+    // CORREGIDO: De gethoraIngreso a getHoraIngreso
+    public String getHoraIngreso() {
+        return horaIngreso;
+    }
+
     public void setHoraIngreso(String horaIngreso) {
-        HoraIngreso = horaIngreso;
+        this.horaIngreso = horaIngreso;
+    }
+
+    public Date getFechaEgreso() {
+        return fechaEgreso;
     }
 
     public void setFechaEgreso(Date fechaEgreso) {
         this.fechaEgreso = fechaEgreso;
     }
 
+    // CORREGIDO: De gethoraEgreso a getHoraEgreso
+    public String getHoraEgreso() {
+        return horaEgreso;
+    }
+
     public void setHoraEgreso(String horaEgreso) {
-        HoraEgreso = horaEgreso;
+        this.horaEgreso = horaEgreso;
+    }
+
+    public List<Habitacion> getHabitacionesReservadas() {
+        return habitacionesReservadas;
     }
 
     public void setHabitacionesReservadas(List<Habitacion> habitacionesReservadas) {
         this.habitacionesReservadas = habitacionesReservadas;
+    }
+
+    public Estadia getEstadia() {
+        return estadia;
     }
 
     public void setEstadia(Estadia estadia) {
@@ -142,5 +146,9 @@ public class Reserva {
 
     public Huesped getHuespedRef() {
         return huespedRef;
+    }
+
+    public void setHuespedRef(Huesped huespedRef) {
+        this.huespedRef = huespedRef;
     }
 }
