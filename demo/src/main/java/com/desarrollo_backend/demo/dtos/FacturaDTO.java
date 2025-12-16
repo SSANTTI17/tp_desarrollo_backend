@@ -2,6 +2,7 @@ package com.desarrollo_backend.demo.dtos;
 
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
+import com.desarrollo_backend.demo.modelo.factura.Factura;
 
 public class FacturaDTO {
     
@@ -11,7 +12,16 @@ public class FacturaDTO {
     private float vuelto;
     private boolean pagado; 
     private ResponsablePago responsablePago; 
-
+    //constructores
+    public FacturaDTO() {}
+    public FacturaDTO(Factura factura){
+        this.tipoFactura = factura.getTipoFactura();
+        this.valorEstadia = factura.getValorEstadia();   
+        this.totalAPagar = factura.getTotalAPagar();
+        this.vuelto = factura.getVuelto();
+        this.pagado = factura.getPagado();
+        this.responsablePago = factura.getResponsablePago();
+    }
     //getters y setters
     public TipoFactura getTipoFactura() {
         return tipoFactura;
