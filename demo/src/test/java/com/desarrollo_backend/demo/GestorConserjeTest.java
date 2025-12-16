@@ -1,22 +1,17 @@
 package com.desarrollo_backend.demo;
 
 import org.springframework.transaction.annotation.Transactional;
-
 import com.desarrollo_backend.demo.gestores.GestorConserje;
 import com.desarrollo_backend.demo.modelo.conserje.Conserje;
 import com.desarrollo_backend.demo.repository.ConserjeRepository;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.List;
 
 @SpringBootTest
 @Transactional
-
 public class GestorConserjeTest {
 
     @Autowired
@@ -25,112 +20,82 @@ public class GestorConserjeTest {
     @Autowired
     private ConserjeRepository conserjeRepo;
 
-    /**
-     * Prueba de Integración: Verifica que la creación de una reserva 
-     * no solo pasa la lógica, sino que también guarda correctamente 
-     * el registro en la base de datos (H2).
-     */
     @Test
     public void testAutenticar_Exitoso() {
-
-        //elimino si hay alguno existente
         conserjeRepo.deleteAll();
-
-        String nombre = "admin";
+        String usuario = "admin";
         String pass = "passSuperDificil";
 
-        Conserje conserje = new Conserje(nombre,pass);
-
+        // Usamos el constructor nuevo (usuario, pass)
+        Conserje conserje = new Conserje(usuario, pass);
         conserjeRepo.save(conserje);
 
-        boolean pasaTest = gestorConserje.autenticar(nombre, pass);
-
-        assertTrue(pasaTest,"deberia haber autenticado");
+        boolean pasaTest = gestorConserje.autenticar(usuario, pass);
+        assertTrue(pasaTest, "Deberia haber autenticado correctamente");
     }
 
     @Test
     public void testAutenticar_PassIncorrecta() {
-
-        //elimino si hay alguno existente
         conserjeRepo.deleteAll();
-
-        String nombre = "admin";
+        String usuario = "admin";
         String pass = "passSuperDificilySegura";
 
-        Conserje conserje = new Conserje(nombre,pass);
-
+        Conserje conserje = new Conserje(usuario, pass);
         conserjeRepo.save(conserje);
 
-        boolean pasaTest = gestorConserje.autenticar(nombre, "passFacil");
-
-        assertFalse(pasaTest,"deberia haber tirado error");
+        boolean pasaTest = gestorConserje.autenticar(usuario, "passFacil");
+        assertFalse(pasaTest, "Deberia haber fallado la autenticación");
     }
 
     @Test
     public void testAutenticar_PassVacia() {
-
-        //elimino si hay alguno existente
         conserjeRepo.deleteAll();
-
-        String nombre = "admin";
+        String usuario = "admin";
         String pass = "passSuperDificil";
 
-        Conserje conserje = new Conserje(nombre,pass);
-
+        Conserje conserje = new Conserje(usuario, pass);
         conserjeRepo.save(conserje);
 
-        boolean pasaTest = gestorConserje.autenticar(nombre, "");
-
-        assertFalse(pasaTest,"deberia haber tirado error");
+        boolean pasaTest = gestorConserje.autenticar(usuario, "");
+        assertFalse(pasaTest, "Deberia haber fallado con contraseña vacía");
     }
 
     @Test
     public void testCambiarContrasenia_Exito() {
-
-        String nombreUsuario = "admin";
+        String usuario = "admin";
         String pass = "passMuyDificilySegura";
         String nuevaPass = "nuevaPassMasDificil";
-        
-        conserjeRepo.save(new Conserje(nombreUsuario, pass));
-        
-        String respuesta = gestorConserje.cambiarContrasenia(nombreUsuario, nuevaPass);
 
-        assertEquals(respuesta,"Contraseña actualizada", "falla la salida (la ñ?)");
+        conserjeRepo.save(new Conserje(usuario, pass));
 
-        //    return "Contraseña actualizada";
-        
-        //    return "Error: El conserje no existe";
-     
+        String respuesta = gestorConserje.cambiarContrasenia(usuario, nuevaPass);
+        assertEquals("Contraseña actualizada", respuesta);
     }
 
     @Test
     public void testCambiarContrasenia_ErrorConserje() {
-
-        String nombreUsuario = "admin2";
+        String usuario = "admin2";
         String pass = "passMuyDificilySegura";
         String nuevaPass = "nuevaPassMasDificil";
-        
-        conserjeRepo.save(new Conserje("admin", pass));
-        
-        String respuesta = gestorConserje.cambiarContrasenia(nombreUsuario, nuevaPass);
 
-        assertEquals(respuesta,"Error: El conserje no existe", "deberia tirar error");
-     
+        conserjeRepo.save(new Conserje("admin", pass));
+
+        String respuesta = gestorConserje.cambiarContrasenia(usuario, nuevaPass);
+        assertEquals("Error: El conserje no existe", respuesta);
     }
 
     @Test
-    public void testcrearConserjeInicialSiNoExiste_exito(){
-
+    public void testcrearConserjeInicialSiNoExiste_exito() {
         conserjeRepo.deleteAll();
 
         gestorConserje.crearConserjeInicialSiNoExiste();
 
         List<Conserje> resultado = conserjeRepo.findAll();
-        assertFalse(resultado.isEmpty(), "no se cargó");
-        assertEquals(1,resultado.size(),"hay más de uno");
-        assertEquals("admin",resultado.get(0).getNombre(),"se guarda mal el nombre");
-        assertEquals("admin123",resultado.get(0).getContrasenia(),"se guarda mal la contra");
+        assertFalse(resultado.isEmpty(), "No se cargó el conserje inicial");
+        assertEquals(1, resultado.size(), "Debería haber exactamente 1 conserje");
 
-    } 
-
+        // CORRECCIÓN CLAVE: Usamos getUsuario() en lugar de getNombre()
+        assertEquals("admin", resultado.get(0).getUsuario(), "El usuario admin no se guardó correctamente");
+        assertEquals("admin", resultado.get(0).getContrasenia(), "La contraseña admin no se guardó correctamente");
+    }
 }

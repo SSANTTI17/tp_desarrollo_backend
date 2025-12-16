@@ -1,29 +1,29 @@
 package com.desarrollo_backend.demo.modelo.conserje;
 
-import jakarta.persistence.*; // IMPORTANTE: Esto trae @Entity, @Id, etc.
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "conserjes")
 public class Conserje {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Autoincremental
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String nombre;
+    @Column(nullable = false, unique = true)
+    private String usuario;
+
+    @Column(nullable = false)
     private String contrasenia;
 
-    // --- Constructores ---
     public Conserje() {
     }
 
-    // Constructor original (modificado para no pedir ID, ya que se autogenera)
-    public Conserje(String nombre, String contrasenia) {
-        this.nombre = nombre;
+    public Conserje(String usuario, String contrasenia) {
+        this.usuario = usuario;
         this.contrasenia = contrasenia;
     }
 
-    // --- Getters y Setters ---
     public Integer getId() {
         return id;
     }
@@ -32,12 +32,12 @@ public class Conserje {
         this.id = id;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getUsuario() {
+        return usuario;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 
     public String getContrasenia() {

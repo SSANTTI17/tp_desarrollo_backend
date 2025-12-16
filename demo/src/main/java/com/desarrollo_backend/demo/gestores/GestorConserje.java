@@ -8,49 +8,37 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
-@Service // <--- Esto lo convierte en un Singleton gestionado por Spring
+@Service
 public class GestorConserje {
 
     @Autowired
-    private ConserjeRepository conserjeRepository; // Usamos el Repo, no el DAO
-
-    // Ya no necesitamos el constructor privado ni el método getInstancia().
-    // Spring se encarga de que sea único.
-
-    // --- MÉTODOS DE LÓGICA ---
+    private ConserjeRepository conserjeRepository;
 
     /**
      * Verifica si el usuario y contraseña son correctos contra la Base de Datos.
      */
     @Transactional(readOnly = true)
-    public boolean autenticar(String nombreIngresado, String passIngresada) {
+    public boolean autenticar(String usuarioIngresado, String passIngresada) {
 
-        // Buscamos en la base de datos por nombre
-        Optional<Conserje> conserjeOpt = conserjeRepository.findByNombre(nombreIngresado);
+        // Buscamos por 'usuario' (el login)
+        Optional<Conserje> conserjeOpt = conserjeRepository.findByUsuario(usuarioIngresado);
 
-        // Si no existe el usuario
         if (conserjeOpt.isEmpty()) {
             return false;
         }
 
         Conserje real = conserjeOpt.get();
-
-        // Comparamos la contraseña
         return real.getContrasenia().equals(passIngresada);
     }
 
-    // Cambia la contraseña de un conserje dado su nombre de usuario
+    // Cambia la contraseña dado el usuario
     @Transactional
-    public String cambiarContrasenia(String nombreUsuario, String nuevaPass) {
-        // Primero buscamos al conserje que quiere cambiar la pass
-        Optional<Conserje> conserjeOpt = conserjeRepository.findByNombre(nombreUsuario);
+    public String cambiarContrasenia(String usuario, String nuevaPass) {
+        Optional<Conserje> conserjeOpt = conserjeRepository.findByUsuario(usuario);
 
         if (conserjeOpt.isPresent()) {
             Conserje conserje = conserjeOpt.get();
             conserje.setContrasenia(nuevaPass);
-
-            // Al usar JPA y @Transactional, el .save() a veces es implícito,
-            // pero es buena práctica ponerlo explícito.
             conserjeRepository.save(conserje);
             return "Contraseña actualizada";
         } else {
@@ -58,13 +46,13 @@ public class GestorConserje {
         }
     }
 
-    // Si no existe el conserje, lo crea
+    // Bootstrapping: Si no hay nadie, crea el admin por defecto
     @Transactional
     public void crearConserjeInicialSiNoExiste() {
         if (conserjeRepository.count() == 0) {
             Conserje admin = new Conserje();
-            admin.setNombre("admin");
-            admin.setContrasenia("admin123");
+            admin.setUsuario("admin");
+            admin.setContrasenia("admin");
             conserjeRepository.save(admin);
         }
     }
