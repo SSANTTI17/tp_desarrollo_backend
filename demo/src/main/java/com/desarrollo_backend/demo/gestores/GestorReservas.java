@@ -16,7 +16,8 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK; // Importante para buscar por ID
+import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.observers.*;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
@@ -79,88 +80,48 @@ public class GestorReservas {
      * fecha de inicio y fecha de fin.
      */
     @Transactional
-    public String crearReserva(String nombre, String apellido, String telefono, String tipoStr,
-            int numeroHab, String fechaInicioStr, String fechaFinStr) {
-        try {
-            Date fechaInicio = parsearFechaFront(fechaInicioStr);
-            Date fechaFin = parsearFechaFront(fechaFinStr);
-
-            if (fechaInicio == null || fechaFin == null)
-                return "Error: Fechas inválidas.";
-
-            TipoHabitacion tipoEnum = TipoHabitacion.fromString(tipoStr);
-            if (tipoEnum == null)
-                return "Error: Tipo de habitación inválido";
-
-            List<Date> diasSolicitados = generarRangoFechas(fechaInicio, fechaFin);
-            for (Date dia : diasSolicitados) {
-                if (!verificarLibre(numeroHab, tipoEnum, dia)) {
-                    String diaOcupado = new SimpleDateFormat("dd/MM/yyyy").format(dia);
-                    return "Error: Habitación ocupada el día " + diaOcupado;
-                }
-            }
-
-            Habitacion habitacionRef = habitacionRepo.findByIdNumeroAndIdTipo(numeroHab, tipoEnum);
-
-            if (habitacionRef == null) {
-                return "Error: La habitación no existe (Revise número y tipo)";
-            }
-
-            /*
-             * // hacer reservas para más de una habitacion
-             * List<Habitacion> auxList = new ArrayList<>();
-             * auxList.add(habitacionRef);
-             */
-
-            Reserva nuevaReserva = new Reserva();
-            nuevaReserva.setApellido(apellido);
-            nuevaReserva.setNombre(nombre);
-            nuevaReserva.setTelefono(telefono);
-            nuevaReserva.setFechaIngreso(fechaInicio);
-            nuevaReserva.setFechaEgreso(fechaFin);
-            nuevaReserva.setHoraIngreso("14:00");
-            nuevaReserva.setHoraEgreso("10:00");
-
-            reservaRepo.save(nuevaReserva);
-
-            observers.forEach(obs -> obs.onReservaCreada(nuevaReserva));
-
-            return "¡Reserva Exitosa!";
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "Error en el servidor: " + e.getMessage();
-        }
-    }
-
-    @Transactional
-    public String crearReserva(String nombre, String apellido, String telefono, List<Habitacion> habitaciones,
+    public String crearReserva(String nombre, String apellido, String telefono,
+            List<Habitacion> habitacionesSolicitadas,
             String fechaInicioStr, String fechaFinStr) {
         try {
+            // 1. Validaciones de fechas (TAL CUAL TU CÓDIGO)
             Date fechaInicio = parsearFechaFront(fechaInicioStr);
             Date fechaFin = parsearFechaFront(fechaFinStr);
 
             if (fechaInicio == null || fechaFin == null)
                 return "Error: Fechas inválidas.";
 
-            List<Date> diasSolicitados = generarRangoFechas(fechaInicio, fechaFin);
+            // 2. Validar habitaciones (ADAPTADO A LISTA)
+            if (habitacionesSolicitadas == null || habitacionesSolicitadas.isEmpty())
+                return "Error: No se seleccionaron habitaciones.";
 
-            for (Habitacion h : habitaciones) {
+            List<Date> diasSolicitados = generarRangoFechas(fechaInicio, fechaFin);
+            List<Habitacion> habitacionesReales = new ArrayList<>();
+
+            // Iteramos la lista que viene del front
+            for (Habitacion habSolicitada : habitacionesSolicitadas) {
+
+                // Buscamos la entidad real en la BD
+                Habitacion habBD = habitacionRepo.findByIdNumeroAndIdTipo(habSolicitada.getNumero(),
+                        habSolicitada.getTipo());
+
+                if (habBD == null) {
+                    return "Error: La habitación " + habSolicitada.getNumero() + " no existe.";
+                }
+
+                // Verificamos disponibilidad día por día
                 for (Date dia : diasSolicitados) {
-                    if (!verificarLibre(h.getNumero(), h.getTipo(), dia)) {
-                        String diaOcupado = new SimpleDateFormat("dd/MM/yyyy").format(dia);
-                        return "Error: Habitación " +
-                                h.getNumero() + h.getNumero() + " ocupada el día " + diaOcupado;
+                    if (!verificarLibre(habBD.getNumero(), habBD.getTipo(), dia)) {
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+                        return "Error: Habitación " + habBD.getNumero() + " ocupada el día " + sdf.format(dia);
                     }
                 }
 
-                Habitacion habitacionRef = habitacionRepo.findByIdNumeroAndIdTipo(h.getNumero(), h.getTipo());
-
-                if (habitacionRef == null) {
-                    return "Error: La habitación" + h.getNumero() + h.getTipo() + "no existe (Revise número y tipo)";
-                }
+                // Si pasa, la agregamos a la lista final
+                habitacionesReales.add(habBD);
             }
 
+            // 4. Crear y Guardar la Reserva (ADAPTADO PARA RECIBIR LA LISTA)
             Reserva nuevaReserva = new Reserva();
             nuevaReserva.setApellido(apellido);
             nuevaReserva.setNombre(nombre);
@@ -169,14 +130,18 @@ public class GestorReservas {
             nuevaReserva.setFechaEgreso(fechaFin);
             nuevaReserva.setHoraIngreso("14:00");
             nuevaReserva.setHoraEgreso("10:00");
-            nuevaReserva.setHabitacionesReservadas(habitaciones);
-
+            nuevaReserva.setHabitacionesReservadas(habitacionesReales);
             reservaRepo.save(nuevaReserva);
 
-            observers.forEach(obs -> obs.onReservaCreada(nuevaReserva));
+            // 5. Notificar (TAL CUAL)
+            if (observers != null) {
+                observers.forEach(obs -> obs.onReservaCreada(nuevaReserva));
+            }
 
             return "¡Reserva Exitosa!";
 
+        } catch (IllegalArgumentException e) {
+            return "Error: Tipo de documento inválido.";
         } catch (Exception e) {
             e.printStackTrace();
             return "Error en el servidor: " + e.getMessage();
@@ -216,7 +181,6 @@ public class GestorReservas {
 
     /**
      * Elimina una lista de reservas. Actualiza observers. Transactional
-     * Elimina las reservas que no se eliminaron correctamente
      */
     @Transactional
     public List<Reserva> eliminarReservas(List<Reserva> reservas) {
