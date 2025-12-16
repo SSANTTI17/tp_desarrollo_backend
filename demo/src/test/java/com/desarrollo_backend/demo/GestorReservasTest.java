@@ -12,7 +12,7 @@ import com.desarrollo_backend.demo.modelo.habitacion.EstadoHabitacion;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
-import com.desarrollo_backend.demo.repository.HuespedRepository; // IMPORTANTE
+import com.desarrollo_backend.demo.repository.HuespedRepository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ArrayList;
+import java.util.Calendar;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -45,6 +49,84 @@ public class GestorReservasTest {
 
         @Autowired
         private HuespedRepository huespedRepo; // AGREGADO
+        /*
+         * @Test
+         * public void buscarDisponibilidad_Exitosa()
+         * String tipoString; String desdeStr; String hastaStr;
+         * List<Map<String, Object>> listaResultado = new ArrayList<>();
+         * 
+         * TipoHabitacion tipoEnum = TipoHabitacion.fromString(tipoString);
+         * if (tipoEnum == null)
+         * return listaResultado;
+         * 
+         * Date desde = parsearFechaFront(desdeStr);
+         * Date hasta = parsearFechaFront(hastaStr);
+         * 
+         * if (desde == null || hasta == null || desde.after(hasta))
+         * return listaResultado;
+         * 
+         * List<Date> rango = generarRangoFechas(desde, hasta);
+         * 
+         * for (Date fecha : rango) {
+         * boolean sd1 = verificarLibre(1, tipoEnum, fecha);
+         * boolean sd2 = verificarLibre(2, tipoEnum, fecha);
+         * 
+         * Map<String, Object> fila = new HashMap<>();
+         * fila.put("fecha", new SimpleDateFormat("dd/MM/yyyy").format(fecha));
+         * fila.put("sd1", sd1);
+         * fila.put("sd2", sd2);
+         * 
+         * listaResultado.add(fila);
+         * }
+         * return listaResultado;
+         * }
+         * 
+         * /**
+         * Test unitario: parseo de string a Date
+         * (tipo de dato de la base de datos)
+         */
+
+        @Test
+        private void parsearFechaFront_ExitoCasoGuion() {
+                // String f = "2025-12-12";
+                // Date resultado = gestorReservas.parsearFechaFront(f);
+
+                // VER
+        }
+
+        /**
+         * Genera un rango de fechas entre dos fechas dadas
+         */
+        /*
+         * private List<Date> generarRangoFechas() {
+         * 
+         * Date d1 = new S
+         * List<Date> lista = new ArrayList<>();
+         * Calendar cal = Calendar.getInstance();
+         * cal.setTime(d1);
+         * while (!cal.getTime().after(d2)) {
+         * lista.add(cal.getTime());
+         * cal.add(Calendar.DAY_OF_MONTH, 1);
+         * }
+         * return lista;
+         * }
+         */
+
+        /**
+         * Verifica si una habitacion esta libre en una fecha dada
+         */
+        private boolean verificarLibre(int numero, TipoHabitacion tipo, Date fecha) {
+                List<HistorialEstadoHabitacion> historial = historialRepo.findByHabitacion(numero, tipo);
+                for (HistorialEstadoHabitacion h : historial) {
+                        if (!fecha.before(h.getFechaInicio()) && !fecha.after(h.getFechaFin())) {
+                                if (h.getEstado() == EstadoHabitacion.Ocupada
+                                                || h.getEstado() == EstadoHabitacion.Reservada) {
+                                        return false;
+                                }
+                        }
+                }
+                return true;
+        }
 
         /**
          * Prueba de Integración: Verificar que la creación de una reserva
@@ -53,23 +135,18 @@ public class GestorReservasTest {
         @Test
         public void testCrearReserva_PersistenciaExitosa() {
                 // --- ARRANGE (Preparación de datos) ---
-                HuespedDTO huesped = new HuespedDTO();
-                huesped.setApellido("Gomez");
-                huesped.setNombre("Laura");
-                huesped.setTelefono("12345678");
-                // Datos mínimos requeridos por el modelo corregido
-                huesped.setTipo_documento(TipoDoc.DNI);
-                huesped.setNroDocumento("11223344");
-                huesped.setDireccion("Calle Test 123");
-                huesped.setNacionalidad("Argentina");
-                huesped.setOcupacion("Tester");
+                String apellido = "Gomez";
+                String nombre = "Laura";
+                String telefono = "12345678";
 
                 int numeroHab = 101;
-                String fechaInicioStr = "15/12/2026";
-                String fechaFinStr = "17/12/2026";
+                String fechaInicioStr = "2026-12-15";
+                String fechaFinStr = "2026-12-17";
 
                 Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
                 habitacionRepo.save(hab);
+                List<Habitacion> habitaciones = new ArrayList<>();
+                habitaciones.add(hab);
 
                 // Limpiamos si existe algo previo con ese apellido
                 if (!reservaRepo.findByApellido("Gomez").isEmpty()) {
@@ -78,7 +155,7 @@ public class GestorReservasTest {
 
                 // --- ACT (Ejecución de la lógica completa) ---
                 String resultadoOperacion = gestorReservas.crearReserva(
-                                huesped, TipoHabitacion.DE.toString(), numeroHab, fechaInicioStr, fechaFinStr);
+                                nombre, apellido, telefono, habitaciones, fechaInicioStr, fechaFinStr);
 
                 // --- ASSERT (Verificación) ---
                 assertEquals("¡Reserva Exitosa!", resultadoOperacion,
@@ -97,19 +174,13 @@ public class GestorReservasTest {
         @Test
         public void testCrearReserva_PersistenciaExitosaHistorial() {
                 // --- ARRANGE ---
-                HuespedDTO huesped = new HuespedDTO();
-                huesped.setApellido("Gomez");
-                huesped.setNombre("Laura");
-                huesped.setTelefono("12345678");
-                huesped.setTipo_documento(TipoDoc.DNI);
-                huesped.setNroDocumento("11223344");
-                huesped.setDireccion("Calle Test 123");
-                huesped.setNacionalidad("Argentina");
-                huesped.setOcupacion("Tester");
+                String nombre = "Laura";
+                String apellido = "Gomez";
+                String telefono = "12345678";
 
                 int numeroHab = 101;
-                String fechaInicioStr = "15/12/2026";
-                String fechaFinStr = "17/12/2026";
+                String fechaInicioStr = "2026-12-15";
+                String fechaFinStr = "2026-12-17";
 
                 Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
                 habitacionRepo.save(hab);
@@ -119,8 +190,8 @@ public class GestorReservasTest {
                 }
 
                 // --- ACT ---
-                String resultadoOperacion = gestorReservas.crearReserva(
-                                huesped, TipoHabitacion.DE.toString(), numeroHab, fechaInicioStr, fechaFinStr);
+                String resultadoOperacion = gestorReservas.crearReserva(nombre, apellido,
+                                telefono, new ArrayList<>(), fechaInicioStr, fechaFinStr);
 
                 // --- ASSERT ---
                 assertEquals("¡Reserva Exitosa!", resultadoOperacion,

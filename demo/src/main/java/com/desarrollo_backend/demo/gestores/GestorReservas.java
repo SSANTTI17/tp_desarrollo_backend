@@ -16,7 +16,7 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.huesped.HuespedPK; // Importante para buscar por ID
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.observers.*;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
@@ -79,8 +79,8 @@ public class GestorReservas {
      * fecha de inicio y fecha de fin.
      */
     @Transactional
-    public String crearReserva(HuespedDTO huesped, String tipoStr, int numeroHab, String fechaInicioStr,
-            String fechaFinStr) {
+    public String crearReserva(String nombre, String apellido, String telefono, String tipoStr,
+            int numeroHab, String fechaInicioStr, String fechaFinStr) {
         try {
             Date fechaInicio = parsearFechaFront(fechaInicioStr);
             Date fechaFin = parsearFechaFront(fechaFinStr);
@@ -106,32 +106,69 @@ public class GestorReservas {
                 return "Error: La habitación no existe (Revise número y tipo)";
             }
 
-            // CORRECCIÓN CRÍTICA: Gestionar la entidad Huesped antes de Reservar
-            Huesped huespedEntidad = null;
+            /*
+             * // hacer reservas para más de una habitacion
+             * List<Habitacion> auxList = new ArrayList<>();
+             * auxList.add(habitacionRef);
+             */
 
-            // 1. Intentamos buscar si ya existe en la BD
-            if (huesped.getTipo_documento() != null && huesped.getNroDocumento() != null) {
-                HuespedPK pk = new HuespedPK(huesped.getTipo_documento(), huesped.getNroDocumento());
-                huespedEntidad = huespedRepo.findById(pk).orElse(null);
-            }
+            Reserva nuevaReserva = new Reserva();
+            nuevaReserva.setApellido(apellido);
+            nuevaReserva.setNombre(nombre);
+            nuevaReserva.setTelefono(telefono);
+            nuevaReserva.setFechaIngreso(fechaInicio);
+            nuevaReserva.setFechaEgreso(fechaFin);
+            nuevaReserva.setHoraIngreso("14:00");
+            nuevaReserva.setHoraEgreso("10:00");
 
-            // 2. Si no existe, lo creamos y guardamos
-            if (huespedEntidad == null) {
-                huespedEntidad = new Huesped(huesped);
-                // Aseguramos que tenga dirección para no fallar por restricción NOT NULL
-                if (huespedEntidad.getDireccion() == null) {
-                    huespedEntidad.setDireccion("Desconocida");
+            reservaRepo.save(nuevaReserva);
+
+            observers.forEach(obs -> obs.onReservaCreada(nuevaReserva));
+
+            return "¡Reserva Exitosa!";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Error en el servidor: " + e.getMessage();
+        }
+    }
+
+    @Transactional
+    public String crearReserva(String nombre, String apellido, String telefono, List<Habitacion> habitaciones,
+            String fechaInicioStr, String fechaFinStr) {
+        try {
+            Date fechaInicio = parsearFechaFront(fechaInicioStr);
+            Date fechaFin = parsearFechaFront(fechaFinStr);
+
+            if (fechaInicio == null || fechaFin == null)
+                return "Error: Fechas inválidas.";
+
+            List<Date> diasSolicitados = generarRangoFechas(fechaInicio, fechaFin);
+
+            for (Habitacion h : habitaciones) {
+                for (Date dia : diasSolicitados) {
+                    if (!verificarLibre(h.getNumero(), h.getTipo(), dia)) {
+                        String diaOcupado = new SimpleDateFormat("dd/MM/yyyy").format(dia);
+                        return "Error: Habitación " +
+                                h.getNumero() + h.getNumero() + " ocupada el día " + diaOcupado;
+                    }
                 }
-                huespedRepo.save(huespedEntidad);
+
+                Habitacion habitacionRef = habitacionRepo.findByIdNumeroAndIdTipo(h.getNumero(), h.getTipo());
+
+                if (habitacionRef == null) {
+                    return "Error: La habitación" + h.getNumero() + h.getTipo() + "no existe (Revise número y tipo)";
+                }
             }
 
-            // hacer reservas para más de una habitacion
-            List<Habitacion> auxList = new ArrayList<>();
-            auxList.add(habitacionRef);
-
-            // 3. Usamos la entidad 'huespedEntidad' ya persistida
-            Reserva nuevaReserva = new Reserva(huespedEntidad,
-                    fechaInicio, "14:00", fechaFin, "10:00", auxList);
+            Reserva nuevaReserva = new Reserva();
+            nuevaReserva.setApellido(apellido);
+            nuevaReserva.setNombre(nombre);
+            nuevaReserva.setTelefono(telefono);
+            nuevaReserva.setFechaIngreso(fechaInicio);
+            nuevaReserva.setFechaEgreso(fechaFin);
+            nuevaReserva.setHoraIngreso("14:00");
+            nuevaReserva.setHoraEgreso("10:00");
 
             reservaRepo.save(nuevaReserva);
 
@@ -178,6 +215,7 @@ public class GestorReservas {
 
     /**
      * Elimina una lista de reservas. Actualiza observers. Transactional
+     * Elimina las reservas que no se eliminaron correctamente
      */
     @Transactional
     public List<Reserva> eliminarReservas(List<Reserva> reservas) {
