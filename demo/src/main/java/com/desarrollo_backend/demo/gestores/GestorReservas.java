@@ -169,6 +169,7 @@ public class GestorReservas {
             nuevaReserva.setFechaEgreso(fechaFin);
             nuevaReserva.setHoraIngreso("14:00");
             nuevaReserva.setHoraEgreso("10:00");
+            nuevaReserva.setHabitacionesReservadas(habitaciones);
 
             reservaRepo.save(nuevaReserva);
 

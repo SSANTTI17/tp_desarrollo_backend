@@ -184,6 +184,8 @@ public class GestorReservasTest {
 
                 Habitacion hab = new Habitacion(TipoHabitacion.DE, numeroHab, 0);
                 habitacionRepo.save(hab);
+                List<Habitacion> habitaciones = new ArrayList<>();
+                habitaciones.add(hab);
 
                 if (!reservaRepo.findByApellido("Gomez").isEmpty()) {
                         reservaRepo.findByApellido("Gomez").forEach(reservaRepo::delete);
@@ -191,7 +193,7 @@ public class GestorReservasTest {
 
                 // --- ACT ---
                 String resultadoOperacion = gestorReservas.crearReserva(nombre, apellido,
-                                telefono, new ArrayList<>(), fechaInicioStr, fechaFinStr);
+                                telefono, habitaciones, fechaInicioStr, fechaFinStr);
 
                 // --- ASSERT ---
                 assertEquals("¡Reserva Exitosa!", resultadoOperacion,
