@@ -239,6 +239,7 @@ public class GestorContable {
             estadia.setFacturadaEstadia(true);
         }
         estadiaRepository.save(estadia);
+        factura.setEstadia(estadia);
         FacturaRepository.save(factura);
     }
 

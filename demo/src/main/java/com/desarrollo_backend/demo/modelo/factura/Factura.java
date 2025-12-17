@@ -1,6 +1,7 @@
 package com.desarrollo_backend.demo.modelo.factura;
 
 import com.desarrollo_backend.demo.dtos.FacturaDTO;
+import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import java.util.List;
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ public class Factura {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TipoFactura tipoFactura;
+
+    @ManyToOne
+    @JoinColumn(name = "estadia_id", nullable = false) // FK en la tabla facturas
+    private Estadia estadia;
 
     @Column(nullable = false)
     private float valorEstadia;
@@ -73,10 +78,18 @@ public class Factura {
 
     public TipoFactura getTipoFactura() {
         return tipoFactura;
-    }
+    }   
 
     public void setTipoFactura(TipoFactura tipoFactura) {
         this.tipoFactura = tipoFactura;
+    }
+
+    public Estadia getEstadia() {
+        return estadia;
+    }
+
+    public void setEstadia(Estadia estadia) {
+        this.estadia = estadia;
     }
 
     public float getValorEstadia() {
