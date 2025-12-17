@@ -43,7 +43,15 @@ public class FachadaHotel {
     public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
     }
-
+    /**
+     * Recupera la lista de huéspedes asociados a una reserva de una habitación específica
+     * que realiza el check-out en la fecha indicada.
+     * Este método es el paso inicial para seleccionar a nombre de quién se realizará la facturación.
+     * Es mejor usar reservas en nuestro caso ya que estadia no tiene huespedes asociados como atributo.
+     * @param estadiaDTO    DTO que contiene la fecha de finalización (check-out) de la estadía.
+     * @param habitacionDTO DTO con el número y tipo de habitación a consultar.
+     * @return Lista de {@link HuespedDTO} con los ocupantes asociados a la reserva.
+     */
     public List<HuespedDTO> obtenerHuespedesParaFacturacion(EstadiaDTO estadiaDTO, HabitacionDTO habitacionDTO) {
         // Delegamos al gestor pasándole los datos primitivos necesarios
         // Las reservas tienen información duplicada de las estadias
@@ -59,7 +67,18 @@ public class FachadaHotel {
                 .collect(Collectors.toList());
         return dtos;
     }
-
+    /**
+     * Genera una instancia preliminar de la factura y valida las reglas de negocio antes de la confirmación.
+     * Verifica que el huésped responsable sea mayor de edad, busca la estadía real en base a los datos
+     * de la habitación y fecha, y calcula los montos totales incluyendo consumos.
+     *
+     * @param huesped    DTO del huésped seleccionado como responsable de pago (puede ser nulo si es tercero).
+     * @param CUIT       Cadena con el CUIT del responsable de pago (si es una persona jurídica/tercero).
+     * @param estadia    DTO con los datos de fecha de fin para localizar la estadía.
+     * @param habitacion DTO con los datos de la habitación para localizar la estadía.
+     * @return Un ContenedorEstadiaYFacturaDTO que agrupa la estadía encontrada y la factura generada (no persistida).
+     * @throws RuntimeException Si el huésped seleccionado no existe, es menor de edad o hay errores en el cálculo.
+     */
     public ContenedorEstadiaYFacturaDTO generarFactura(HuespedDTO huesped, String CUIT, EstadiaDTO estadia,
             HabitacionDTO habitacion) {
         Huesped entidad = null;
@@ -87,7 +106,18 @@ public class FachadaHotel {
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
     }
-
+    /**
+     * Confirma y persiste la facturación de una estadía.
+     * Este método asocia el responsable de pago definitivo, actualiza el estado de los consumos
+     * a "facturados" y guarda la factura en la base de datos vinculándola con la estadía.
+     *
+     * @param idEstadia Identificador único de la estadía a facturar.
+     * @param factura   DTO con los datos de la factura a confirmar.
+     * @param h         DTO del huésped (usado para buscar responsable si no se proveyó una Persona Jurídica).
+     * @param resp      DTO de la Persona Jurídica responsable (si aplica).
+     * @param consumos  Lista de consumos que se incluyen en esta factura.
+     * @return FacturaDTO confirmado y procesado.
+     */
     public FacturaDTO confirmarFactura(Integer idEstadia, FacturaDTO factura, HuespedDTO h, PersonaJuridicaDTO resp,
             List<ConsumoDTO> consumos) {
 
@@ -98,14 +128,16 @@ public class FachadaHotel {
         // responsable pago
         // si cuit == null entonces es el huesped y busco el responsable pago asociado
         // al huesped
+        Factura facturaReal = new Factura(factura);
         if (resp != null && resp.getCUIT() != null) {
             respPago = gestorContable.buscarResponsablePorCuit(resp.getCUIT()); // El CUIT es el ID
+            facturaReal.setResponsablePago(respPago);
         } else {
             List<Huesped> entidades = gestorHuespedes.buscarHuespedes(h);
             entidad = entidades.get(0);
+            facturaReal.setResponsablePago(gestorContable.buscarResponsablePorHuesped(entidad));
         }
 
-        Factura facturaReal = new Factura(factura);
         gestorContable.actualizarConsumosEstadia(estadia, consumos);
         gestorContable.crearFacturaReal(facturaReal, estadia);
         return factura;

@@ -121,7 +121,18 @@ public class GestorContable {
             }
         }
     }
-
+    /**
+     * Realiza la lógica de negocio para la confección de una factura preliminar.
+     * Valida que el huésped sea mayor de 18 años, determina el responsable de pago (Huésped o Tercero/Empresa),
+     * calcula los totales sumando el costo de la estadía y los consumos pendientes, y define el
+     * tipo de factura (A o B) según la condición fiscal del responsable.
+     *
+     * @param huesped Entidad del huésped seleccionado (puede ser null si paga un tercero).
+     * @param CUIT    CUIT del responsable de pago externo (usado si huesped es null).
+     * @param estadia La estadía sobre la cual se está facturando.
+     * @return Una entidad {@link Factura} con los cálculos realizados y el responsable asignado (sin persistir).
+     * @throws Exception Si el huésped seleccionado es menor de edad.
+     */
     public Factura generarFacturaParaHuesped(Huesped huesped, String CUIT, Estadia estadia) throws Exception {
 
         // VALIDACIÓN: MENOR DE EDAD
@@ -170,7 +181,12 @@ public class GestorContable {
         estadia.setFactura(factura);
         return factura;
     }
-
+    /**
+     * Busca un responsable de pago existente en la base de datos utilizando su CUIT como identificador.
+     *
+     * @param cuit El CUIT del responsable a buscar.
+     * @return La entidad {@link ResponsablePago} si existe, o {@code null} en caso contrario.
+     */
     public ResponsablePago buscarResponsablePorCuit(String cuit) {
         return responsablePagoRepository.findById(cuit).orElse(null);
     }
@@ -178,17 +194,36 @@ public class GestorContable {
     public ResponsablePago buscarResponsablePorHuesped(Huesped huesped) {
         return personaFisicaRepository.findByRefHuesped(huesped).orElse(null);
     }
-
+    /**
+     * Busca una estadía activa que coincida exactamente con el número de habitación,
+     * tipo de habitación y que tenga fecha de salida (check-out) en el día indicado.
+     *
+     * @param numero   Número de la habitación.
+     * @param tipo     Tipo de habitación (enum).
+     * @param fechaFin Fecha de check-out esperada.
+     * @return La entidad Estadia encontrada, o {@code null} si no existe coincidencia.
+     */
     public Estadia buscarEstadiaPorCheckout(int numero, TipoHabitacion tipo, Date fechaFin) {
         return estadiaRepository.buscarPorHabitacionYFechaFin(numero, tipo, fechaFin)
                 .orElse(null);
     }
-
+    /**
+     * Busca una estadía por su identificador único.
+     * * @param idEstadia ID de la estadía.
+     * @return La entidad {@link Estadia}.
+     * @throws RuntimeException Si no se encuentra la estadía con el ID proporcionado.
+     */
     public Estadia buscarEstadia(int idEstadia) {
         return estadiaRepository.findById(idEstadia)
             .orElseThrow(() -> new RuntimeException("Estadía no encontrada"));
     }
-
+    /**
+     * Persiste la factura definitiva en la base de datos y establece la relación bidireccional
+     * con la estadía correspondiente.
+     *
+     * @param factura La entidad Factura a guardar.
+     * @param estadia La estadía a la cual pertenece dicha factura.
+     */
     @Transactional
     public void crearFacturaReal(Factura factura, Estadia estadia) {
         
@@ -200,7 +235,14 @@ public class GestorContable {
     public void guardarResponsablePago(ResponsablePago responsable) {
         responsablePagoRepository.save(responsable);
     }
-
+    /**
+     * Actualiza el estado de los ítems de consumo asociados a una estadía.
+     * Marca como "facturado" (true) aquellos consumos que coinciden con la lista de DTOs recibida,
+     * para evitar que sean cobrados nuevamente en el futuro.
+     *
+     * @param estadia     La entidad de la estadía cuyos consumos se actualizarán.
+     * @param consumosDTO Lista de DTOs que representan los consumos que acaban de ser facturados.
+     */
     @Transactional
     public void actualizarConsumosEstadia(Estadia estadia, List<ConsumoDTO> consumosDTO) {
 
