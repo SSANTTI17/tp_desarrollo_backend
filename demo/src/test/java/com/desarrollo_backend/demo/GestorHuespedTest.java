@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.desarrollo_backend.demo.builder.ReservaBuilder;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
 import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
@@ -185,10 +186,16 @@ public class GestorHuespedTest {
         List<Habitacion> habitaciones = new ArrayList<>();
         habitaciones.add(hab);
 
-        // 3. Crear Reserva asociada al huésped (usando el constructor apropiado de tu
-        // Entidad Reserva)
+        // 3. Crear Reserva asociada al huésped 
         // Nota: Asegúrate de usar el constructor que setea 'huespedRef'
-        Reserva reserva = new Reserva(huesped, new Date(), "10:00", new Date(), "10:00", habitaciones);
+        Reserva reserva = new ReservaBuilder()
+            .conCliente(huesped)
+            .paraElPeriodo(new Date(), new Date()) // Las fechas de inicio y fin
+            .asignarHabitaciones(habitaciones)
+            .conHorariosEstandar() // Asigna los horarios por defecto
+            .build();
+
+        // Guardado
         reserva = reservaRepository.save(reserva);
 
         // Act
