@@ -2,7 +2,6 @@ package com.desarrollo_backend.demo;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -13,37 +12,25 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
-import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
-import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
-import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
+import com.desarrollo_backend.demo.mappers.HuespedMapper; // 1. Importamos el Mapper
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
-import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
-import com.desarrollo_backend.demo.repository.ReservaRepository;
-import com.desarrollo_backend.demo.gestores.GestorReservas;
 
 @SpringBootTest
-@Transactional // Importante: Revierte cambios en BD al terminar cada test
+@Transactional
 public class GestorHuespedTest {
 
     @Autowired
     private GestorHuesped gestorHuesped;
 
     @Autowired
-    private GestorReservas gestorReservas;
-
-    @Autowired
     private HuespedRepository huespedRepository;
 
     @Autowired
-    private ReservaRepository reservaRepository;
+    private HuespedMapper huespedMapper; // 2. Inyectamos el Mapper
 
-    @Autowired
-    private HabitacionRepository habitacionRepository;
-
-    // 1. Test para darDeAltaHuesped (Ya lo tenías, incluido por completitud)
     @Test
     public void testDarDeAltaHuesped_Exito() {
         HuespedDTO dto = crearDTO("Laura", "Gomez", "87654321");
@@ -55,45 +42,36 @@ public class GestorHuespedTest {
         assertTrue(huespedRepository.existsById(new HuespedPK(TipoDoc.DNI, "87654321")));
     }
 
-    // 2. Test para buscarHuespedes (Filtros)
     @Test
     public void testBuscarHuespedes_Exito() {
-        // Arrange
         guardarHuesped("Carlos", "Lopez", "11111111");
-        guardarHuesped("Ana", "Lopez", "22222222"); // Mismo apellido
+        guardarHuesped("Ana", "Lopez", "22222222");
         guardarHuesped("Pedro", "Perez", "33333333");
 
         HuespedDTO filtro = new HuespedDTO();
-        filtro.setApellido("Lop"); // Búsqueda parcial por apellido
+        filtro.setApellido("Lop");
 
-        // Act
         List<Huesped> resultados = gestorHuesped.buscarHuespedes(filtro);
 
-        // Assert
         assertEquals(2, resultados.size(), "Debería encontrar 2 huéspedes con apellido Lopez");
     }
 
-    // 3. Test para huespedIsAlojado
     @Test
     public void testHuespedIsAlojado_Exito() {
-        // Arrange
         Huesped h = new Huesped("Juan", "Alojado", TipoDoc.DNI, "99999999", new Date(), "Arg", "mail", "123", "Ocup",
                 true, "Dir", false);
         huespedRepository.save(h);
 
-        HuespedDTO dto = new HuespedDTO(h); // Usamos el DTO para consultar
+        // CORRECCIÓN 1: Usamos el mapper en lugar del constructor new HuespedDTO(h)
+        HuespedDTO dto = huespedMapper.toDto(h);
 
-        // Act
         boolean estaAlojado = gestorHuesped.huespedIsAlojado(dto);
 
-        // Assert
         assertTrue(estaAlojado, "El huésped debería figurar como alojado");
     }
 
-    // 4. Test para eliminarHuesped
     @Test
     public void testEliminarHuesped_Exito() {
-        // Arrange
         String dni = "55555555";
         guardarHuesped("Eliminar", "Me", dni);
 
@@ -101,18 +79,14 @@ public class GestorHuespedTest {
         dtoEliminar.setTipo_documento(TipoDoc.DNI);
         dtoEliminar.setNroDocumento(dni);
 
-        // Act
         gestorHuesped.eliminarHuesped(dtoEliminar);
 
-        // Assert
         assertFalse(huespedRepository.existsById(new HuespedPK(TipoDoc.DNI, dni)),
                 "El huésped no debería existir en BD");
     }
 
-    // 5.a Test para modificarHuesped (Sin cambio de PK)
     @Test
     public void testModificarHuesped_SinCambioPK_Exito() {
-        // Arrange
         String dni = "12312312";
         guardarHuesped("Original", "Apellido", dni);
 
@@ -121,85 +95,75 @@ public class GestorHuespedTest {
 
         HuespedPK pk = new HuespedPK(TipoDoc.DNI, dni);
 
-        // Act
         gestorHuesped.modificarHuesped(dtoModificado, pk, false);
 
-        // Assert
         Huesped enBD = huespedRepository.findById(pk).orElse(null);
         assertNotNull(enBD);
         assertEquals("Modificado", enBD.getNombre());
         assertEquals("nuevo@email.com", enBD.getEmail());
-        assertFalse(enBD.getBorrado()); // No debe estar borrado lógico
+
+        // CORRECCIÓN 2: Usamos getBorradoLogico() (generado por Lombok) en lugar de
+        // getBorrado()
+        assertFalse(enBD.getBorradoLogico());
     }
 
-    // 5.b Test para modificarHuesped (Con cambio de PK - Borrado lógico y creación)
     @Test
     public void testModificarHuesped_ConCambioPK_Exito() {
-        // Arrange
         String dniViejo = "11111111";
         String dniNuevo = "99999999";
         guardarHuesped("Cambio", "PK", dniViejo);
 
-        HuespedDTO dtoNuevo = crearDTO("Cambio", "PK", dniNuevo); // Mismos datos, nuevo DNI
+        HuespedDTO dtoNuevo = crearDTO("Cambio", "PK", dniNuevo);
         HuespedPK pkAnterior = new HuespedPK(TipoDoc.DNI, dniViejo);
 
-        // Act
         gestorHuesped.modificarHuesped(dtoNuevo, pkAnterior, true);
 
-        // Assert
-        // 1. El viejo debe existir pero con borrado lógico true
+        // Verificamos viejo
         Huesped viejo = huespedRepository.findById(pkAnterior).orElse(null);
         assertNotNull(viejo);
-        assertTrue(viejo.getBorrado(), "El registro anterior debe tener borrado lógico");
+        // CORRECCIÓN 2: getBorradoLogico()
+        assertTrue(viejo.getBorradoLogico(), "El registro anterior debe tener borrado lógico");
 
-        // 2. El nuevo debe existir y estar activo
+        // Verificamos nuevo
         Huesped nuevo = huespedRepository.findById(new HuespedPK(TipoDoc.DNI, dniNuevo)).orElse(null);
         assertNotNull(nuevo);
-        assertFalse(nuevo.getBorrado(), "El nuevo registro debe estar activo");
+        // CORRECCIÓN 2: getBorradoLogico()
+        assertFalse(nuevo.getBorradoLogico(), "El nuevo registro debe estar activo");
     }
 
-    // 6. Test para obtenerHuespedPorId
     @Test
     public void testObtenerHuespedPorId_Exito() {
-        // Arrange
         String dni = "77777777";
         guardarHuesped("Buscado", "PorID", dni);
         HuespedPK id = new HuespedPK(TipoDoc.DNI, dni);
 
-        // Act
         Huesped resultado = gestorHuesped.obtenerHuespedPorId(id);
 
-        // Assert
         assertNotNull(resultado);
         assertEquals("Buscado", resultado.getNombre());
     }
 
-    // 8. Test para darDeAltaHuesped con NULL (Cubre el if(dto == null))
     @Test
     public void testDarDeAltaHuesped_Null_RetornaNull() {
         Huesped resultado = gestorHuesped.darDeAltaHuesped(null);
-        assertNull(resultado, "Si el DTO es null, el método debería retornar null");
+        assertNull(resultado);
     }
 
-    // 9. Test para modificarHuesped cuando NO EXISTE (Caso modificoPK = false)
-    // Cubre el 'else' del if(existente != null)
     @Test
     public void testModificarHuesped_NoExiste_NoHaceNada() {
-        // Arrange
         String dniInexistente = "00000000";
         HuespedDTO dto = crearDTO("Fantasma", "Ghost", dniInexistente);
         HuespedPK pk = new HuespedPK(TipoDoc.DNI, dniInexistente);
 
-        // Act
         gestorHuesped.modificarHuesped(dto, pk, false);
 
-        // Assert
-        assertFalse(huespedRepository.existsById(pk), "No debería haber creado nada");
+        assertFalse(huespedRepository.existsById(pk));
     }
 
     // --- Métodos Auxiliares ---
 
     private void guardarHuesped(String nombre, String apellido, String dni) {
+        // Usamos el constructor manual que agregamos a la entidad para compatibilidad
         Huesped h = new Huesped(nombre, apellido, TipoDoc.DNI, dni, new Date(), "Arg", "test@mail.com", "123456",
                 "Ocupacion", false, "Calle 1", false);
         huespedRepository.save(h);

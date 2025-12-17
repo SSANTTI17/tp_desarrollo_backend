@@ -7,7 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Embeddable
-@Data // Genera getters, setters, toString, y lo más importante: equals y hashCode
+@Data // Genera getters, setters, toString, y lo más importante: equals y hashCode,
+      // experimental completamente pq es la primera vez que lo uso.
 @NoArgsConstructor
 @AllArgsConstructor
 public class HuespedPK implements Serializable {

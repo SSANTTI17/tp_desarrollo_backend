@@ -17,8 +17,8 @@ import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor // Reemplaza al constructor vacío
-@AllArgsConstructor // Genera un constructor con todos los campos
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "huespedes")
 public class Huesped {
 
@@ -55,7 +55,25 @@ public class Huesped {
     private String direccion;
 
     @Column(nullable = false)
-    private Boolean borradoLogico = false; // Inicialización por defecto con Lombok
+    private Boolean borradoLogico = false;
+
+    // --- CONSTRUCTOR DE CONVENIENCIA (Para arreglar Tests y código legacy) ---
+    public Huesped(String nombre, String apellido, TipoDoc tipo_documento, String nroDocumento,
+            Date fechaDeNacimiento, String nacionalidad, String email,
+            String telefono, String ocupacion, boolean alojado, String direccion, boolean borradoLogico) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        // Construimos el ID compuesto internamente
+        this.id = new HuespedPK(tipo_documento, nroDocumento);
+        this.fechaDeNacimiento = fechaDeNacimiento;
+        this.nacionalidad = nacionalidad;
+        this.email = email;
+        this.telefono = telefono;
+        this.ocupacion = ocupacion;
+        this.alojado = alojado;
+        this.direccion = direccion;
+        this.borradoLogico = borradoLogico;
+    }
 
     // Delegados para acceder a los campos de la PK más fácilmente
     public TipoDoc getTipo_documento() {
@@ -71,7 +89,6 @@ public class Huesped {
     }
 
     // --- LÓGICA DE NEGOCIO ---
-
     public int calcularEdad() {
         if (this.fechaDeNacimiento == null)
             return 0;
