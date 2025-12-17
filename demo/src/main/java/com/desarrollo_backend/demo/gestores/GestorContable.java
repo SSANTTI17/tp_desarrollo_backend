@@ -159,7 +159,11 @@ public class GestorContable {
             return null; // Retornar NULL indicará al Controller que debe redirigir a "Alta Responsable"
         }
 
-        float valorEstadia = estadia.getPrecio(); 
+        float valorEstadia = 0;
+
+        if (!estadia.isHabitacionFacturada()) {
+            valorEstadia = estadia.getPrecio();
+        }
         // Consumos
         float totalConsumos = estadia.totalConsumos(); 
         float totalAPagar = valorEstadia + totalConsumos;
@@ -231,6 +235,9 @@ public class GestorContable {
     public void crearFacturaReal(Factura factura, Estadia estadia) {
         
         estadia.agregarFactura(factura);
+        if(factura.getValorEstadia()!=0){
+            estadia.setFacturadaEstadia(true);
+        }
         estadiaRepository.save(estadia);
         FacturaRepository.save(factura);
     }

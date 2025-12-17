@@ -37,6 +37,9 @@ public class Estadia {
     @OneToMany(mappedBy = "estadia")
     private List<Factura> facturas;
 
+    @Column(nullable = false)
+    private boolean facturadaEstadia = false;
+
     @OneToOne(optional = true) // puede no tneer una reserva asociada
     @JoinColumn(name = "reserva_id", nullable = true)
     private Reserva reserva;
@@ -132,7 +135,15 @@ public class Estadia {
         return huespedes;
     }
 
+    public boolean isHabitacionFacturada() {
+        return facturadaEstadia;
+    }
+
     // setters
+
+    public void setFacturadaEstadia(boolean facturadaEstadia) {
+        this.facturadaEstadia = facturadaEstadia;
+    }
 
     public void setId(int id) {
         this.id = id;
