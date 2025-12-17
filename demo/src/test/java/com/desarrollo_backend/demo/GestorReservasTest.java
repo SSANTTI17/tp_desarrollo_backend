@@ -12,6 +12,8 @@ import com.desarrollo_backend.demo.repository.ReservaRepository;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
+import com.desarrollo_backend.demo.builder.ReservaBuilder;
+import com.desarrollo_backend.demo.facade.FachadaHotel;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class GestorReservasTest {
         private ReservaRepository reservaRepo;
 
         @Autowired
+        private FachadaHotel fachadaHotel;
+
+        @Autowired
         private HabitacionRepository habitacionRepo;
 
         @Autowired
@@ -46,31 +51,33 @@ public class GestorReservasTest {
 
         @Autowired
         private HuespedRepository huespedRepo; // AGREGADO
-        
+
         @Test
-        public void buscarDisponibilidad_Exitosa(){
-        
-        TipoHabitacion tipoEnum = TipoHabitacion.DE;
-        int numeroHab = 1;
-        Habitacion hab = new Habitacion(tipoEnum, numeroHab, 0);
-        habitacionRepo.save(hab);
+        public void buscarDisponibilidad_Exitosa() {
 
-        final String desdeStr = "15/12/2026";
-        final String hastaStr = "16/12/2026";
+                TipoHabitacion tipoEnum = TipoHabitacion.DE;
+                int numeroHab = 1;
+                Habitacion hab = new Habitacion(tipoEnum, numeroHab, 0);
+                habitacionRepo.save(hab);
 
-        List<Map<String, Object>> listaResultado = gestorReservas.buscarDisponibilidad(tipoEnum.toString(), desdeStr,hastaStr);
-        
-        assertNotNull(listaResultado, "La lista no debería ser nula.");
-        assertFalse(listaResultado.isEmpty(), "La lista no debería estar vacía.");
-        assertEquals(2, listaResultado.size(), "Debería devolver 2 fechas en el rango 15-16 dic");
-        
-        // Verificar estructura del primer Map  
-        Map<String, Object> primerDia = listaResultado.get(0);
-        assertEquals("15/12/2026", primerDia.get("fecha"), "Primera fecha debe ser 15/12/2026");
-        assertTrue(primerDia.containsKey(tipoEnum.toString()+"-"+hab.getNumero()), "Map debe contener clave DE-1");
-        
-}
-        
+                final String desdeStr = "15/12/2026";
+                final String hastaStr = "16/12/2026";
+
+                List<Map<String, Object>> listaResultado = gestorReservas.buscarDisponibilidad(tipoEnum.toString(),
+                                desdeStr, hastaStr);
+
+                assertNotNull(listaResultado, "La lista no debería ser nula.");
+                assertFalse(listaResultado.isEmpty(), "La lista no debería estar vacía.");
+                assertEquals(2, listaResultado.size(), "Debería devolver 2 fechas en el rango 15-16 dic");
+
+                // Verificar estructura del primer Map
+                Map<String, Object> primerDia = listaResultado.get(0);
+                assertEquals("15/12/2026", primerDia.get("fecha"), "Primera fecha debe ser 15/12/2026");
+                assertTrue(primerDia.containsKey(tipoEnum.toString() + "-" + hab.getNumero()),
+                                "Map debe contener clave DE-1");
+
+        }
+
         /**
          * Prueba de Integración: Verificar que la creación de una reserva
          * guarda correctamente el registro en la base de datos (H2).
@@ -97,7 +104,7 @@ public class GestorReservasTest {
                 }
 
                 // --- ACT (Ejecución de la lógica completa) ---
-                String resultadoOperacion = gestorReservas.crearReserva(
+                String resultadoOperacion = fachadaHotel.crearReserva(
                                 nombre, apellido, telefono, habitaciones, fechaInicioStr, fechaFinStr);
 
                 // --- ASSERT (Verificación) ---
@@ -135,7 +142,7 @@ public class GestorReservasTest {
                 }
 
                 // --- ACT ---
-                String resultadoOperacion = gestorReservas.crearReserva(nombre, apellido,
+                String resultadoOperacion = fachadaHotel.crearReserva(nombre, apellido,
                                 telefono, habitaciones, fechaInicioStr, fechaFinStr);
 
                 // --- ASSERT ---
@@ -198,9 +205,12 @@ public class GestorReservasTest {
                 // TransientPropertyValueException
                 huespedRepo.save(huesped);
 
-                Reserva reservaAEliminar = new Reserva(huesped, fechaInicio, "14:00",
-                                fechaFin, "14:00",
-                                habitacionesReservadas);
+                Reserva reservaAEliminar = new ReservaBuilder()
+                                .conCliente(huesped)
+                                .paraElPeriodo(fechaInicio, fechaFin)
+                                .conHorariosEstandar()
+                                .asignarHabitaciones(habitacionesReservadas)
+                                .build();
 
                 reservaRepo.save(reservaAEliminar);
 

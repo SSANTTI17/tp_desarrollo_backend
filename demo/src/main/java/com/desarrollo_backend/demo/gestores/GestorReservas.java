@@ -97,11 +97,11 @@ public class GestorReservas {
             }
 
             Reserva reserva = new ReservaBuilder()
-                .conCliente(h)
-                .paraElPeriodo(fechaInicio, fechaFin)
-                .conHorariosEstandar() // Ya no hardcodeamos "14:00" aquí
-                .asignarHabitaciones(habitacionesReales)
-                .build();
+                    .conCliente(h)
+                    .paraElPeriodo(fechaInicio, fechaFin)
+                    .conHorariosEstandar()
+                    .asignarHabitaciones(habitacionesReales)
+                    .build();
             reservaRepo.save(reserva);
 
             if (observers != null) {

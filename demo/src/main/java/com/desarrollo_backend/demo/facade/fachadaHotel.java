@@ -57,8 +57,8 @@ public class FachadaHotel {
         } catch (Exception e) {
             throw new RuntimeException("No existe el huesped");
         }
-        return gestorReservas.crearReserva(huespedEntidad, habitacionesSolicitadas, 
-            fechaInicioStr, fechaFinStr);
+        return gestorReservas.crearReserva(huespedEntidad, habitacionesSolicitadas,
+                fechaInicioStr, fechaFinStr);
 
     }
 

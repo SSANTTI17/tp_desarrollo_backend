@@ -7,9 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.desarrollo_backend.demo.dtos.HuespedDTO;
+import com.desarrollo_backend.demo.gestores.GestorHuesped;
 import com.desarrollo_backend.demo.gestores.GestorReservas;
-import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.habitacion.Habitacion; // Importante
 
 @RestController
 @RequestMapping("/api/reservas")
@@ -19,6 +22,9 @@ public class ControladorReserva {
     @Autowired
     private GestorReservas gestorReservas;
 
+    @Autowired
+    private GestorHuesped gestorHuesped;
+
     @GetMapping("/buscar")
     public List<Map<String, Object>> buscar(
             @RequestParam String tipo,
@@ -27,25 +33,54 @@ public class ControladorReserva {
         return gestorReservas.buscarDisponibilidad(tipo, desde, hasta);
     }
 
+    // --- MODIFICACIÓN PRINCIPAL AQUÍ ---
     @PostMapping("/crear")
     public ResponseEntity<?> crearReserva(@RequestBody AltaReservaRequest request) {
 
+        // 1. Validaciones básicas de entrada
         if (request.getHabitaciones() == null || request.getHabitaciones().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Debe seleccionar al menos una habitación"));
         }
 
-        String resultado = gestorReservas.crearReserva(
-                request.getNombre(),
-                request.getApellido(),
-                request.getTelefono(),
-                request.getHabitaciones(),
-                request.getFechaInicio(),
-                request.getFechaFin());
+        try {
+            // 2. BUSCAR AL HUÉSPED REAL (Paso Intermedio Obligatorio)
+            // El gestor pide un objeto Huesped, pero el front manda Strings
+            // (nombre/apellido)
+            HuespedDTO filtro = new HuespedDTO();
+            filtro.setApellido(request.getApellido());
+            filtro.setNombre(request.getNombre());
 
-        if (resultado.startsWith("Error")) {
-            return ResponseEntity.badRequest().body(Map.of("error", resultado));
+            // Usamos tu GestorHuesped para buscarlo
+            List<Huesped> clientesEncontrados = gestorHuesped.buscarHuespedes(filtro);
+
+            if (clientesEncontrados.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error",
+                        "El cliente " + request.getNombre() + " " + request.getApellido()
+                                + " no existe. Regístrelo antes."));
+            }
+
+            Huesped huespedReal = clientesEncontrados.get(0);
+
+            // 3. LLAMAR AL GESTOR CON LOS PARAMETROS CORRECTOS
+            // Firma: crearReserva(Huesped h, List<Habitacion> habitaciones, String inicio,
+            // String fin)
+            String resultado = gestorReservas.crearReserva(
+                    huespedReal,
+                    request.getHabitaciones(),
+                    request.getFechaInicio(),
+                    request.getFechaFin());
+
+            // 4. MANEJAR LA RESPUESTA (Tu gestor devuelve String, no Reserva)
+            if (resultado.startsWith("Error")) {
+                return ResponseEntity.badRequest().body(Map.of("error", resultado));
+            }
+
+            return ResponseEntity.ok(Map.of("message", resultado));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-        return ResponseEntity.ok(Map.of("message", resultado));
     }
 
     @PostMapping("/cancelar-reserva")
@@ -73,8 +108,10 @@ public class ControladorReserva {
     @DeleteMapping("/cancelar/{id}")
     public ResponseEntity<?> cancelarReserva(@PathVariable int id) {
         try {
+            // Creamos una dummy solo con el ID para borrar
             Reserva reservaDummy = new Reserva();
             reservaDummy.setId(id);
+
             String resultado = gestorReservas.eliminarReserva(reservaDummy);
 
             if (resultado.startsWith("Error")) {
@@ -87,15 +124,17 @@ public class ControladorReserva {
     }
 }
 
-// Clase DTO para recibir el body (puede ir en su propio archivo si prefieres)
+// DTO (Se mantiene igual, asegúrate que esté accesible)
 class AltaReservaRequest {
     private String nombre;
     private String apellido;
     private String telefono;
     private String fechaInicio;
     private String fechaFin;
+    // Asumimos que el front manda objetos habitación o al menos sus IDs
     private List<Habitacion> habitaciones;
 
+    // Getters y Setters...
     public String getNombre() {
         return nombre;
     }

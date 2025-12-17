@@ -43,7 +43,7 @@ public class GestorHuespedTest {
     @Test
     public void testDarDeAltaHuesped_Exito() {
         HuespedDTO dto = crearDTO("Laura", "Gomez", "87654321");
-        
+
         Huesped creado = gestorHuesped.darDeAltaHuesped(dto);
 
         assertNotNull(creado);
@@ -73,9 +73,10 @@ public class GestorHuespedTest {
     @Test
     public void testHuespedIsAlojado_Exito() {
         // Arrange
-        Huesped h = new Huesped("Juan", "Alojado", TipoDoc.DNI, "99999999", new Date(), "Arg", "mail", "123", "Ocup", true, "Dir", false);
+        Huesped h = new Huesped("Juan", "Alojado", TipoDoc.DNI, "99999999", new Date(), "Arg", "mail", "123", "Ocup",
+                true, "Dir", false);
         huespedRepository.save(h);
-        
+
         HuespedDTO dto = new HuespedDTO(h); // Usamos el DTO para consultar
 
         // Act
@@ -91,7 +92,7 @@ public class GestorHuespedTest {
         // Arrange
         String dni = "55555555";
         guardarHuesped("Eliminar", "Me", dni);
-        
+
         HuespedDTO dtoEliminar = new HuespedDTO();
         dtoEliminar.setTipo_documento(TipoDoc.DNI);
         dtoEliminar.setNroDocumento(dni);
@@ -100,7 +101,8 @@ public class GestorHuespedTest {
         gestorHuesped.eliminarHuesped(dtoEliminar);
 
         // Assert
-        assertFalse(huespedRepository.existsById(new HuespedPK(TipoDoc.DNI, dni)), "El huésped no debería existir en BD");
+        assertFalse(huespedRepository.existsById(new HuespedPK(TipoDoc.DNI, dni)),
+                "El huésped no debería existir en BD");
     }
 
     // 5.a Test para modificarHuesped (Sin cambio de PK)
@@ -112,7 +114,7 @@ public class GestorHuespedTest {
 
         HuespedDTO dtoModificado = crearDTO("Modificado", "NuevoApellido", dni);
         dtoModificado.setEmail("nuevo@email.com");
-        
+
         HuespedPK pk = new HuespedPK(TipoDoc.DNI, dni);
 
         // Act
@@ -173,7 +175,8 @@ public class GestorHuespedTest {
     public void testBuscarPorReservas_Exito() {
         // Arrange
         // 1. Crear Huesped
-        Huesped huesped = new Huesped("Reserva", "Man", TipoDoc.DNI, "44444444", new Date(), "Arg", "mail", "123", "Ocup", false, "Dir", false);
+        Huesped huesped = new Huesped("Reserva", "Man", TipoDoc.DNI, "44444444", new Date(), "Arg", "mail", "123",
+                "Ocup", false, "Dir", false);
         huesped = huespedRepository.save(huesped);
 
         // 2. Crear Habitacion (necesaria para la reserva)
@@ -182,7 +185,8 @@ public class GestorHuespedTest {
         List<Habitacion> habitaciones = new ArrayList<>();
         habitaciones.add(hab);
 
-        // 3. Crear Reserva asociada al huésped (usando el constructor apropiado de tu Entidad Reserva)
+        // 3. Crear Reserva asociada al huésped (usando el constructor apropiado de tu
+        // Entidad Reserva)
         // Nota: Asegúrate de usar el constructor que setea 'huespedRef'
         Reserva reserva = new Reserva(huesped, new Date(), "10:00", new Date(), "10:00", habitaciones);
         reserva = reservaRepository.save(reserva);
@@ -199,7 +203,8 @@ public class GestorHuespedTest {
     // --- Métodos Auxiliares ---
 
     private void guardarHuesped(String nombre, String apellido, String dni) {
-        Huesped h = new Huesped(nombre, apellido, TipoDoc.DNI, dni, new Date(), "Arg", "test@mail.com", "123456", "Ocupacion", false, "Calle 1", false);
+        Huesped h = new Huesped(nombre, apellido, TipoDoc.DNI, dni, new Date(), "Arg", "test@mail.com", "123456",
+                "Ocupacion", false, "Calle 1", false);
         huespedRepository.save(h);
     }
 
