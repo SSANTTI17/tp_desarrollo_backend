@@ -244,4 +244,97 @@ public class FachadaHotel {
         return rebotadas;
     }
 
+    //          MÉTODOS DE GESTOR HUESPED 
+
+    /**
+     * Registra un nuevo huésped en el sistema.
+     * @param dto Datos del huésped a crear.
+     * @return El DTO del huésped creado (incluyendo datos generados si los hubiera).
+     */
+    public HuespedDTO registrarHuesped(HuespedDTO dto) {
+        Huesped huespedCreado = gestorHuespedes.darDeAltaHuesped(dto);
+        return new HuespedDTO(huespedCreado);
+    }
+
+    /**
+     * Busca huéspedes que coincidan con los filtros proporcionados.
+     * @param filtro DTO con los campos de búsqueda (nombre, apellido, dni, etc.).
+     * @return Lista de HuespedDTO que cumplen con el criterio.
+     */
+    public List<HuespedDTO> buscarHuespedes(HuespedDTO filtro) {
+        List<Huesped> resultados = gestorHuespedes.buscarHuespedes(filtro);
+        return resultados.stream()
+                .map(h -> new HuespedDTO(h))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene un huésped específico por su tipo y número de documento.
+     * @param tipoDocStr String que representa el Enum TipoDoc (ej: "DNI").
+     * @param nroDocumento Número de documento.
+     * @return HuespedDTO si existe, o null si no se encuentra.
+     */
+    public HuespedDTO obtenerHuespedPorId(String tipoDocStr, String nroDocumento) {
+        try {
+            com.desarrollo_backend.demo.modelo.huesped.TipoDoc tipo = 
+                com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(tipoDocStr);
+            
+            com.desarrollo_backend.demo.modelo.huesped.HuespedPK id = 
+                new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(tipo, nroDocumento);
+            
+            Huesped h = gestorHuespedes.obtenerHuespedPorId(id);
+            return h != null ? new HuespedDTO(h) : null;
+        } catch (IllegalArgumentException e) {
+            // Manejo de error si el tipo de documento no es válido
+            throw new RuntimeException("Tipo de documento inválido: " + tipoDocStr);
+        }
+    }
+
+    /**
+     * Modifica un huésped existente. 
+     * Maneja la lógica de cambio de clave primaria (Documento/Tipo) construyendo el PK anterior.
+     * * @param dto Datos actualizados del huésped.
+     * @param modificoPK true si se cambió el DNI o Tipo, false en caso contrario.
+     * @param oldTipoStr Tipo de documento anterior (solo requerido si modificoPK es true).
+     * @param oldDni Número de documento anterior (solo requerido si modificoPK es true).
+     */
+    public void modificarHuesped(HuespedDTO dto, boolean modificoPK, String oldTipoStr, String oldDni) {
+        com.desarrollo_backend.demo.modelo.huesped.HuespedPK pkAnterior = null;
+
+        // Construimos la PK anterior necesaria para el Gestor
+        if (modificoPK) {
+            if (oldTipoStr == null || oldDni == null) {
+                throw new RuntimeException("Faltan datos del documento anterior para realizar la modificación.");
+            }
+            try {
+                com.desarrollo_backend.demo.modelo.huesped.TipoDoc oldTipo = 
+                    com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(oldTipoStr);
+                pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(oldTipo, oldDni);
+            } catch (IllegalArgumentException e) {
+                 throw new RuntimeException("Tipo de documento anterior inválido.");
+            }
+        } else {
+            // Si no cambió la PK, la anterior es igual a la actual del DTO
+            pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+        }
+
+        gestorHuespedes.modificarHuesped(dto, pkAnterior, modificoPK);
+    }
+
+    /**
+     * Elimina un huésped del sistema.
+     * @param tipoDocStr Tipo de documento.
+     * @param nroDocumento Número de documento.
+     */
+    public void eliminarHuesped(String tipoDocStr, String nroDocumento) {
+        HuespedDTO dtoEliminar = new HuespedDTO();
+        try {
+            dtoEliminar.setTipo_documento(com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(tipoDocStr));
+            dtoEliminar.setNroDocumento(nroDocumento);
+            gestorHuespedes.eliminarHuesped(dtoEliminar);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Tipo de documento inválido para eliminación.");
+        }
+    }
+
 }
