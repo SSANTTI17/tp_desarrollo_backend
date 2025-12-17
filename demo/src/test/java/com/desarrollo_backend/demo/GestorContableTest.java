@@ -46,8 +46,15 @@ public class GestorContableTest {
     public void testRegistrarPersonaFisica() {
         // GIVEN: Huesped previo
         Huesped huesped = new Huesped();
-        huesped.setNombre("Test User");
-        huesped.setDocumento(TipoDoc.DNI, "12345678");
+        huesped.setNombre("Juan Adulto");
+        huesped.setApellido("Perez");
+        huesped.setDocumento(TipoDoc.DNI, "11223344");
+        huesped.setFechaDeNacimiento(
+        Date.from(LocalDate.of(1990, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        huesped.setDireccion("hipolito 222");
+        huesped.setNacionalidad("Argentino");
+        huesped.setOcupacion("estudiante");
+        huesped.setTelefono("123456789");
         huespedRepository.save(huesped);
 
         // --- CORRECCIÓN AQUÍ ---
@@ -69,8 +76,15 @@ public class GestorContableTest {
     public void testModificarHuesped_ActualizaCuit() {
         // GIVEN
         Huesped huesped = new Huesped();
-        huesped.setNombre("Modif User");
-        huesped.setDocumento(TipoDoc.DNI, "87654321");
+        huesped.setNombre("Juan Adulto");
+        huesped.setApellido("Perez");
+        huesped.setDocumento(TipoDoc.DNI, "11223344");
+        huesped.setFechaDeNacimiento(
+        Date.from(LocalDate.of(1990, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        huesped.setDireccion("hipolito 222");
+        huesped.setNacionalidad("Argentino");
+        huesped.setOcupacion("estudiante");
+        huesped.setTelefono("123456789");
         huespedRepository.save(huesped);
 
         PersonaFisica pfOriginal = new PersonaFisica("Monotributo", "20-87654321-0", huesped);
@@ -99,10 +113,15 @@ public class GestorContableTest {
         // GIVEN: Huesped Adulto
         Huesped huesped = new Huesped();
         huesped.setNombre("Juan Adulto");
+        huesped.setApellido("Perez");
         huesped.setDocumento(TipoDoc.DNI, "11223344");
         // Fecha para tener > 18 años
         huesped.setFechaDeNacimiento(
                 Date.from(LocalDate.of(1990, 1, 1).atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        huesped.setDireccion("hipolito 222");
+        huesped.setNacionalidad("Argentino");
+        huesped.setOcupacion("estudiante");
+        huesped.setTelefono("123456789");
         huespedRepository.save(huesped);
 
         PersonaFisica pf = new PersonaFisica("Consumidor Final", "20-11111111-1", huesped);
