@@ -5,12 +5,11 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 
+// El mapper convierte una entidad Huesped a HuespedDTO y viceversa.
 @Component
 public class HuespedMapper {
 
-    /**
-     * Convierte una entidad Huesped a HuespedDTO.
-     */
+    // Convierte una entidad Huesped a HuespedDTO.
     public HuespedDTO toDto(Huesped entity) {
         if (entity == null) {
             return null;
@@ -45,9 +44,8 @@ public class HuespedMapper {
         return dto;
     }
 
-    /**
-     * Convierte un HuespedDTO a una entidad Huesped.
-     */
+    // Convierte un HuespedDTO a una entidad Huesped.
+
     public Huesped toEntity(HuespedDTO dto) {
         if (dto == null) {
             return null;
@@ -79,9 +77,8 @@ public class HuespedMapper {
         return entity;
     }
 
-    /**
-     * Actualiza una entidad existente con los datos de un DTO (sin tocar la PK).
-     */
+    // Actualiza una entidad existente con los datos de un DTO (sin tocar la PK).
+
     public void updateEntity(Huesped entity, HuespedDTO dto) {
         if (dto == null || entity == null) {
             return;
