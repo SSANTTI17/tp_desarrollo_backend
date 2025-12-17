@@ -118,7 +118,7 @@ class EstadiaDTOTest {
         entidad.setHabitacion(hab);
 
         Factura factura = new Factura(); // Suponiendo constructor vacío
-        entidad.setFactura(factura);
+        entidad.agregarFactura(factura);
 
         Reserva reserva = new Reserva();
         entidad.setReserva(reserva);

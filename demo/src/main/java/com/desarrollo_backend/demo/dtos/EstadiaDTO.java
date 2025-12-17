@@ -20,6 +20,7 @@ public class EstadiaDTO {
     private Reserva reserva;
     private List<Consumo> consumos;
     private int id;
+    private List<Factura> facturas;
 
     public void agregarConsumo(Consumo c) {
         consumos.add(c);
@@ -35,7 +36,7 @@ public class EstadiaDTO {
         this.precio = estadia.getPrecio();
         this.fechaInicio = estadia.getFechaInicio();
         this.fechaFin = estadia.getFechaFin();
-        this.factura = estadia.getFactura();
+        this.facturas = estadia.getFactura();
         this.reserva = estadia.getReserva();
         this.consumos = estadia.getConsumos();
     }

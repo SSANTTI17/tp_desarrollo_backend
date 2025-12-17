@@ -34,8 +34,8 @@ public class Estadia {
     @Column(nullable = false)
     private Date fechaFin;
 
-    @OneToOne
-    private Factura factura;
+    @OneToMany(mappedBy = "estadia")
+    private List<Factura> facturas;
 
     @OneToOne(optional = true) // puede no tneer una reserva asociada
     @JoinColumn(name = "reserva_id", nullable = true)
@@ -55,6 +55,10 @@ public class Estadia {
         huespedes.add(h);
     }
 
+    public void agregarFactura(Factura f) {
+        facturas.add(f);
+    }
+
     public float totalConsumos() {
         float total = 0;
         for (Consumo c : consumos) {
@@ -68,6 +72,7 @@ public class Estadia {
     public Estadia() {
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
+        facturas = new ArrayList<Factura>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio) {
@@ -75,6 +80,7 @@ public class Estadia {
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
+        facturas = new ArrayList<Factura>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio, Date fechaFin) {
@@ -82,6 +88,7 @@ public class Estadia {
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
+        facturas = new ArrayList<Factura>();
     }
 
     // getters
@@ -105,8 +112,8 @@ public class Estadia {
         return fechaFin;
     }
 
-    public Factura getFactura() {
-        return factura;
+    public List<Factura> getFactura() {
+        return facturas;
     }
 
     public Reserva getReserva() {
@@ -155,8 +162,8 @@ public class Estadia {
         this.fechaFin = fechaFin;
     }
 
-    public void setFactura(Factura factura) {
-        this.factura = factura;
+    public void setFactura(List<Factura> factura) {
+        this.facturas = factura;
     }
 
     public void setReserva(Reserva reserva) {
