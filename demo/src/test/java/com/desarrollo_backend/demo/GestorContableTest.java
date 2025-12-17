@@ -95,7 +95,7 @@ public class GestorContableTest {
     }
 
     @Test
-    public void testGenerarFactura_CalculoCorrecto() throws Exception {
+    public void testGenerarFacturao() throws Exception {
         // GIVEN: Huesped Adulto
         Huesped huesped = new Huesped();
         huesped.setNombre("Juan Adulto");
@@ -132,7 +132,7 @@ public class GestorContableTest {
     }
 
     @Test
-    public void testGenerarFactura_MenorEdad_LanzaExcepcion() {
+    public void testGenerarFactura_MenorEdad() {
         // GIVEN: Niño
         Huesped nino = new Huesped();
         nino.setNombre("Pepito Junior");
