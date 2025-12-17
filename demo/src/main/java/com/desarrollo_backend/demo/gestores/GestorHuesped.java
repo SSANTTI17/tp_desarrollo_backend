@@ -167,17 +167,5 @@ public class GestorHuesped {
                 .orElse(null); // (new RuntimeException("El huésped no existe."))
     }
 
-    /**
-     * Busca todos los huéspedes asociados a una reserva específica.
-     * * @param reserva La reserva por la cual filtrar.
-     * 
-     * @return Lista de huéspedes asociados a esa reserva.
-     */
-    public List<Huesped> buscarPorReservas(Reserva reserva) {
-        if (reserva == null) {
-            return new ArrayList<>();
-        }
-        return huespedRepository.findByReservas(reserva);
-    }
 
 }

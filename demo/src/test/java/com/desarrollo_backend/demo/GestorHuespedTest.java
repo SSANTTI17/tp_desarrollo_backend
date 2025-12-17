@@ -11,19 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.desarrollo_backend.demo.builder.ReservaBuilder;
+
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
-import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
-import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
-import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
-import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
-import com.desarrollo_backend.demo.repository.ReservaRepository;
-import com.desarrollo_backend.demo.gestores.GestorReservas;
 
 @SpringBootTest
 @Transactional // Importante: Revierte cambios en BD al terminar cada test
@@ -32,17 +26,11 @@ public class GestorHuespedTest {
     @Autowired
     private GestorHuesped gestorHuesped;
 
-    @Autowired
-    private GestorReservas gestorReservas;
 
     @Autowired
     private HuespedRepository huespedRepository;
 
-    @Autowired
-    private ReservaRepository reservaRepository;
 
-    @Autowired
-    private HabitacionRepository habitacionRepository;
 
     // 1. Test para darDeAltaHuesped (Ya lo tenías, incluido por completitud)
     @Test
@@ -175,34 +163,7 @@ public class GestorHuespedTest {
         assertEquals("Buscado", resultado.getNombre());
     }
 
-    // 7. Test para buscarPorReservas
-    @Test
-    public void testBuscarPorReservas_Exito() {
-        // Arrange
-        // 1. Crear Huesped
-        Huesped huesped = new Huesped("Reserva", "Man", TipoDoc.DNI, "44444444", new Date(), "Arg", "mail", "123",
-                "Ocup", false, "Dir", false);
-        huesped = huespedRepository.save(huesped);
-
-        // 2. Crear Habitacion (necesaria para la reserva)
-        Habitacion hab = new Habitacion(TipoHabitacion.IE, 101, 100f);
-        habitacionRepository.save(hab);
-        List<Habitacion> habitaciones = new ArrayList<>();
-        habitaciones.add(hab);
-
-        // 3. Crear Reserva asociada al huésped 
-        // Nota: Asegúrate de usar el constructor que setea 'huespedRef'
-        //Reserva reserva = new Reserva(huesped, new Date(), "10:00", new Date(), "10:00", habitaciones);
-        //reserva = reservaRepository.save(reserva);
-        Reserva reserva = gestorReservas.crearReserva(huesped.getNombre(), huesped.getApellido(), huesped.getTelefono(), habitaciones, "10-12-2025", "18-12-2025");
-        // Act
-        List<Huesped> resultado = gestorHuesped.buscarPorReservas(reserva);
-
-        // Assert
-        assertFalse(resultado.isEmpty());
-        assertEquals("Reserva", resultado.get(0).getNombre());
-        assertEquals("44444444", resultado.get(0).getNroDocumento());
-    }
+    
 
     // --- Métodos Auxiliares ---
 

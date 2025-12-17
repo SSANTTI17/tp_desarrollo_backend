@@ -7,7 +7,8 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.*;
-import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+
+import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 
 @Entity
@@ -40,8 +41,8 @@ public class Huesped {
     @Column(nullable = false)
     private boolean alojado;
 
-    @OneToMany(mappedBy = "huespedRef")
-    private List<Reserva> reservasAsociadas;
+    @ManyToMany(mappedBy = "huespedes")
+    private List<Estadia> estadias;
 
     @Column(nullable = false)
     private String direccion;
@@ -92,6 +93,11 @@ public class Huesped {
     }
 
     // --- GETTERS ---
+
+    public List<Estadia> getEstadias() {
+        return estadias;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -139,7 +145,10 @@ public class Huesped {
     public Boolean getBorrado() {
         return borradoLogico;
     }
-
+    // --- SETTERS ---
+    public void setEstadias(List<Estadia> estadias) {
+        this.estadias = estadias;
+    }
     public void setBorradoLogico(Boolean borradoLogico) {
         this.borradoLogico = borradoLogico;
     }
