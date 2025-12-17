@@ -101,7 +101,7 @@ public class FachadaHotel {
         Factura factura = null;
 
         factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
-    
+    //se rompio el push?
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
     }
