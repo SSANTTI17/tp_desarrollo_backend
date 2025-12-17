@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
-import com.desarrollo_backend.demo.mappers.HuespedMapper; // 1. Importamos el Mapper
+import com.desarrollo_backend.demo.mappers.HuespedMapper;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;

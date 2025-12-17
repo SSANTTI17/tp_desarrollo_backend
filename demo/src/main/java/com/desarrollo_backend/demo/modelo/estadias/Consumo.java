@@ -3,9 +3,9 @@ package com.desarrollo_backend.demo.modelo.estadias;
 import jakarta.persistence.*;
 
 @Entity
-@Table (name = "consumos")
+@Table(name = "consumos")
 public class Consumo {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -13,10 +13,10 @@ public class Consumo {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private TipoConsumo tipo;
-    
+
     @Column(nullable = false)
     private float monto;
-    
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Moneda moneda;
@@ -27,28 +27,57 @@ public class Consumo {
     @ManyToOne
     @JoinColumn(name = "estadia_id")
     private Estadia estadia;
-    
-    //consutructores
-    public Consumo(){}
-    public Consumo(TipoConsumo tipo, float monto, Moneda moneda){
+
+    // consutructores
+    public Consumo() {
+    }
+
+    public Consumo(TipoConsumo tipo, float monto, Moneda moneda) {
         this.tipo = tipo;
         this.monto = monto;
         this.moneda = moneda;
     }
 
-    //getter
-    public int getId() { return id; }
-    public TipoConsumo getTipo() { return tipo; }
-    public float getMonto() { return monto; }
-    public Moneda getMoneda() { return moneda; }
-    public boolean isFacturado() { return facturado; }
+    // getter
+    public int getId() {
+        return id;
+    }
 
+    public TipoConsumo getTipo() {
+        return tipo;
+    }
 
-    //setter
-    public void setId(int id) { this.id = id; }
-    public void setTipo(TipoConsumo tipo) { this.tipo = tipo; }
-    public void setMonto(float monto) { this.monto = monto; }
-    public void setMoneda(Moneda moneda) { this.moneda = moneda; }
-    public void setFacturado(boolean facturado) { this.facturado = facturado; }
+    public float getMonto() {
+        return monto;
+    }
+
+    public Moneda getMoneda() {
+        return moneda;
+    }
+
+    public boolean isFacturado() {
+        return facturado;
+    }
+
+    // setter
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTipo(TipoConsumo tipo) {
+        this.tipo = tipo;
+    }
+
+    public void setMonto(float monto) {
+        this.monto = monto;
+    }
+
+    public void setMoneda(Moneda moneda) {
+        this.moneda = moneda;
+    }
+
+    public void setFacturado(boolean facturado) {
+        this.facturado = facturado;
+    }
 
 }

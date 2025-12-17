@@ -15,6 +15,11 @@ public class DireccionDTO {
     private List<HuespedDTO> huespedes;
 
     // constructores
+
+    public DireccionDTO() {
+        this.huespedes = new ArrayList<>();
+    }
+
     public DireccionDTO(int codigoPostal, String calle, String departamento, int altura, int piso,
             Localidad localidad) {
         this.codigoPostal = codigoPostal;

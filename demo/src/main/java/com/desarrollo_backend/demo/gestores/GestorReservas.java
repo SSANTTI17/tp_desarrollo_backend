@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.desarrollo_backend.demo.builder.ReservaBuilder;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.observers.*;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HistorialEstadoHabitacionRepository;
@@ -65,16 +64,17 @@ public class GestorReservas {
         return listaResultado;
     }
 
-public Reserva crearReserva(String nombre, String apellido, String telefono, List<Habitacion> habitacionesSolicitadas,
+    public Reserva crearReserva(String nombre, String apellido, String telefono,
+            List<Habitacion> habitacionesSolicitadas,
             String fechaInicioStr, String fechaFinStr) {
         try {
             Date fechaInicio = parsearFechaFront(fechaInicioStr);
             Date fechaFin = parsearFechaFront(fechaFinStr);
 
-            // 1. Validaciones 
+            // 1. Validaciones
             if (fechaInicio == null || fechaFin == null)
                 throw new IllegalArgumentException("Fechas inválidas.");
-            
+
             if (habitacionesSolicitadas == null || habitacionesSolicitadas.isEmpty())
                 throw new IllegalArgumentException("No se seleccionaron habitaciones.");
 
@@ -91,7 +91,8 @@ public Reserva crearReserva(String nombre, String apellido, String telefono, Lis
                 for (Date dia : diasSolicitados) {
                     if (!verificarLibre(habBD.getNumero(), habBD.getTipo(), dia)) {
                         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                        throw new RuntimeException("Habitación " + habBD.getNumero() + " ocupada el día " + sdf.format(dia));
+                        throw new RuntimeException(
+                                "Habitación " + habBD.getNumero() + " ocupada el día " + sdf.format(dia));
                     }
                 }
                 habitacionesReales.add(habBD);
@@ -99,11 +100,11 @@ public Reserva crearReserva(String nombre, String apellido, String telefono, Lis
 
             // 2. Construcción usando el Builder
             Reserva reserva = new ReservaBuilder()
-                .conDatosCliente(nombre, apellido, telefono)
-                .paraElPeriodo(fechaInicio, fechaFin)
-                .conHorariosEstandar()
-                .asignarHabitaciones(habitacionesReales)
-                .build();
+                    .conDatosCliente(nombre, apellido, telefono)
+                    .paraElPeriodo(fechaInicio, fechaFin)
+                    .conHorariosEstandar()
+                    .asignarHabitaciones(habitacionesReales)
+                    .build();
 
             reservaRepo.save(reserva);
 
@@ -120,6 +121,7 @@ public Reserva crearReserva(String nombre, String apellido, String telefono, Lis
             return null;
         }
     }
+
     public List<Reserva> consultarReservas(String apellido, String nombre) throws ReservaNotFoundException {
         if (apellido == null || apellido.isBlank())
             throw new ReservaNotFoundException("Ingrese apellido");

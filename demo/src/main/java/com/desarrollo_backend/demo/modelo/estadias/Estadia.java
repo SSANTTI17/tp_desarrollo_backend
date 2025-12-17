@@ -67,7 +67,7 @@ public class Estadia {
     // consutructores
     public Estadia() {
         consumos = new ArrayList<Consumo>();
-        huespedes = new ArrayList<Huesped>(); 
+        huespedes = new ArrayList<Huesped>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio) {
@@ -126,6 +126,15 @@ public class Estadia {
     }
 
     // setters
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setConsumos(List<Consumo> consumos) {
+        this.consumos = consumos;
+    }
+
     public void setPrecio(float precio) {
         this.precio = precio;
     }

@@ -2,12 +2,11 @@ package com.desarrollo_backend.demo.builder;
 
 import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import java.util.Date;
 import java.util.List;
 
 public class ReservaBuilder {
-    
+
     private Reserva reserva;
 
     public ReservaBuilder() {
