@@ -1,59 +1,38 @@
 package com.desarrollo_backend.demo.gestores;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+import com.desarrollo_backend.demo.dtos.HuespedDTO;
+import com.desarrollo_backend.demo.mappers.HuespedMapper; // Importamos el Mapper
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
-import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
 
-import jakarta.transaction.Transactional;
-
-/**
- * Servicio encargado de la lógica de negocio referente al Caso de Uso 04
- * (CU04):
- * Gestión de Huéspedes.
- * Provee métodos para alta, baja, modificación y consulta dinámica.
- */
 @Service
 public class GestorHuesped {
 
     @Autowired
     private HuespedRepository huespedRepository;
 
-    /**
-     * Da de alta un nuevo huésped en el sistema.
-     * * @param huespedDto Objeto con los datos del nuevo huésped.
-     * 
-     * @return La entidad {@link Huesped} guardada en la base de datos, o null si el
-     *         input es nulo.
-     */
+    @Autowired
+    private HuespedMapper huespedMapper; // Inyectamos el Mapper
 
     public Huesped darDeAltaHuesped(HuespedDTO huespedDto) {
         if (huespedDto == null)
             return null;
 
-        Huesped huespedGuardar = new Huesped(huespedDto);
+        // CORRECCIÓN: Usamos el mapper en lugar del constructor
+        Huesped huespedGuardar = huespedMapper.toEntity(huespedDto);
         return huespedRepository.save(huespedGuardar);
     }
 
-    /**
-     * Busca huéspedes aplicando filtros dinámicos mediante Specifications.
-     * Permite filtrar por apellido, nombre, número y tipo de documento de forma
-     * combinada.
-     * * @param filtro DTO que contiene los criterios de búsqueda (puede tener
-     * campos nulos).
-     * 
-     * @return Lista de huéspedes que coinciden con los criterios proporcionados.
-     */
     public List<Huesped> buscarHuespedes(HuespedDTO filtro) {
-        Specification<Huesped> spec = Specification.unrestricted(); // base vacía
+        Specification<Huesped> spec = Specification.unrestricted();
         String apellido = filtro.getApellido();
         String nombre = filtro.getNombre();
         String dni = filtro.getNroDocumento();
@@ -78,51 +57,19 @@ public class GestorHuesped {
         return huespedRepository.findAll(spec);
     }
 
-    /**
-     * Convierte una entidad Huesped a su representación DTO.
-     * * @param entidad La entidad a convertir.
-     * 
-     * @return El objeto DTO correspondiente.
-     */
-    private HuespedDTO convertirADTO(Huesped entidad) {
-        HuespedDTO dto = new HuespedDTO(entidad);
-        return dto;
-    }
-
-    /**
-     * Verifica si un huésped se encuentra actualmente registrado como alojado.
-     * * @param dto DTO con la clave primaria del huésped.
-     * 
-     * @return true si el huésped está marcado como alojado, false en caso
-     *         contrario.
-     */
     public boolean huespedIsAlojado(HuespedDTO dto) {
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
-        Huesped huesped = huespedRepository.findById(id).get();
-        return huesped.isAlojado();
+        // Es mejor usar ifPresent o orElse(null) para evitar NoSuchElementException
+        return huespedRepository.findById(id)
+                .map(Huesped::isAlojado)
+                .orElse(false);
     }
 
-    /**
-     * Elimina físicamente un huésped de la base de datos dado su ID.
-     * * @param dto DTO con la clave primaria del huésped a eliminar.
-     */
     public void eliminarHuesped(HuespedDTO dto) {
         HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
         huespedRepository.deleteById(id);
     }
 
-    /**
-     * Modifica los datos de un huésped existente.
-     * Maneja dos escenarios:
-     * 1. Si se modificó la clave primaria (Documento): Realiza un borrado lógico
-     * del anterior y crea uno nuevo.
-     * 2. Si es una modificación simple: Actualiza los datos sobre el registro
-     * existente.
-     * * @param dto Datos nuevos del huésped.
-     * 
-     * @param pkAnterior La clave primaria original antes de la edición.
-     * @param modificoPK Flag booleano que indica si hubo cambio de documento (ID).
-     */
     @Transactional
     public void modificarHuesped(HuespedDTO dto, HuespedPK pkAnterior, boolean modificoPK) {
 
@@ -136,36 +83,28 @@ public class GestorHuesped {
                 huespedRepository.save(huespedAnterior);
             }
 
-            // B. Crear el nuevo huésped
-            Huesped huespedNuevo = new Huesped(dto);
+            // B. Crear el nuevo huésped usando el Mapper
+            Huesped huespedNuevo = huespedMapper.toEntity(dto);
             huespedNuevo.setBorradoLogico(false);
             huespedRepository.save(huespedNuevo);
 
         } else {
-
-            // CASO 2: Modificación de datos simples (Nombre, mail, etc)
+            // CASO 2: Modificación de datos simples
             HuespedPK id = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
             Huesped existente = huespedRepository.findById(id).orElse(null);
 
             if (existente != null) {
-                existente.setHuesped(dto); // Actualiza campos básicos
-                existente.setDireccion(dto.getDireccion());
-                existente.setBorradoLogico(false); // Aseguramos que no esté borrado
+                // CORRECCIÓN: Usamos updateEntity del Mapper en lugar de setHuesped(dto)
+                huespedMapper.updateEntity(existente, dto);
+
+                // Aseguramos consistencia
+                existente.setBorradoLogico(false);
                 huespedRepository.save(existente);
             }
         }
     }
 
-    /**
-     * Obtiene un huésped por su clave primaria compuesta.
-     * * @param id Objeto {@link HuespedPK} con tipo y número de documento.
-     * 
-     * @return El huésped encontrado o null si no existe.
-     */
     public Huesped obtenerHuespedPorId(HuespedPK id) {
-        return huespedRepository.findById(id)
-                .orElse(null); // (new RuntimeException("El huésped no existe."))
+        return huespedRepository.findById(id).orElse(null);
     }
-
-
 }

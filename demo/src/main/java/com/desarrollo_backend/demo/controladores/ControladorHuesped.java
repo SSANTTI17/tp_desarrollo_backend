@@ -6,18 +6,11 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.desarrollo_backend.demo.gestores.GestorContable;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
+import com.desarrollo_backend.demo.mappers.HuespedMapper; // Importamos el Mapper
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
@@ -34,6 +27,9 @@ public class ControladorHuesped {
     @Autowired
     private GestorContable gestorContable;
 
+    @Autowired
+    private HuespedMapper huespedMapper; // Inyectamos el Mapper
+
     @GetMapping("/buscar")
     public ResponseEntity<List<HuespedDTO>> buscarHuespedesAPI(
             @RequestParam(required = false) String nombre,
@@ -41,6 +37,8 @@ public class ControladorHuesped {
             @RequestParam(required = false) String tipoDocumento,
             @RequestParam(required = false) String documento) {
 
+        // Creamos el filtro manualmente (el DTO vacío sí funciona por el
+        // @NoArgsConstructor)
         HuespedDTO filtro = new HuespedDTO();
 
         if (nombre != null && !nombre.isEmpty())
@@ -61,11 +59,11 @@ public class ControladorHuesped {
             filtro.setNroDocumento(documento);
 
         List<Huesped> resultados = gestorHuesped.buscarHuespedes(filtro);
-        
-        //transformacion de huesped a HuespedDTO
+
+        // CORRECCIÓN: Transformación usando el mapper
         List<HuespedDTO> dtos = resultados.stream()
-            .map(huesped -> new HuespedDTO(huesped)) 
-            .collect(Collectors.toList());
+                .map(huespedMapper::toDto)
+                .collect(Collectors.toList());
 
         return ResponseEntity.ok(dtos);
     }
@@ -73,61 +71,53 @@ public class ControladorHuesped {
     @PostMapping("/crear")
     public ResponseEntity<?> crearHuespedAPI(@RequestBody ContenedorDeAltaHuesped request) {
         try {
+            // El gestor ya usa el mapper internamente para el alta
             Huesped huespedGuardado = gestorHuesped.darDeAltaHuesped(request.getHuesped());
 
             if (request.getPersonaFisica() != null &&
-                request.getPersonaFisica().getCUIT() != null &&
-                !request.getPersonaFisica().getCUIT().isEmpty()) {
+                    request.getPersonaFisica().getCUIT() != null &&
+                    !request.getPersonaFisica().getCUIT().isEmpty()) {
 
                 gestorContable.registrarPersonaFisica(
                         request.getPersonaFisica(), huespedGuardado);
             }
 
             return ResponseEntity.ok().body(
-                Map.of("message", "Huesped y Responsable creados exitosamente")
-            );
+                    Map.of("message", "Huesped y Responsable creados exitosamente"));
 
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(
-                Map.of("error", e.getMessage())
-            );
+                    Map.of("error", e.getMessage()));
         }
     }
 
     @PutMapping("/modificar")
     public ResponseEntity<?> modificarHuesped(
-           @RequestBody HuespedDTO modificado, 
+            @RequestBody HuespedDTO modificado,
             @RequestParam boolean modificoPK,
-            @RequestParam(required = false) String oldTipo, // Tipo anterior
-            @RequestParam(required = false) String oldDni  // DNI anterior
-    ) {
+            @RequestParam(required = false) String oldTipo,
+            @RequestParam(required = false) String oldDni) {
 
-        // 1. Validaciones
-        // Si dice que modificó PK, es obligatorio que vengan los datos viejos
         if (modificoPK && (oldTipo == null || oldDni == null)) {
             return ResponseEntity.badRequest()
-                .body(Map.of("error", "Si se modifica la clave, debe enviar oldTipo y oldDni"));
+                    .body(Map.of("error", "Si se modifica la clave, debe enviar oldTipo y oldDni"));
         }
 
-        // 2. Verificamos si la "nueva" PK ya existe (si es que cambió)
-        // Solo nos preocupa si modificoPK es true, porque si es false, es el mismo huésped
         if (modificoPK) {
             HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
             Huesped huespedExistente = gestorHuesped.obtenerHuespedPorId(idNuevo);
-            
-            // Si existe y NO está borrado lógicamente 
-            if (huespedExistente != null && !Boolean.TRUE.equals(huespedExistente.getBorrado())) {
+
+            if (huespedExistente != null && !Boolean.TRUE.equals(huespedExistente.getBorradoLogico())) {
                 return ResponseEntity.badRequest()
-                    .body(Map.of("error", "El nuevo tipo y número de documento ya están ocupados por otro huésped activo."));
+                        .body(Map.of("error",
+                                "El nuevo tipo y número de documento ya están ocupados por otro huésped activo."));
             }
         }
 
         try {
-            // 3. Preparar la PK anterior
             HuespedPK pkAnterior = null;
             if (modificoPK) {
-                // Convertimos el string oldTipo al Enum. Manejar excepción si el string es inválido.
                 try {
                     TipoDoc tipoAnteriorEnum = TipoDoc.valueOf(oldTipo);
                     pkAnterior = new HuespedPK(tipoAnteriorEnum, oldDni);
@@ -135,14 +125,10 @@ public class ControladorHuesped {
                     return ResponseEntity.badRequest().body(Map.of("error", "Tipo de documento anterior inválido"));
                 }
             } else {
-                // Si no modificó PK, la anterior es igual a la nueva
                 pkAnterior = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
             }
 
-            // 4. Llamar al Gestor con AMBOS datos
             gestorHuesped.modificarHuesped(modificado, pkAnterior, modificoPK);
-
-            // Actualizar datos contables (Si aplica)
             gestorContable.modificarHuesped(modificado);
 
             return ResponseEntity.ok(Map.of("message", "La operación ha culminado con éxito"));
@@ -154,50 +140,40 @@ public class ControladorHuesped {
         }
     }
 
-
-    // verificar si el huesped puede ser eliminado
     @PostMapping("/verificar-baja")
     public ResponseEntity<?> verificarBaja(@RequestBody HuespedDTO huespedDTO) {
         boolean alojado = gestorHuesped.huespedIsAlojado(huespedDTO);
 
         if (alojado) {
-            // Retorna mensaje de error si se alojó alguna vez
             return ResponseEntity.ok(Map.of(
-                "puedeEliminar", false,
-                "mensaje", "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad. PRESIONE CUALQUIER TECLA PARA CONTINUAR…"
-            ));
+                    "puedeEliminar", false,
+                    "mensaje",
+                    "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad. PRESIONE CUALQUIER TECLA PARA CONTINUAR…"));
         } else {
-            // Retorna mensaje de confirmación
             String mensaje = String.format(
-                "Los datos del huésped %s %s, %s y %s serán eliminados del sistema",
-                huespedDTO.getNombre(),
-                huespedDTO.getApellido(),
-                huespedDTO.getTipo_documento(),
-                huespedDTO.getNroDocumento()
-            );
+                    "Los datos del huésped %s %s, %s y %s serán eliminados del sistema",
+                    huespedDTO.getNombre(),
+                    huespedDTO.getApellido(),
+                    huespedDTO.getTipo_documento(),
+                    huespedDTO.getNroDocumento());
 
             return ResponseEntity.ok(Map.of(
-                "puedeEliminar", true,
-                "mensaje", mensaje
-            ));
+                    "puedeEliminar", true,
+                    "mensaje", mensaje));
         }
     }
 
-    // eliminar el huésped
     @DeleteMapping("/eliminar")
     public ResponseEntity<?> eliminar(@RequestBody HuespedDTO huespedDTO) {
-
         gestorHuesped.eliminarHuesped(huespedDTO);
 
         String mensaje = String.format(
-            "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema. PRESIONE CUALQUIER TECLA PARA CONTINUAR…",
-            huespedDTO.getNombre(),
-            huespedDTO.getApellido(),
-            huespedDTO.getTipo_documento(),
-            huespedDTO.getNroDocumento()
-        );
+                "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema. PRESIONE CUALQUIER TECLA PARA CONTINUAR…",
+                huespedDTO.getNombre(),
+                huespedDTO.getApellido(),
+                huespedDTO.getTipo_documento(),
+                huespedDTO.getNroDocumento());
 
         return ResponseEntity.ok(Map.of("mensaje", mensaje));
     }
-    
 }
