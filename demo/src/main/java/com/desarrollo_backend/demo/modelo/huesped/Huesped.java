@@ -102,6 +102,10 @@ public class Huesped {
         return estadias;
     }
 
+    public HuespedPK getId() {
+        return id;
+    }
+
     public String getNombre() {
         return nombre;
     }
