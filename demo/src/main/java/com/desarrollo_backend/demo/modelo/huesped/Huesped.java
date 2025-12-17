@@ -94,6 +94,10 @@ public class Huesped {
 
     // --- GETTERS ---
 
+    public HuespedPK getId() {
+        return id;
+    }
+
     public List<Estadia> getEstadias() {
         return estadias;
     }
@@ -145,10 +149,12 @@ public class Huesped {
     public Boolean getBorrado() {
         return borradoLogico;
     }
+
     // --- SETTERS ---
     public void setEstadias(List<Estadia> estadias) {
         this.estadias = estadias;
     }
+
     public void setBorradoLogico(Boolean borradoLogico) {
         this.borradoLogico = borradoLogico;
     }

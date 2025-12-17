@@ -11,13 +11,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.gestores.GestorHuesped;
+import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
+import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
+import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
+import com.desarrollo_backend.demo.repository.ReservaRepository;
+import com.desarrollo_backend.demo.gestores.GestorReservas;
 
 @SpringBootTest
 @Transactional // Importante: Revierte cambios en BD al terminar cada test
@@ -26,11 +31,17 @@ public class GestorHuespedTest {
     @Autowired
     private GestorHuesped gestorHuesped;
 
+    @Autowired
+    private GestorReservas gestorReservas;
 
     @Autowired
     private HuespedRepository huespedRepository;
 
+    @Autowired
+    private ReservaRepository reservaRepository;
 
+    @Autowired
+    private HabitacionRepository habitacionRepository;
 
     // 1. Test para darDeAltaHuesped (Ya lo tenías, incluido por completitud)
     @Test
@@ -163,7 +174,28 @@ public class GestorHuespedTest {
         assertEquals("Buscado", resultado.getNombre());
     }
 
-    
+    // 8. Test para darDeAltaHuesped con NULL (Cubre el if(dto == null))
+    @Test
+    public void testDarDeAltaHuesped_Null_RetornaNull() {
+        Huesped resultado = gestorHuesped.darDeAltaHuesped(null);
+        assertNull(resultado, "Si el DTO es null, el método debería retornar null");
+    }
+
+    // 9. Test para modificarHuesped cuando NO EXISTE (Caso modificoPK = false)
+    // Cubre el 'else' del if(existente != null)
+    @Test
+    public void testModificarHuesped_NoExiste_NoHaceNada() {
+        // Arrange
+        String dniInexistente = "00000000";
+        HuespedDTO dto = crearDTO("Fantasma", "Ghost", dniInexistente);
+        HuespedPK pk = new HuespedPK(TipoDoc.DNI, dniInexistente);
+
+        // Act
+        gestorHuesped.modificarHuesped(dto, pk, false);
+
+        // Assert
+        assertFalse(huespedRepository.existsById(pk), "No debería haber creado nada");
+    }
 
     // --- Métodos Auxiliares ---
 
