@@ -1,5 +1,7 @@
 package com.desarrollo_backend.demo.modelo.conserje;
 
+import com.desarrollo_backend.demo.dtos.ConserjeDTO;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +24,11 @@ public class Conserje {
     public Conserje(String usuario, String contrasenia) {
         this.usuario = usuario;
         this.contrasenia = contrasenia;
+    }
+
+    public Conserje(ConserjeDTO conserjeDTO) {
+        this.usuario = conserjeDTO.getNombre();
+        this.contrasenia = conserjeDTO.getcontrasenia();
     }
 
     public Integer getId() {
