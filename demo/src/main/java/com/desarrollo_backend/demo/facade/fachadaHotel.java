@@ -16,7 +16,7 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.dtos.PersonaJuridicaDTO;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 import com.desarrollo_backend.demo.gestores.*;
-import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
@@ -42,6 +42,25 @@ public class FachadaHotel {
 
     @Autowired
     private GestorConserje gestorConserje;
+
+    public String crearReserva(String nombre, String apellido, String telefono,
+            List<Habitacion> habitacionesSolicitadas,
+            String fechaInicioStr, String fechaFinStr) {
+        HuespedDTO huesped = new HuespedDTO();
+        huesped.setNombre(nombre);
+        huesped.setApellido(apellido);
+        huesped.setTelefono(telefono);
+        List<Huesped> huespedes = gestorHuespedes.buscarHuespedes(huesped);
+        Huesped huespedEntidad = null;
+        try {
+            huespedEntidad = huespedes.get(0);
+        } catch (Exception e) {
+            throw new RuntimeException("No existe el huesped");
+        }
+        return gestorReservas.crearReserva(huespedEntidad, habitacionesSolicitadas, 
+            fechaInicioStr, fechaFinStr);
+
+    }
 
     /**
      * Llama al gestor de habitaciones para obtener el estado de todas las
