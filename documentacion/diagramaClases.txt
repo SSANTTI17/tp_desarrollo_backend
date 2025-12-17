@@ -1,0 +1,496 @@
+@startuml
+
+skinparam class {
+  BackgroundColor<<DTO>> #ccf2ff
+  BackgroundColor<<DAO>> #fff0cc
+  BackgroundColor default white
+  BorderColor black
+}
+
+' ---------CLASES----------
+
+class Conserje {
+  +string Nombre
+  +string Contraseña
+  +void AutenticarUsuario(string,string)
+}
+Conserje -() Actor
+
+class ConserjeDTO <<DTO>> {
+  +string Nombre
+  +string Contraseña
+}
+
+class ConserjeDAO <<DAO>> {
+  + Conserje CrearUsuario (string,string)
+  + Conserje ModificarUsuario (string,string)
+  + void EliminarUsuario(string,string)
+}
+
+class Direccion {
+  +string Calle
+  +string Departamento
+  +int Altura
+  +int Piso
+  +int CodigoPostal
+}
+
+class DireccionDTO <<DTO>> {
+  +string Calle
+  +string Departamento
+  +int Altura
+  +int Piso
+  +int CodigoPostal
+}
+
+class Pais {
+  +string Nombre
+}
+
+class PaisDTO <<DTO>> {
+  +string Nombre
+}
+
+class Provincia {
+  +string Nombre
+  +int id
+}
+
+class ProvinciaDTO <<DTO>> {
+  +string Nombre
+}
+
+class Localidad {
+  +string Nombre
+  +int id 
+}
+
+class LocalidadDTO <<DTO>> {
+  +string Nombre
+}
+
+
+abstract class ResponsablePago {
+  +string CUIT
+}
+
+class PersonaFisica extends ResponsablePago {
+  +string PosicionIVA
+}
+
+class PersonaJuridica extends ResponsablePago {
+  +string RazonSocial
+  +string Telefono
+  +string Direccion
+}
+
+class ResponsablePagoDAO <<DAO>> {
+  + ResponsablePago BuscarResponsablePago(int)
+  + void GuardarResponsablePago(ResponsablePago)
+}
+
+class ResponsablePagoDTO <<DTO>> {
+  +string CUIT
+  +string PosicionIVA
+  +string RazonSocial
+}
+
+class Huesped {
+  +string Telefono
+  +string Email
+  +string Nacionalidad
+  +string Nombres
+  +string Apellido
+  +TipoDoc TipoDoc
+  +int NroDoc
+  +date FechaNacimiento
+  +string Ocupacion
+  +bool Alojado
+}
+
+class HuespedDAO <<DAO>> {
+  +Huesped DarDeAltaHuesped(string, string, TipoDoc, int, CUIT, PosicionIVA, date, Direccion, int, string, string, Pais)
+  +Huesped ModificarHuesped(Huesped)
+  +void DarDeBajaHuesped(Huesped)
+}
+
+class HuespedDTO <<DTO>> {
+  +string Telefono
+  +string Email
+  +string Nacionalidad
+  +string Nombres
+  +string Apellido
+  +TipoDoc TipoDoc
+  +int NroDoc
+  +date FechaNacimiento
+  +string Ocupacion
+}
+
+class Estadia {
+  +TipoHabitacion Tipo
+  +float Precio
+  +date FechaInicio
+  +date FechaFin
+  +bool HuespedSeAlojo()
+}
+
+class EstadiaDTO <<DTO>> {
+  +TipoHabitacion Tipo
+  +float Precio
+  +date FechaInicio
+  +date FechaFin
+}
+
+class EstadiaDAO <<DAO>> {
+  + Estadia BuscarEstadia(int)
+  + void GuardarEstadia(Estadia)
+}
+
+class GestorReservas {
+  +Reserva ReservarHabitacion(Huesped, Habitacion[])
+  +Estadia OcuparHabitacion(Huesped, Habitacion[])
+  +HistorialEstadoHabitacion CancelarReserva(Huesped, Reserva)
+}
+
+class GestorContable {
+  +Factura Facturar(int, date, ResponsablePago, Estadia)
+  +NotaDeCredito IngresarNotaDeCredito(int, TipoDoc, int)
+  +Factura PagarFactura(Factura[], Moneda)
+  +ResponsablePago BuscarResponsablePago(string, string)
+}
+
+class GestorHabitaciones {
+  +Habitacion, HistorialEstadoHabitacion InstanciarHabitacion(TipoHabitaciono, int, float)
+  +Habitacion AsignarHabitacion(Habitacion, Huesped)
+  +void MostrarEstadoHabitaciones(date, date)
+}
+
+class GestorHuespedes {
+  +Huesped BuscarHuesped(string, string, TipoDoc, int)
+}
+
+class GestorConserje {
+  +Bool Autenticar(String,String)
+  +String cambiarContrasenia(String,String)
+  
+  }
+
+class GestorReportes {
+  +ListadoCheques GenerarListadoCheque(Cheque)
+  +ListadoIngresos GenerarListadoIngreso(Consumo[])
+  +void ImprimirFactura(Factura[])
+  +ListadoCheques ListarCheque(date, date)
+  +ListadoIngresos ListarIngresos(date, date)
+}
+
+
+class Habitacion {
+  +TipoHabitacion Tipo
+  +int Numero
+  +float CostoNoche
+}
+
+class HabitacionDTO <<DTO>> {
+  +TipoHabitacion Tipo
+  +int Numero
+  +float CostoNoche
+}
+
+class HabitacionDAO <<DAO>> {
+  + Habitacion BuscarHabitacion(int)
+  + void GuardarHabitacion(Habitacion)
+}
+
+class Factura {
+  +TipoFactura Tipo
+  +float ValorEstadia
+  +float Total
+  +float Vuelto
+  +bool Pagado
+}
+
+class FacturaDTO <<DTO>> {
+  +TipoFactura Tipo
+  +float ValorEstadia
+  +float Total
+  +float Vuelto
+  +bool Pagado
+}
+
+class FacturaDAO <<DAO>> {
+  + Factura BuscarFactura(int)
+  + void GuardarFactura(Factura)
+  + void MarcarComoPagada(Factura)
+}
+
+class Cheque {
+  +int Nro
+  +string Banco
+  +string Plaza
+  +float Monto
+  +date FechaCobro
+  +int id
+}
+
+class ChequeDAO <<DAO>> {
+  + Cheque BuscarCheque(int)
+  + void GuardarCheque(Cheque)
+}
+
+class ChequeDTO <<DTO>> {
+  +int Nro
+  +string Banco
+  +string Plaza
+  +float Monto
+  +date FechaCobro
+}
+
+class ListadoCheques {
+  +date FechaInicio
+  +date FechaFin
+}
+
+class ListadoIngresos {
+  +date FechaInicio
+  +date FechaFin
+}
+
+class NotaDeCredito {
+  +date FechaDeConfeccion
+  +float MontoTotal
+  +int id
+}
+
+class NotaDeCreditoDTO <<DTO>> {
+  +date FechaDeConfeccion
+  +float MontoTotal
+}
+
+class NotaDeCreditoDAO <<DAO>> {
+  + NotaDeCredito GuardarNota(NotaDeCredito)
+  + NotaDeCredito BuscarNota(int)
+}
+
+class HistorialEstadoHabitacion {
+  +date FechaInicio
+  +string HoraInicio
+  +date FechaFin
+  +string HoraFin
+  +EstadoHabitacion Estado
+}
+
+class HistorialEstadoHabitacionDTO <<DTO>> {
+  +date FechaInicio
+  +string HoraInicio
+  +date FechaFin
+  +string HoraFin
+  +EstadoHabitacion Estado
+}
+
+class HistorialEstadoHabitacionDAO <<DAO>> {
+  +Habitacion MostrarHistorialHabitacion(Habitacion)
+  +Habitacion MostrarHistorialHabitacionFueraServicio(Habitacion)
+  +Habitacion MostrarHistorialHabitacionLibre(Habitacion)
+}
+
+class Reserva {
+  +string Nombre
+  +string Apellido
+  +int Telefono
+  +date Ingreso
+  +string HoraIngreso
+  +date Egreso
+  +string HoraEgreso
+}
+
+class ReservaDTO <<DTO>> {
+  +string Nombre
+  +string Apellido
+  +int Telefono
+  +date Ingreso
+  +string HoraIngreso
+  +date Egreso
+  +string HoraEgreso
+}
+
+class ReservaDAO <<DAO>> {
+  + Reserva BuscarReserva(int)
+  + void GuardarReserva(Reserva)
+  + void CancelarReserva(Reserva)
+}
+
+class Consumo {
+  +TipoConsumo Tipo
+  +float Monto
+  +Moneda Moneda
+  +bool Facturado 
+}
+
+class ConsumoDTO <<DTO>> {
+  +TipoConsumo Tipo
+  +float Monto
+  +Moneda Moneda
+}
+
+class ConsumoDAO <<DAO>> {
+  + Consumo BuscarConsumo(Estadia)
+  + void GuardarConsumo(Consumo)
+}
+
+class FormaDePago {
+  +Banco TarjetaDebito
+  +Banco TarjetaCredito
+  +bool Efectivo
+  +float monto
+  +int id
+}
+
+' ---------ENUMERACIONES----------
+
+enum TipoConsumo {
+  Lavado
+  Sauna
+  Bar
+}
+
+enum TipoFactura {
+  A
+  B
+}
+
+enum TipoHabitacion {
+  IE
+  DE
+  DS
+  SFP
+  SD
+}
+
+enum EstadoHabitacion {
+  Ocupada
+  Reservada
+  FueraDeServicio
+}
+
+enum Moneda {
+  ARS
+  USD
+  UYU
+  EUR
+}
+
+enum TipoDoc {
+  DNI
+  LE
+  LC
+  Pasaporte
+  Otro
+}
+
+enum Banco {
+  BNA
+  Macro
+  Santa_Fe
+  Galicia
+  BBVA
+  Santander
+  HSBC
+  ICBC
+}
+
+' ---------RELACIONES----------
+
+'Conserje "1,1" ..> "1,1" GestorHuespedes
+'Conserje "1,1" ..> "1,1" GestorReportes
+'Conserje "1,1" ..> "1,1" GestorHabitaciones
+'Conserje "1,1" ..> "1,1" GestorReservas
+'Conserje "1,1" ..> "1,1" GestorContable
+
+Conserje "1,1" <.. "1,1" GestorConserje
+GestorHuespedes "1,1" .left.> "0,n" Huesped
+GestorContable "1,1" ..> "0,n" Cheque
+GestorContable "1,1" ..> "0,n" ResponsablePago
+GestorContable "1,1" ..> "0,n" Consumo
+GestorContable "1,1" ..> "0,n" NotaDeCredito
+GestorContable "1,1" ..> "0,n" Factura
+GestorHabitaciones "1,1" ..> "0,n" Habitacion
+GestorReservas "1,1" ..> "0,n" Reserva : hace
+GestorReportes "1,1" ..> "0,n" ListadoCheques
+GestorReportes "1,1" ..> "0,n" ListadoIngresos
+GestorReportes "1,1" .up.> "0,n" Factura
+GestorReportes "1,1" .left.> "0,n" Impresora
+
+Cheque "1,n" -- "0,n" ListadoCheques
+ListadoIngresos "0,n" -- "1,n" Consumo
+Habitacion "1,1" -- "0,n" HistorialEstadoHabitacion
+Habitacion "1,n" -- "0,n" Reserva : esPara
+Huesped "1,n" -- "1,1" Direccion
+
+HistorialEstadoHabitacionDAO ..> HistorialEstadoHabitacion : Usa
+HistorialEstadoHabitacion ..> HistorialEstadoHabitacionDTO : Obtiene/Modifica
+HistorialEstadoHabitacionDAO ..> HistorialEstadoHabitacionDTO : Crea/Usa
+
+Direccion "1,n" -- "1,1" Localidad
+Localidad "1,n" -- "1,1" Provincia
+Provincia "1,n" -- "1,1" Pais
+
+Estadia "0,1" -- "1,1" Reserva
+Estadia "1,1" -- "0,n" Consumo
+Estadia "1,1" -- "0,n" Factura
+Estadia "0,n" -- "0,n" Habitacion
+Estadia "0,n" -- "0,n" Huesped
+
+ResponsablePago "1,1" -- "0,n" Factura
+Huesped "1,1" <-- "0,1" PersonaFisica
+FormaDePago "0,n" -- "1,1" Factura
+
+Factura "0,1" -- "1,1" NotaDeCredito
+
+HuespedDAO ..> GestorHuespedes
+DireccionDTO ..> LocalidadDTO
+LocalidadDTO ..> ProvinciaDTO
+ProvinciaDTO ..> PaisDTO
+
+HuespedDAO ..> Huesped : Usa
+Huesped ..> HuespedDTO : Obtiene/Modifica
+HuespedDAO ..> HuespedDTO : Crea/Usa
+HuespedDTO ..> DireccionDTO
+
+ConserjeDAO ..> Conserje : Usa
+Conserje ..> ConserjeDTO : Obtiene/Modifica
+ConserjeDAO ..> ConserjeDTO : Crea/Usa
+
+FacturaDAO ..> Factura : Usa
+Factura ..> FacturaDTO : Obtiene/Modifica
+FacturaDAO ..> FacturaDTO : Crea/Usa
+
+ConsumoDAO ..> Consumo : Usa
+Consumo ..> ConsumoDTO : Obtiene/Modifica
+ConsumoDAO ..> ConsumoDTO : Crea/Usa
+
+NotaDeCreditoDAO ..> NotaDeCredito : Usa
+NotaDeCredito ..> NotaDeCreditoDTO : Obtiene/Modifica
+NotaDeCreditoDAO ..> NotaDeCreditoDTO : Crea/Usa
+
+EstadiaDAO ..> Estadia : Usa
+Estadia ..> EstadiaDTO : Obtiene/Modifica
+EstadiaDAO ..> EstadiaDTO : Crea/Usa
+
+ReservaDAO ..> Reserva : Usa
+Reserva ..> ReservaDTO : Obtiene/Modifica
+ReservaDAO ..> ReservaDTO : Crea/Usa
+
+HabitacionDAO ..> Habitacion : Usa
+Habitacion ..> HabitacionDTO : Obtiene/Modifica
+HabitacionDAO ..> HabitacionDTO : Crea/Usa
+
+
+ResponsablePagoDAO ..> ResponsablePago : Usa
+ResponsablePago ..> ResponsablePagoDTO : Obtiene/Modifica
+ResponsablePagoDAO ..> ResponsablePagoDTO : Crea/Usa
+
+ChequeDAO ..> Cheque : Usa
+Cheque ..> ChequeDTO : Obtiene/Modifica
+ChequeDAO ..> ChequeDTO : Crea/Usa
+
+@enduml
