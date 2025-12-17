@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.desarrollo_backend.demo.builder.ReservaBuilder;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.observers.*;
@@ -93,20 +94,15 @@ public class GestorReservas {
                     }
                 }
                 habitacionesReales.add(habBD);
+
             }
+            Reserva nuevaReserva = new ReservaBuilder()
+                .conCliente(huesped)
+                .paraElPeriodo(fechaInicio, fechaFin)
+                .conHorariosEstandar()
+                .asignarHabitaciones(habitacionesReales)
+                .build();
 
-            Reserva nuevaReserva = new Reserva();
-            nuevaReserva.setApellido(apellido);
-            nuevaReserva.setNombre(nombre);
-            nuevaReserva.setTelefono(telefono);
-            nuevaReserva.setFechaIngreso(fechaInicio);
-            nuevaReserva.setFechaEgreso(fechaFin);
-
-            // CORRECCIÓN: Usamos Setter Estándar
-            nuevaReserva.setHoraIngreso("14:00");
-            nuevaReserva.setHoraEgreso("10:00");
-
-            nuevaReserva.setHabitacionesReservadas(habitacionesReales);
             reservaRepo.save(nuevaReserva);
 
             if (observers != null) {

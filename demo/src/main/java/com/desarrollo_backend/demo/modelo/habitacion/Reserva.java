@@ -47,18 +47,7 @@ public class Reserva {
     public Reserva() {
     }
 
-    public Reserva(Huesped huesped, Date fechaIngreso, String horaIngreso, Date fechaEgreso, String horaEgreso,
-            List<Habitacion> habitacionesReservadas) {
-        this.nombre = huesped.getNombre();
-        this.apellido = huesped.getApellido();
-        this.telefono = huesped.getTelefono();
-        this.fechaIngreso = fechaIngreso;
-        this.horaIngreso = horaIngreso;
-        this.fechaEgreso = fechaEgreso;
-        this.horaEgreso = horaEgreso;
-        this.habitacionesReservadas = habitacionesReservadas;
-        this.huespedRef = huesped;
-    }
+
 
     // --- GETTERS Y SETTERS CORREGIDOS (CamelCase) ---
 
