@@ -68,7 +68,13 @@ public class GestorHabitaciones {
     }
 
     // 1) MOSTRAR ESTADO DE HABITACIONES ENTRE FECHAS
-
+    /**
+     * Obtiene el estado de todas las habitaciones entre dos fechas dadas.
+     * Para cada habitacion en el rango de fechas, se consulta su estado diario.
+     * @param fechaInicio Fecha de inicio del rango.
+     * @param fechaFin    Fecha de fin del rango.
+     * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en el rango especificado.
+     */
     @Transactional(readOnly = true)
     public List<HabitacionDTO> mostrarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
 
@@ -99,6 +105,16 @@ public class GestorHabitaciones {
     }
 
     // 2) OCUPAR HABITACIÓN
+    /**
+     * Registra la ocupación de una habitación en un rango de fechas. Guarda la ocupación en el historial.
+     * @param numero      Número de la habitación.
+     * @param tipo        Tipo de la habitación.
+     * @param fechaInicio Fecha de inicio de la ocupación.
+     * @param horaInicio  Hora de inicio de la ocupación.
+     * @param fechaFin    Fecha de fin de la ocupación.
+     * @param horaFin     Hora de fin de la ocupación.
+     * @throws RuntimeException Si la habitación no es encontrada.
+     */
     @Transactional
     public void ocuparHabitacion(int numero, TipoHabitacion tipo,
             Date fechaInicio, String horaInicio,
@@ -122,6 +138,16 @@ public class GestorHabitaciones {
     }
 
     // 3) RESERVAR HABITACIÓN
+    /**
+     * Reserva la habitación en un rango de fechas, registrando la reserva en el historial.
+     * @param numero      Número de la habitación.
+     * @param tipo        Tipo de la habitación.
+     * @param fechaInicio Fecha de inicio de la reserva.
+     * @param horaInicio  Hora de inicio de la reserva.
+     * @param fechaFin    Fecha de fin de la reserva.
+     * @param horaFin     Hora de fin de la reserva.
+     * @throws RuntimeException Si la habitación no es encontrada.
+     */
     @Transactional
     public void reservarHabitacion(int numero, TipoHabitacion tipo,
             Date fechaInicio, String horaInicio,
@@ -145,6 +171,9 @@ public class GestorHabitaciones {
     }
 
     // 4) VERIFICAR DISPONIBILIDAD ENTRE FECHAS
+    /**
+    * Verifica la disponibilidad de una habitación en un rango de fechas.
+     */
     @Transactional(readOnly = true)
     public EstadoHabitacion verificarDisponibilidad(
             HistorialHabitacionPK id,
@@ -170,6 +199,12 @@ public class GestorHabitaciones {
     }
 
     // 5) GENERAR LISTA DE FECHAS ENTRE INICIO–FIN
+    /**
+     * Genera una lista de objetos Date que representan cada día entre dos fechas dadas (inclusive).
+     * @param start Fecha de inicio.
+     * @param end   Fecha de fin.
+     * @return Lista de fechas entre start y end.
+     */
     private List<Date> generarRangoFechas(LocalDate start, LocalDate end) {
         List<Date> dates = new ArrayList<>();
         LocalDate current = start;

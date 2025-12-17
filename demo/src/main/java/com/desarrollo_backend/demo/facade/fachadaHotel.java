@@ -40,7 +40,13 @@ public class FachadaHotel {
 
     @Autowired
     private GestorConserje gestorConserje;
-
+    /**
+     * Llama al gestor de habitaciones para obtener el estado de todas las habitaciones
+     * entre dos fechas dadas.
+     * @param fechaInicio Fecha de inicio del rango.
+     * @param fechaFin    Fecha de fin del rango.
+     * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en el rango especificado.
+     */
     public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
     }
