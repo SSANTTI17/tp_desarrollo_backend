@@ -98,6 +98,10 @@ public class Huesped {
         return estadias;
     }
 
+    public HuespedPK getId() {
+        return id;
+    }
+
     public String getNombre() {
         return nombre;
     }
@@ -145,10 +149,12 @@ public class Huesped {
     public Boolean getBorrado() {
         return borradoLogico;
     }
+
     // --- SETTERS ---
     public void setEstadias(List<Estadia> estadias) {
         this.estadias = estadias;
     }
+
     public void setBorradoLogico(Boolean borradoLogico) {
         this.borradoLogico = borradoLogico;
     }
