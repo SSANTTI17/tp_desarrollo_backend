@@ -1,20 +1,21 @@
 package com.desarrollo_backend.demo.dtos;
-
+import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
+import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
+import java.util.List;
 import java.util.Date;
 
 public class ReservaDTO {
     private String nombre;
     private String apellido;
-    private int telefono;
+    private String telefono;
     private Date fechaIngreso;
-
-    // Corregido a minúscula para evitar confusión
     private String horaIngreso;
     private Date fechaEgreso;
     private String horaEgreso;
+    private List<Habitacion> habitacionesReservadas;
 
-    public ReservaDTO(String nombre, String apellido, int telefono, Date fechaIngreso, String horaIngreso,
-            Date fechaEgreso, String horaEgreso) {
+    public ReservaDTO(String nombre, String apellido, String telefono, Date fechaIngreso, String horaIngreso,
+            Date fechaEgreso, String horaEgreso, List<Habitacion> habitacionesReservadas) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.telefono = telefono;
@@ -22,6 +23,17 @@ public class ReservaDTO {
         this.horaIngreso = horaIngreso;
         this.fechaEgreso = fechaEgreso;
         this.horaEgreso = horaEgreso;
+        this.habitacionesReservadas = habitacionesReservadas;
+    }
+    public ReservaDTO(Reserva reserva) {
+        this.nombre = reserva.getNombre();
+        this.apellido = reserva.getApellido();
+        this.telefono = reserva.getTelefono();
+        this.fechaIngreso = reserva.getFechaIngreso();
+        this.horaIngreso = reserva.getHoraIngreso();
+        this.fechaEgreso = reserva.getFechaEgreso();
+        this.horaEgreso = reserva.getHoraEgreso();
+        this.habitacionesReservadas = reserva.getHabitacionesReservadas();
     }
 
     public String getNombre() {
@@ -40,11 +52,11 @@ public class ReservaDTO {
         this.apellido = apellido;
     }
 
-    public int getTelefono() {
+    public String getTelefono() {
         return telefono;
     }
 
-    public void setTelefono(int telefono) {
+    public void setTelefono(String telefono) {
         this.telefono = telefono;
     }
 
@@ -78,5 +90,11 @@ public class ReservaDTO {
 
     public void setHoraEgreso(String horaEgreso) {
         this.horaEgreso = horaEgreso;
+    }
+    public List<Habitacion> getHabitacionesReservadas() {
+        return habitacionesReservadas;
+    }
+    public void setHabitacionesReservadas(List<Habitacion> habitacionesReservadas) {
+        this.habitacionesReservadas = habitacionesReservadas;
     }
 }

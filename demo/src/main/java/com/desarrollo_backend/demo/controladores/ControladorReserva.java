@@ -6,14 +6,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.desarrollo_backend.demo.dtos.HuespedDTO;
-import com.desarrollo_backend.demo.gestores.GestorHuesped;
 import com.desarrollo_backend.demo.gestores.GestorReservas;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.habitacion.Habitacion; // Importante
-
+import com.desarrollo_backend.demo.dtos.*;
+import com.desarrollo_backend.demo.facade.FachadaHotel;
 @RestController
 @RequestMapping("/api/reservas")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -23,7 +19,7 @@ public class ControladorReserva {
     private GestorReservas gestorReservas;
 
     @Autowired
-    private GestorHuesped gestorHuesped;
+    private FachadaHotel fachadaHotel;
 
     @GetMapping("/buscar")
     public List<Map<String, Object>> buscar(
@@ -35,51 +31,20 @@ public class ControladorReserva {
 
     // --- MODIFICACIÓN PRINCIPAL AQUÍ ---
     @PostMapping("/crear")
-    public ResponseEntity<?> crearReserva(@RequestBody AltaReservaRequest request) {
+    public ResponseEntity<?> crearReserva(@RequestBody ReservaDTO request) {
 
-        // 1. Validaciones básicas de entrada
-        if (request.getHabitaciones() == null || request.getHabitaciones().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Debe seleccionar al menos una habitación"));
-        }
-
-        try {
-            // 2. BUSCAR AL HUÉSPED REAL (Paso Intermedio Obligatorio)
-            // El gestor pide un objeto Huesped, pero el front manda Strings
-            // (nombre/apellido)
-            HuespedDTO filtro = new HuespedDTO();
-            filtro.setApellido(request.getApellido());
-            filtro.setNombre(request.getNombre());
-
-            // Usamos tu GestorHuesped para buscarlo
-            List<Huesped> clientesEncontrados = gestorHuesped.buscarHuespedes(filtro);
-
-            if (clientesEncontrados.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error",
-                        "El cliente " + request.getNombre() + " " + request.getApellido()
-                                + " no existe. Regístrelo antes."));
-            }
-
-            Huesped huespedReal = clientesEncontrados.get(0);
-
-            // 3. LLAMAR AL GESTOR CON LOS PARAMETROS CORRECTOS
-            // Firma: crearReserva(Huesped h, List<Habitacion> habitaciones, String inicio,
-            // String fin)
-            String resultado = gestorReservas.crearReserva(
-                    huespedReal,
-                    request.getHabitaciones(),
-                    request.getFechaInicio(),
-                    request.getFechaFin());
-
-            // 4. MANEJAR LA RESPUESTA (Tu gestor devuelve String, no Reserva)
-            if (resultado.startsWith("Error")) {
-                return ResponseEntity.badRequest().body(Map.of("error", resultado));
-            }
-
-            return ResponseEntity.ok(Map.of("message", resultado));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        request = fachadaHotel.crearReserva(
+                request.getNombre(),
+                request.getApellido(),
+                request.getTelefono(),
+                request.getHabitacionesReservadas(),
+                request.getFechaIngreso().toString(),
+                request.getFechaEgreso().toString());
+        String resultado = (request == null) ? "Error al crear la reserva" : "Reserva creada con éxito";
+        if (resultado.startsWith("Error")) {
+            return ResponseEntity.badRequest().body(Map.of("error", resultado));
+        }else {
+            return ResponseEntity.ok(request);
         }
     }
 
@@ -124,62 +89,3 @@ public class ControladorReserva {
     }
 }
 
-// DTO (Se mantiene igual, asegúrate que esté accesible)
-class AltaReservaRequest {
-    private String nombre;
-    private String apellido;
-    private String telefono;
-    private String fechaInicio;
-    private String fechaFin;
-    // Asumimos que el front manda objetos habitación o al menos sus IDs
-    private List<Habitacion> habitaciones;
-
-    // Getters y Setters...
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    public String getApellido() {
-        return apellido;
-    }
-
-    public void setApellido(String apellido) {
-        this.apellido = apellido;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
-    public String getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public void setFechaInicio(String fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public String getFechaFin() {
-        return fechaFin;
-    }
-
-    public void setFechaFin(String fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public List<Habitacion> getHabitaciones() {
-        return habitaciones;
-    }
-
-    public void setHabitaciones(List<Habitacion> habitaciones) {
-        this.habitaciones = habitaciones;
-    }
-}

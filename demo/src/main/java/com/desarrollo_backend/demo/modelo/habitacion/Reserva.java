@@ -3,8 +3,8 @@ package com.desarrollo_backend.demo.modelo.habitacion;
 import java.util.Date;
 import java.util.List;
 
+import com.desarrollo_backend.demo.dtos.ReservaDTO;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -37,16 +37,30 @@ public class Reserva {
     @OneToOne(mappedBy = "reserva")
     private Estadia estadia;
 
-    @ManyToOne
-    @JoinColumns({
-            @JoinColumn(name = "huesped_tipo_doc", referencedColumnName = "tipo_documento"),
-            @JoinColumn(name = "huesped_numero_doc", referencedColumnName = "nroDocumento")
-    })
-    Huesped huespedRef;
 
     public Reserva() {
     }
-
+    public Reserva(String nombre, String apellido, String telefono, Date fechaIngreso, String horaIngreso,
+            Date fechaEgreso, String horaEgreso, List<Habitacion> habitacionesReservadas) {
+        this.nombre = nombre;
+        this.apellido = apellido;
+        this.telefono = telefono;
+        this.fechaIngreso = fechaIngreso;
+        this.horaIngreso = horaIngreso;
+        this.fechaEgreso = fechaEgreso;
+        this.horaEgreso = horaEgreso;
+        this.habitacionesReservadas = habitacionesReservadas;
+    }
+    public Reserva(ReservaDTO reservaDTO) {
+        this.nombre = reservaDTO.getNombre();
+        this.apellido = reservaDTO.getApellido();
+        this.telefono = reservaDTO.getTelefono();
+        this.fechaIngreso = reservaDTO.getFechaIngreso();
+        this.horaIngreso = reservaDTO.getHoraIngreso();
+        this.fechaEgreso = reservaDTO.getFechaEgreso();
+        this.horaEgreso = reservaDTO.getHoraEgreso();
+        this.habitacionesReservadas = reservaDTO.getHabitacionesReservadas();
+    }
 
 
     // --- GETTERS Y SETTERS CORREGIDOS (CamelCase) ---
@@ -133,11 +147,5 @@ public class Reserva {
         this.estadia = estadia;
     }
 
-    public Huesped getHuespedRef() {
-        return huespedRef;
-    }
-
-    public void setHuespedRef(Huesped huespedRef) {
-        this.huespedRef = huespedRef;
-    }
+    
 }

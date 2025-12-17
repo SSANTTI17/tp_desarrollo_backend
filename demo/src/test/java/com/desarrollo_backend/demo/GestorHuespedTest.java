@@ -23,6 +23,7 @@ import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.repository.HabitacionRepository;
 import com.desarrollo_backend.demo.repository.HuespedRepository;
 import com.desarrollo_backend.demo.repository.ReservaRepository;
+import com.desarrollo_backend.demo.gestores.GestorReservas;
 
 @SpringBootTest
 @Transactional // Importante: Revierte cambios en BD al terminar cada test
@@ -30,6 +31,9 @@ public class GestorHuespedTest {
 
     @Autowired
     private GestorHuesped gestorHuesped;
+
+    @Autowired
+    private GestorReservas gestorReservas;
 
     @Autowired
     private HuespedRepository huespedRepository;
@@ -188,16 +192,9 @@ public class GestorHuespedTest {
 
         // 3. Crear Reserva asociada al huésped 
         // Nota: Asegúrate de usar el constructor que setea 'huespedRef'
-        Reserva reserva = new ReservaBuilder()
-            .conCliente(huesped)
-            .paraElPeriodo(new Date(), new Date()) // Las fechas de inicio y fin
-            .asignarHabitaciones(habitaciones)
-            .conHorariosEstandar() // Asigna los horarios por defecto
-            .build();
-
-        // Guardado
-        reserva = reservaRepository.save(reserva);
-
+        //Reserva reserva = new Reserva(huesped, new Date(), "10:00", new Date(), "10:00", habitaciones);
+        //reserva = reservaRepository.save(reserva);
+        Reserva reserva = gestorReservas.crearReserva(huesped.getNombre(), huesped.getApellido(), huesped.getTelefono(), habitaciones, "10-12-2025", "18-12-2025");
         // Act
         List<Huesped> resultado = gestorHuesped.buscarPorReservas(reserva);
 

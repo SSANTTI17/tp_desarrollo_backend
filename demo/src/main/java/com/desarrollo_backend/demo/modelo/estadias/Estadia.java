@@ -3,6 +3,8 @@ package com.desarrollo_backend.demo.modelo.estadias;
 import java.util.Date;
 import com.desarrollo_backend.demo.modelo.factura.*;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
+import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -42,8 +44,15 @@ public class Estadia {
     @OneToMany(mappedBy = "estadia")
     private List<Consumo> consumos;
 
+    @ManyToMany
+    private List<Huesped> huespedes;
+
     public void agregarConsumo(Consumo c) {
         consumos.add(c);
+    }
+
+    public void agregarHuesped(Huesped h) {
+        huespedes.add(h);
     }
 
     public float totalConsumos() {
@@ -58,18 +67,21 @@ public class Estadia {
     // consutructores
     public Estadia() {
         consumos = new ArrayList<Consumo>();
+        huespedes = new ArrayList<Huesped>(); 
     }
 
     public Estadia(Reserva reserva, Date fechaInicio) {
         this.reserva = reserva;
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
+        huespedes = new ArrayList<Huesped>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio, Date fechaFin) {
         this.reserva = reserva;
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
+        huespedes = new ArrayList<Huesped>();
     }
 
     // getters
@@ -109,6 +121,10 @@ public class Estadia {
         return consumos;
     }
 
+    public List<Huesped> getHuespedes() {
+        return huespedes;
+    }
+
     // setters
     public void setPrecio(float precio) {
         this.precio = precio;
@@ -138,4 +154,7 @@ public class Estadia {
         this.reserva = reserva;
     }
 
+    public void setHuespedes(List<Huesped> huespedes) {
+        this.huespedes = huespedes;
+    }
 }

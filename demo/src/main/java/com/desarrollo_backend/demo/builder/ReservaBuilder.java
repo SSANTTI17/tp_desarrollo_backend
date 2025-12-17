@@ -14,8 +14,10 @@ public class ReservaBuilder {
         this.reserva = new Reserva();
     }
 
-    public ReservaBuilder conCliente(Huesped huesped) {
-        reserva.setHuespedRef(huesped);
+    public ReservaBuilder conDatosCliente(String nombre, String apellido, String telefono) {
+        reserva.setNombre(nombre);
+        reserva.setApellido(apellido);
+        reserva.setTelefono(telefono);
         return this;
     }
 

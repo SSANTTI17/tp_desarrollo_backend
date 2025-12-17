@@ -6,14 +6,7 @@ import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.desarrollo_backend.demo.dtos.ConsumoDTO;
-import com.desarrollo_backend.demo.dtos.ContenedorEstadiaYFacturaDTO;
-import com.desarrollo_backend.demo.dtos.DireccionDTO;
-import com.desarrollo_backend.demo.dtos.EstadiaDTO;
-import com.desarrollo_backend.demo.dtos.FacturaDTO;
-import com.desarrollo_backend.demo.dtos.HabitacionDTO;
-import com.desarrollo_backend.demo.dtos.HuespedDTO;
-import com.desarrollo_backend.demo.dtos.PersonaJuridicaDTO;
+import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 import com.desarrollo_backend.demo.gestores.*;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
@@ -43,23 +36,16 @@ public class FachadaHotel {
     @Autowired
     private GestorConserje gestorConserje;
 
-    public String crearReserva(String nombre, String apellido, String telefono,
+    public ReservaDTO crearReserva(String nombre, String apellido, String telefono,
             List<Habitacion> habitacionesSolicitadas,
             String fechaInicioStr, String fechaFinStr) {
-        HuespedDTO huesped = new HuespedDTO();
-        huesped.setNombre(nombre);
-        huesped.setApellido(apellido);
-        huesped.setTelefono(telefono);
-        List<Huesped> huespedes = gestorHuespedes.buscarHuespedes(huesped);
-        Huesped huespedEntidad = null;
-        try {
-            huespedEntidad = huespedes.get(0);
-        } catch (Exception e) {
-            throw new RuntimeException("No existe el huesped");
+        Reserva reserva = gestorReservas.crearReserva(nombre, apellido, telefono, habitacionesSolicitadas, 
+        fechaInicioStr, fechaFinStr);
+        if (reserva == null)
+            return null;
+        else{
+            return new ReservaDTO(reserva);
         }
-        return gestorReservas.crearReserva(huespedEntidad, habitacionesSolicitadas,
-                fechaInicioStr, fechaFinStr);
-
     }
 
     /**
@@ -96,12 +82,12 @@ public class FachadaHotel {
     public List<HuespedDTO> obtenerHuespedesParaFacturacion(EstadiaDTO estadiaDTO, HabitacionDTO habitacionDTO) {
         // Delegamos al gestor pasándole los datos primitivos necesarios
         // Las reservas tienen información duplicada de las estadias
-        Reserva reserva = gestorReservas.consultarReservas(
+        Estadia estadia = gestorContable.buscarEstadiaPorCheckout(
                 habitacionDTO.getNumero(),
                 habitacionDTO.getTipo(),
                 estadiaDTO.getFechaFin());
 
-        List<Huesped> huespedes = gestorHuespedes.buscarPorReservas(reserva);
+        List<Huesped> huespedes = estadia.getHuespedes();
 
         List<HuespedDTO> dtos = huespedes.stream()
                 .map(huesped -> new HuespedDTO(huesped))
