@@ -13,6 +13,7 @@ import com.desarrollo_backend.demo.dtos.EstadiaDTO;
 import com.desarrollo_backend.demo.dtos.FacturaDTO;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
+import com.desarrollo_backend.demo.dtos.PersonaJuridicaDTO;
 import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.dtos.requests.*;
@@ -99,6 +100,22 @@ public class ControladorFacturacion {
             return ResponseEntity.ok(facturaConfirmada);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al confirmar factura: " + e.getMessage());
+        }
+    }
+
+    // CU12 - Alta de Responsable de Pago (Persona Jurídica)
+    @PostMapping("/responsable")
+    public ResponseEntity<?> darDeAltaResponsable(@RequestBody PersonaJuridicaDTO request) {
+        try {
+            PersonaJuridicaDTO nuevoResponsable = fachada.darDeAltaResponsablePago(
+                    request
+            );
+
+            return ResponseEntity.ok(nuevoResponsable);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body("Error al dar de alta el responsable: " + e.getMessage());
         }
     }
 }

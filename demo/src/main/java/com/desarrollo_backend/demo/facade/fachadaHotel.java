@@ -199,7 +199,7 @@ public class FachadaHotel {
 
     }
 
-    public PersonaJuridicaDTO darDeAltaResponsablePago(PersonaJuridicaDTO dto, DireccionDTO direccion) {
+    public PersonaJuridicaDTO darDeAltaResponsablePago(PersonaJuridicaDTO dto) {
         PersonaJuridica responsable = new PersonaJuridica(dto);
         gestorContable.guardarResponsablePago(responsable);
         return dto;
