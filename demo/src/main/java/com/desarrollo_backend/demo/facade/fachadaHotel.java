@@ -22,6 +22,8 @@ import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
+import org.springframework.transaction.annotation.Transactional;
+import java.util.ArrayList;
 
 @Service
 public class FachadaHotel {
@@ -40,24 +42,37 @@ public class FachadaHotel {
 
     @Autowired
     private GestorConserje gestorConserje;
+
     /**
-     * Llama al gestor de habitaciones para obtener el estado de todas las habitaciones
+     * Llama al gestor de habitaciones para obtener el estado de todas las
+     * habitaciones
      * entre dos fechas dadas.
+     * 
      * @param fechaInicio Fecha de inicio del rango.
      * @param fechaFin    Fecha de fin del rango.
-     * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en el rango especificado.
+     * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en
+     *         el rango especificado.
      */
     public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
     }
+
     /**
-     * Recupera la lista de huéspedes asociados a una reserva de una habitación específica
+     * 
+     * 
      * que realiza el check-out en la fecha indicada.
-     * Este método es el paso inicial para seleccionar a nombre de quién se realizará la facturación.
-     * Es mejor usar reservas en nuestro caso ya que estadia no tiene huespedes asociados como atributo.
-     * @param estadiaDTO    DTO que contiene la fecha de finalización (check-out) de la estadía.
+     * Este método es el paso inicial para seleccionar a nombre de quién se rea
+     * izará la facturación.
+     * Es mejor usar reservas en nuestro caso ya que estadia no tiene huespedes
+     * asociados como atributo.
+     * 
+     * @param estadiaDTO    DTO que contiene la fecha de finalización (chec
+     *                      -out) de la estadía.
      * @param habitacionDTO DTO con el número y tipo de habitación a consultar.
+     * 
+     * 
      * @return Lista de {@link HuespedDTO} con los ocupantes asociados a la reserva.
+     * 
      */
     public List<HuespedDTO> obtenerHuespedesParaFacturacion(EstadiaDTO estadiaDTO, HabitacionDTO habitacionDTO) {
         // Delegamos al gestor pasándole los datos primitivos necesarios
@@ -74,18 +89,30 @@ public class FachadaHotel {
                 .collect(Collectors.toList());
         return dtos;
     }
+
     /**
-     * Genera una instancia preliminar de la factura y valida las reglas de negocio antes de la confirmación.
-     * Verifica que el huésped responsable sea mayor de edad, busca la estadía real en base a los datos
+     * 
+     * 
+     * Verifica que el huésped responsable sea mayor de edad, busca la estadía real
+     * en base a los datos
      * de la habitación y fecha, y calcula los montos totales incluyendo consumos.
+     * 
      *
-     * @param huesped    DTO del huésped seleccionado como responsable de pago (puede ser nulo si es tercero).
-     * @param CUIT       Cadena con el CUIT del responsable de pago (si es una persona jurídica/tercero).
-     * @param estadia    DTO con los datos de fecha de fin para localizar la estadía.
-     * @param habitacion DTO con los datos de la habitación para localizar la estadía.
-     * @return Un ContenedorEstadiaYFacturaDTO que agrupa la estadía encontrada y la factura generada (no persistida).
-     * @throws RuntimeException Si el huésped seleccionado no existe, es menor de edad o hay errores en el cálculo.
+     * 
+     * @param huesped    DTO del huésped seleccionado como responsable de pago
+     *                   (puede ser nulo si es tercero).
+     * @param CUIT       Cadena con el CUIT del responsable de pago (si es una
+     *                   persona jurídica/tercero).
+     * @param estadia    DTO con los datos de fecha de fin para localizar la e
+     *                   tadía.
+     * @param habitacion DTO con los datos de la habitación para localizar la
+     *                   stadía.
+     * @return Un ContenedorEstadiaYFacturaDTO que agrupa la estadía encontr
+     *         da y la factura generada (no persistida).
+     * @throws RuntimeException Si el huésped seleccionado no existe, es meno
+     *                          de edad o hay errores en el cálculo.
      */
+
     public ContenedorEstadiaYFacturaDTO generarFactura(HuespedDTO huesped, String CUIT, EstadiaDTO estadia,
             HabitacionDTO habitacion) throws EdadInsuficienteException {
         Huesped entidad = null;
@@ -107,20 +134,27 @@ public class FachadaHotel {
         Factura factura = null;
 
         factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
-    //se rompio el push?
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
     }
+
     /**
-     * Confirma y persiste la facturación de una estadía.
-     * Este método asocia el responsable de pago definitivo, actualiza el estado de los consumos
-     * a "facturados" y guarda la factura en la base de datos vinculándola con la estadía.
+     * 
+     * 
+     * Este método asocia el responsable de pago definitivo, actualiza el estado de
+     * los consumos
+     * a "facturados" y guarda la factura en la base de datos vinculándola con la
+     * estadía.
      *
+     * 
      * @param idEstadia Identificador único de la estadía a facturar.
+     * 
      * @param factura   DTO con los datos de la factura a confirmar.
-     * @param h         DTO del huésped (usado para buscar responsable si no se proveyó una Persona Jurídica).
+     * @param h         DTO del huésped (usado para buscar responsable si no se
+     *                  proveyó una Persona Jurídica).
      * @param resp      DTO de la Persona Jurídica responsable (si aplica).
      * @param consumos  Lista de consumos que se incluyen en esta factura.
+     * 
      * @return FacturaDTO confirmado y procesado.
      */
     public FacturaDTO confirmarFactura(Integer idEstadia, FacturaDTO factura, HuespedDTO h, PersonaJuridicaDTO resp,
@@ -170,6 +204,39 @@ public class FachadaHotel {
     // Inicializa un conserje por defecto si la BD está vacía.
     public void inicializarConserje() {
         gestorConserje.crearConserjeInicialSiNoExiste();
+    }
+
+    /**
+     * Método singular: Elimina una sola reserva delegando al Gestor.
+     * Este es el método que tu bucle llama internamente.
+     */
+    public String eliminarReserva(Reserva r) {
+        // Delegamos la lógica "dura" al gestor
+        // Asumo que tu GestorReserva tiene un método que devuelve un String indicando
+        // éxito o error
+        try {
+            gestorReservas.eliminarReserva(r);
+            //
+            return "Reserva eliminada con exito";
+        } catch (Exception e) {
+            return "Error al eliminar: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Metodo iterativo: Procesa una lista y devuelve las que fallaron.
+     */
+    @Transactional
+    public List<Reserva> eliminarReservas(List<Reserva> reservas) {
+        List<Reserva> rebotadas = new ArrayList<>();
+
+        for (Reserva r : reservas) {
+
+            if (!eliminarReserva(r).equals("Reserva eliminada con exito")) {
+                rebotadas.add(r);
+            }
+        }
+        return rebotadas;
     }
 
 }
