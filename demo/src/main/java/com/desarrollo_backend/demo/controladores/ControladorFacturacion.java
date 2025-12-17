@@ -16,6 +16,7 @@ import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.dtos.requests.*;
+import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 
 @RestController
 @RequestMapping("/api/facturacion")
@@ -64,7 +65,6 @@ public class ControladorFacturacion {
     @PostMapping("/generar")
     public ResponseEntity<?> generarFactura(@RequestBody GenerarFacturaRequest request) {
         try {
-            // Llamada a la fachada pasando los DTOs recibidos
             ContenedorEstadiaYFacturaDTO contenedor = fachada.generarFactura(
                     request.getHuesped(),
                     request.getCuit(),
@@ -72,6 +72,12 @@ public class ControladorFacturacion {
                     request.getHabitacion()
             );
             return ResponseEntity.ok(contenedor);
+
+        } catch (EdadInsuficienteException e) {
+            // Captura específica para el error de edad
+            return ResponseEntity.badRequest().body( "Validación de edad fallida"
+                + e.getMessage() // "El huésped seleccionado es menor de edad..."
+            );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al generar factura: " + e.getMessage());
         }

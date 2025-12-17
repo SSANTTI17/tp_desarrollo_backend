@@ -14,6 +14,7 @@ import com.desarrollo_backend.demo.dtos.FacturaDTO;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.dtos.PersonaJuridicaDTO;
+import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 import com.desarrollo_backend.demo.gestores.*;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
@@ -80,7 +81,7 @@ public class FachadaHotel {
      * @throws RuntimeException Si el huésped seleccionado no existe, es menor de edad o hay errores en el cálculo.
      */
     public ContenedorEstadiaYFacturaDTO generarFactura(HuespedDTO huesped, String CUIT, EstadiaDTO estadia,
-            HabitacionDTO habitacion) {
+            HabitacionDTO habitacion) throws EdadInsuficienteException {
         Huesped entidad = null;
 
         if (huesped.getNroDocumento() != null) {
@@ -98,11 +99,9 @@ public class FachadaHotel {
         );
 
         Factura factura = null;
-        try {
-            factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
-        } catch (Exception e) {
-            throw new RuntimeException("El huesped debe ser mayor a 18 años" + e.getMessage());
-        }
+
+        factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
+    
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
     }

@@ -19,6 +19,8 @@ import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.repository.EstadiaRepository;
 import com.desarrollo_backend.demo.repository.FacturaRepository;
 import com.desarrollo_backend.demo.dtos.*;
+import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
+
 import java.util.List;
 
 import jakarta.transaction.Transactional;
@@ -133,12 +135,13 @@ public class GestorContable {
      * @return Una entidad {@link Factura} con los cálculos realizados y el responsable asignado (sin persistir).
      * @throws Exception Si el huésped seleccionado es menor de edad.
      */
-    public Factura generarFacturaParaHuesped(Huesped huesped, String CUIT, Estadia estadia) throws Exception {
+    public Factura generarFacturaParaHuesped(Huesped huesped, String CUIT, Estadia estadia) throws EdadInsuficienteException {
 
         // VALIDACIÓN: MENOR DE EDAD
         if (huesped != null) {
             if (huesped.calcularEdad() < 18) {
-                throw new Exception("Error: El huésped seleccionado es menor de edad y no puede ser responsable de pago.");
+                throw new EdadInsuficienteException("El huésped seleccionado es menor de edad (tiene " 
+                        + huesped.calcularEdad() + " años) y no puede ser responsable de pago.");
             }
         }
 
