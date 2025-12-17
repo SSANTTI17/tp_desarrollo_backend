@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 import com.desarrollo_backend.demo.gestores.*;
+import com.desarrollo_backend.demo.mappers.HuespedMapper;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
@@ -36,14 +37,17 @@ public class FachadaHotel {
     @Autowired
     private GestorConserje gestorConserje;
 
+    @Autowired
+    private HuespedMapper huespedMapper;
+
     public ReservaDTO crearReserva(String nombre, String apellido, String telefono,
             List<Habitacion> habitacionesSolicitadas,
             String fechaInicioStr, String fechaFinStr) {
-        Reserva reserva = gestorReservas.crearReserva(nombre, apellido, telefono, habitacionesSolicitadas, 
-        fechaInicioStr, fechaFinStr);
+        Reserva reserva = gestorReservas.crearReserva(nombre, apellido, telefono, habitacionesSolicitadas,
+                fechaInicioStr, fechaFinStr);
         if (reserva == null)
             return null;
-        else{
+        else {
             return new ReservaDTO(reserva);
         }
     }
@@ -79,20 +83,27 @@ public class FachadaHotel {
      * @return Lista de {@link HuespedDTO} con los ocupantes asociados a la reserva.
      * 
      */
+    /**
+     * Obtiene los huéspedes para facturación buscando la estadía que finaliza en la
+     * fecha dada.
+     * Utiliza el Mapper para convertir las entidades a DTO.
+     */
     public List<HuespedDTO> obtenerHuespedesParaFacturacion(EstadiaDTO estadiaDTO, HabitacionDTO habitacionDTO) {
-        // Delegamos al gestor pasándole los datos primitivos necesarios
-        // Las reservas tienen información duplicada de las estadias
         Estadia estadia = gestorContable.buscarEstadiaPorCheckout(
                 habitacionDTO.getNumero(),
                 habitacionDTO.getTipo(),
                 estadiaDTO.getFechaFin());
 
+        if (estadia == null) {
+            return new ArrayList<>();
+        }
+
         List<Huesped> huespedes = estadia.getHuespedes();
 
-        List<HuespedDTO> dtos = huespedes.stream()
-                .map(huesped -> new HuespedDTO(huesped))
+        // USO DEL MAPPER
+        return huespedes.stream()
+                .map(huespedMapper::toDto)
                 .collect(Collectors.toList());
-        return dtos;
     }
 
     /**
@@ -244,78 +255,69 @@ public class FachadaHotel {
         return rebotadas;
     }
 
-    //          MÉTODOS DE GESTOR HUESPED 
+    // MÉTODOS DE GESTOR HUESPED
 
     /**
      * Registra un nuevo huésped en el sistema.
-     * @param dto Datos del huésped a crear.
-     * @return El DTO del huésped creado (incluyendo datos generados si los hubiera).
      */
     public HuespedDTO registrarHuesped(HuespedDTO dto) {
         Huesped huespedCreado = gestorHuespedes.darDeAltaHuesped(dto);
-        return new HuespedDTO(huespedCreado);
+        // USO DEL MAPPER
+        return huespedMapper.toDto(huespedCreado);
     }
 
     /**
      * Busca huéspedes que coincidan con los filtros proporcionados.
-     * @param filtro DTO con los campos de búsqueda (nombre, apellido, dni, etc.).
-     * @return Lista de HuespedDTO que cumplen con el criterio.
      */
     public List<HuespedDTO> buscarHuespedes(HuespedDTO filtro) {
         List<Huesped> resultados = gestorHuespedes.buscarHuespedes(filtro);
+        // USO DEL MAPPER
         return resultados.stream()
-                .map(h -> new HuespedDTO(h))
+                .map(huespedMapper::toDto)
                 .collect(Collectors.toList());
     }
 
     /**
      * Obtiene un huésped específico por su tipo y número de documento.
-     * @param tipoDocStr String que representa el Enum TipoDoc (ej: "DNI").
-     * @param nroDocumento Número de documento.
-     * @return HuespedDTO si existe, o null si no se encuentra.
      */
     public HuespedDTO obtenerHuespedPorId(String tipoDocStr, String nroDocumento) {
         try {
-            com.desarrollo_backend.demo.modelo.huesped.TipoDoc tipo = 
-                com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(tipoDocStr);
-            
-            com.desarrollo_backend.demo.modelo.huesped.HuespedPK id = 
-                new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(tipo, nroDocumento);
-            
+            com.desarrollo_backend.demo.modelo.huesped.TipoDoc tipo = com.desarrollo_backend.demo.modelo.huesped.TipoDoc
+                    .valueOf(tipoDocStr);
+
+            com.desarrollo_backend.demo.modelo.huesped.HuespedPK id = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(
+                    tipo, nroDocumento);
+
             Huesped h = gestorHuespedes.obtenerHuespedPorId(id);
-            return h != null ? new HuespedDTO(h) : null;
+
+            // USO DEL MAPPER
+            return huespedMapper.toDto(h);
+
         } catch (IllegalArgumentException e) {
-            // Manejo de error si el tipo de documento no es válido
             throw new RuntimeException("Tipo de documento inválido: " + tipoDocStr);
         }
     }
 
     /**
-     * Modifica un huésped existente. 
-     * Maneja la lógica de cambio de clave primaria (Documento/Tipo) construyendo el PK anterior.
-     * * @param dto Datos actualizados del huésped.
-     * @param modificoPK true si se cambió el DNI o Tipo, false en caso contrario.
-     * @param oldTipoStr Tipo de documento anterior (solo requerido si modificoPK es true).
-     * @param oldDni Número de documento anterior (solo requerido si modificoPK es true).
+     * Modifica un huésped existente.
      */
     public void modificarHuesped(HuespedDTO dto, boolean modificoPK, String oldTipoStr, String oldDni) {
         com.desarrollo_backend.demo.modelo.huesped.HuespedPK pkAnterior = null;
 
-        // Construimos la PK anterior necesaria para el Gestor
         if (modificoPK) {
             if (oldTipoStr == null || oldDni == null) {
                 throw new RuntimeException("Faltan datos del documento anterior para realizar la modificación.");
             }
             try {
-                com.desarrollo_backend.demo.modelo.huesped.TipoDoc oldTipo = 
-                    com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(oldTipoStr);
+                com.desarrollo_backend.demo.modelo.huesped.TipoDoc oldTipo = com.desarrollo_backend.demo.modelo.huesped.TipoDoc
+                        .valueOf(oldTipoStr);
                 pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(oldTipo, oldDni);
             } catch (IllegalArgumentException e) {
-                 throw new RuntimeException("Tipo de documento anterior inválido.");
+                throw new RuntimeException("Tipo de documento anterior inválido.");
             }
         } else {
-            // Si no cambió la PK, la anterior es igual a la actual del DTO
-            pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
+            pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(dto.getTipo_documento(),
+                    dto.getNroDocumento());
         }
 
         gestorHuespedes.modificarHuesped(dto, pkAnterior, modificoPK);
@@ -323,8 +325,6 @@ public class FachadaHotel {
 
     /**
      * Elimina un huésped del sistema.
-     * @param tipoDocStr Tipo de documento.
-     * @param nroDocumento Número de documento.
      */
     public void eliminarHuesped(String tipoDocStr, String nroDocumento) {
         HuespedDTO dtoEliminar = new HuespedDTO();
@@ -336,5 +336,4 @@ public class FachadaHotel {
             throw new RuntimeException("Tipo de documento inválido para eliminación.");
         }
     }
-
 }
