@@ -3,6 +3,8 @@ package com.desarrollo_backend.demo.modelo.habitacion;
 import java.util.Date;
 import java.util.List;
 
+import java.util.ArrayList;
+import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.ReservaDTO;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 
@@ -147,5 +149,12 @@ public class Reserva {
         this.estadia = estadia;
     }
 
-    
+    public List<Habitacion> convertirFromDTO(List<HabitacionDTO> listaDTO){ 
+        List<Habitacion> salida = new ArrayList<>();
+        for(HabitacionDTO hDTO : listaDTO){
+            salida.add(new Habitacion(hDTO));
+        }
+        return salida;
+    }
+
 }

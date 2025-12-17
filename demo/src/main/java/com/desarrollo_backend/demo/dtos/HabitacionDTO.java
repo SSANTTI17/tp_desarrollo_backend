@@ -12,6 +12,14 @@ public class HabitacionDTO {
     private Reserva reservas;
     private List<EstadoHabitacion> estadosPorDia;
 
+    public HabitacionDTO() {}
+    
+    public HabitacionDTO(Habitacion h){
+        this.tipo = h.getTipo();
+        this.numero = h.getNumero();
+        this.costoNoche = h.getCostoNoche();
+    }
+
     // Getter y Setter para tipo
     public TipoHabitacion getTipo() {
         return tipo;
