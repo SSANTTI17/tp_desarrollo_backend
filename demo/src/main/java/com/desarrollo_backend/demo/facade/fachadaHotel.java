@@ -417,16 +417,20 @@ public class FachadaHotel {
      * Elimina al huésped y devuelve el mensaje de confirmación formateado.
      */
     public String eliminarHuesped(HuespedDTO huespedDTO) {
+        String nombre = huespedDTO.getNombre();
+        String apellido = huespedDTO.getApellido();
+        String tipoDocumento = huespedDTO.getTipo_documento().toString();
+        String nroDocumento = huespedDTO.getNroDocumento();
         // 1. Delegamos la baja al gestor
         gestorHuespedes.eliminarHuesped(huespedDTO);
 
         // 2. Construimos el mensaje de éxito
         return String.format(
-                "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema. PRESIONE CUALQUIER TECLA PARA CONTINUAR…",
-                huespedDTO.getNombre(),
-                huespedDTO.getApellido(),
-                huespedDTO.getTipo_documento(),
-                huespedDTO.getNroDocumento());
+                "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema.",
+                nombre,
+                apellido,
+                tipoDocumento,
+                nroDocumento);
         }
 
 }
