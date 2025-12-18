@@ -186,7 +186,7 @@ public class FachadaHotel {
             HabitacionDTO habitacion) throws EdadInsuficienteException {
         Huesped entidad = null;
 
-        if (huesped.getNroDocumento() != null) {
+        if (huesped != null && huesped.getNroDocumento() != null) {
             List<Huesped> entidades = gestorHuespedes.buscarHuespedes(huesped);
             // NUNCA debería entrar acá porque el huésped fue seleccionado antes
             if (entidades.isEmpty()) {
@@ -204,10 +204,12 @@ public class FachadaHotel {
 
 
         factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
-
+        if(factura!=null) {
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
-    }
+        }
+        return null;
+    } 
 
     /**
      * 

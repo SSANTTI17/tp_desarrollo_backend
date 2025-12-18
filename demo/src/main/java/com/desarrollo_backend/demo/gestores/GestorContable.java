@@ -222,7 +222,7 @@ public class GestorContable {
         factura.setTotalAPagar(totalAPagar);
         factura.setPagado(false); // Aún no se paga
         factura.setVuelto(0);
-
+        System.out.println(factura.getTipoFactura());
         factura.setEstadia(estadia);
         System.out.println(factura.getValorEstadia());
         return factura;
