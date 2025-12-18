@@ -4,6 +4,7 @@ import java.util.Date;
 import com.desarrollo_backend.demo.modelo.factura.*;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.desarrollo_backend.demo.modelo.estadias.Consumo;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import java.util.List;
@@ -16,6 +17,7 @@ public class EstadiaDTO {
     private Date fechaInicio;
     private Date fechaFin;
     private Factura factura;
+    @JsonIgnore // rompe bucle infinito
     private ReservaDTO reserva;
     private List<ConsumoDTO> consumos;
     private int id;

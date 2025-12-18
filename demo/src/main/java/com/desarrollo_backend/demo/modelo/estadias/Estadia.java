@@ -41,7 +41,7 @@ public class Estadia {
     private Reserva reserva;
 
     @OneToMany(mappedBy = "estadia")
-    private List<Consumo> consumos = new ArrayList<Consumo>();
+    private List<Consumo> consumos = new ArrayList<>();
 
     @ManyToMany
     private List<Huesped> huespedes;
@@ -56,6 +56,8 @@ public class Estadia {
 
 
     public float totalConsumos() {
+        if (this.consumos == null || this.consumos.isEmpty())
+            return 0f;
         float total = 0;
         for (Consumo c : consumos) {
             if (c.isFacturado() == false)
@@ -114,6 +116,9 @@ public class Estadia {
     }
 
     public List<Consumo> getConsumos() {
+        if (this.consumos == null) {
+            this.consumos = new ArrayList<>();
+        }
         return consumos;
     }
 

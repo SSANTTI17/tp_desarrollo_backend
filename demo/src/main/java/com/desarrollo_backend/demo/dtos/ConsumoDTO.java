@@ -1,12 +1,15 @@
 package com.desarrollo_backend.demo.dtos;
 
 import com.desarrollo_backend.demo.modelo.estadias.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class ConsumoDTO {
     private int id;
     private TipoConsumo tipo;
     private float monto;
     private Moneda moneda;
+
+    @JsonIgnore // rompe bucle infinito
     private EstadiaDTO estadiaDTO;
 
     //consutructores
