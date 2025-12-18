@@ -3,7 +3,6 @@ package com.desarrollo_backend.demo.dtos;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
-import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 
 public class FacturaDTO {
 
@@ -13,7 +12,6 @@ public class FacturaDTO {
     private float vuelto;
     private boolean pagado;
     private ResponsablePago responsablePago;
-    private Estadia estadia;
 
     // constructores
     public FacturaDTO() {

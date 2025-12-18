@@ -2,9 +2,12 @@ package com.desarrollo_backend.demo.facade;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.ArrayList;
 import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
@@ -16,8 +19,7 @@ import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
-import org.springframework.transaction.annotation.Transactional;
-import java.util.ArrayList;
+import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 
 @Service
 public class FachadaHotel {
@@ -50,6 +52,54 @@ public class FachadaHotel {
         else {
             return new ReservaDTO(reserva);
         }
+    }
+
+    /**
+     * Método singular: Elimina una sola reserva delegando al Gestor.
+     * Este es el método que tu bucle llama internamente.
+     */
+    public String eliminarReserva(Reserva r) {
+        try {
+            gestorReservas.eliminarReserva(r);
+            return "Reserva eliminada con exito";
+        } catch (Exception e) {
+            return "Error al eliminar: " + e.getMessage();
+        }
+    }
+
+    /**
+     * Metodo iterativo: Procesa una lista y devuelve las que fallaron.
+     */
+    @Transactional
+    public List<Reserva> eliminarReservas(List<Reserva> reservas) {
+        List<Reserva> rebotadas = new ArrayList<>();
+
+        for (Reserva r : reservas) {
+
+            if (!eliminarReserva(r).equals("Reserva eliminada con exito")) {
+                rebotadas.add(r);
+            }
+        }
+        return rebotadas;
+    }
+
+    /**
+     * Busca reservas filtrando por apellido (obligatorio) y nombre (opcional).
+     */
+    public List<Reserva> buscarPorHuesped(String apellido, String nombre) throws ReservaNotFoundException {
+        return gestorReservas.consultarReservas(apellido, nombre);
+    }
+
+    /**
+     * Cancela una reserva dado solo su ID.
+     * Crea internamente la instancia necesaria para el gestor.
+     */
+    public String cancelarReserva(int idReserva) {
+
+        Reserva reservaDummy = new Reserva();
+        reservaDummy.setId(idReserva);
+
+        return this.eliminarReserva(reservaDummy);
     }
 
     /**
@@ -220,39 +270,6 @@ public class FachadaHotel {
     // Inicializa un conserje por defecto si la BD está vacía.
     public void inicializarConserje() {
         gestorConserje.crearConserjeInicialSiNoExiste();
-    }
-
-    /**
-     * Método singular: Elimina una sola reserva delegando al Gestor.
-     * Este es el método que tu bucle llama internamente.
-     */
-    public String eliminarReserva(Reserva r) {
-        // Delegamos la lógica "dura" al gestor
-        // Asumo que tu GestorReserva tiene un método que devuelve un String indicando
-        // éxito o error
-        try {
-            gestorReservas.eliminarReserva(r);
-            //
-            return "Reserva eliminada con exito";
-        } catch (Exception e) {
-            return "Error al eliminar: " + e.getMessage();
-        }
-    }
-
-    /**
-     * Metodo iterativo: Procesa una lista y devuelve las que fallaron.
-     */
-    @Transactional
-    public List<Reserva> eliminarReservas(List<Reserva> reservas) {
-        List<Reserva> rebotadas = new ArrayList<>();
-
-        for (Reserva r : reservas) {
-
-            if (!eliminarReserva(r).equals("Reserva eliminada con exito")) {
-                rebotadas.add(r);
-            }
-        }
-        return rebotadas;
     }
 
     // MÉTODOS DE GESTOR HUESPED

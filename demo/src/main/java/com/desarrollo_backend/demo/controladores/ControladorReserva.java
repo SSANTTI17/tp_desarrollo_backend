@@ -10,6 +10,7 @@ import com.desarrollo_backend.demo.gestores.GestorReservas;
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.facade.FachadaHotel;
+
 @RestController
 @RequestMapping("/api/reservas")
 @CrossOrigin(origins = "http://localhost:3000")
@@ -43,7 +44,7 @@ public class ControladorReserva {
         String resultado = (request == null) ? "Error al crear la reserva" : "Reserva creada con éxito";
         if (resultado.startsWith("Error")) {
             return ResponseEntity.badRequest().body(Map.of("error", resultado));
-        }else {
+        } else {
             return ResponseEntity.ok(request);
         }
     }
@@ -51,33 +52,46 @@ public class ControladorReserva {
     @PostMapping("/cancelar-reserva")
     public ResponseEntity<?> eliminarReservas(@RequestBody List<Reserva> reservas) {
         try {
-            List<Reserva> listaActualizada = gestorReservas.eliminarReservas(reservas);
-            return ResponseEntity.ok(listaActualizada);
+            // Llamamos a la fachada.
+            // La fachada devuelve la lista de reservas que FALLARON ("rebotadas").
+            List<Reserva> reservasFallidas = fachadaHotel.eliminarReservas(reservas);
+
+            if (reservasFallidas.isEmpty()) {
+                // Si la lista está vacía, significa que todas se borraron bien
+                return ResponseEntity.ok(Map.of("message", "Todas las reservas fueron eliminadas con éxito."));
+            } else {
+                // Si devuelve algo, avisamos cuáles no se pudieron borrar
+                return ResponseEntity.ok(Map.of(
+                        "message", "Algunas reservas no pudieron eliminarse",
+                        "fallidas", reservasFallidas));
+            }
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
+    // 2. BUSCAR POR HUÉSPED
     @GetMapping("/por-huesped")
     public ResponseEntity<?> buscarPorHuesped(
             @RequestParam String apellido,
             @RequestParam(required = false) String nombre) {
         try {
-            List<Reserva> reservas = gestorReservas.consultarReservas(apellido, nombre);
+            // Delegamos directo a la fachada
+            List<Reserva> reservas = fachadaHotel.buscarPorHuesped(apellido, nombre);
             return ResponseEntity.ok(reservas);
         } catch (Exception e) {
+            // Aquí capturamos la ReservaNotFoundException si la fachada la lanza
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
+    // 3. CANCELAR UNA RESERVA POR ID
     @DeleteMapping("/cancelar/{id}")
     public ResponseEntity<?> cancelarReserva(@PathVariable int id) {
         try {
-            // Creamos una dummy solo con el ID para borrar
-            Reserva reservaDummy = new Reserva();
-            reservaDummy.setId(id);
-
-            String resultado = gestorReservas.eliminarReserva(reservaDummy);
+            // YA NO creamos el objeto dummy aquí.
+            // Llamamos al método nuevo de la fachada que recibe el int id.
+            String resultado = fachadaHotel.cancelarReserva(id);
 
             if (resultado.startsWith("Error")) {
                 return ResponseEntity.badRequest().body(Map.of("error", resultado));
@@ -88,4 +102,3 @@ public class ControladorReserva {
         }
     }
 }
-
