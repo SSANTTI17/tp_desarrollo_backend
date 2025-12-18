@@ -14,10 +14,12 @@ import com.desarrollo_backend.demo.repository.PersonaJuridicaRepository;
 import com.desarrollo_backend.demo.repository.ResponsablePagoRepository;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
+import com.desarrollo_backend.demo.modelo.factura.FormaDePago;
 import com.desarrollo_backend.demo.modelo.factura.TipoFactura;
 import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 import com.desarrollo_backend.demo.repository.EstadiaRepository;
 import com.desarrollo_backend.demo.repository.FacturaRepository;
+import com.desarrollo_backend.demo.repository.FormaDePagoRepository;
 import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
 
@@ -40,6 +42,8 @@ public class GestorContable {
     private EstadiaRepository estadiaRepository;
     @Autowired
     private FacturaRepository FacturaRepository;
+    @Autowired
+    private FormaDePagoRepository formaDePagoRepository;
 
 
     public ResponsablePago registrarResponsable(ResponsablePago responsable) {
@@ -271,14 +275,32 @@ public class GestorContable {
      * @param estadia La estadía a la cual pertenece dicha factura.
      */
     @Transactional
-    public void crearFacturaReal(Factura factura, Estadia estadia) {
+    public void crearFacturaReal(Factura factura, Estadia estadia, List<FormaDePagoDTO> formasPago) {
         
-        if(factura.getValorEstadia()!=0){
+        if (factura.getValorEstadia() != 0) {
             estadia.setFacturadaEstadia(true);
         }
         estadiaRepository.save(estadia);
+
         factura.setEstadia(estadia);
-        FacturaRepository.save(factura);
+
+        // --- LÓGICA DE PAGO ---
+        if (formasPago != null && !formasPago.isEmpty()) {
+            factura.setPagado(true); // ¡Aquí cambia el estado en la BD!
+        } else {
+            factura.setPagado(false);
+        }
+
+        Factura facturaGuardada = FacturaRepository.save(factura);
+
+        // Guardar las formas de pago
+        if (formasPago != null) {
+            for (FormaDePagoDTO fpDto : formasPago) {
+                FormaDePago fp = new FormaDePago(fpDto);
+                fp.setFactura(facturaGuardada);
+                formaDePagoRepository.save(fp);
+            }
+        }
     }
 
     public void guardarResponsablePago(ResponsablePago responsable) {

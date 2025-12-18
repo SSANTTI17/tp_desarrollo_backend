@@ -28,99 +28,71 @@ public class ControladorFacturacion {
     @Autowired
     private FachadaHotel fachada;
 
-
-    // CU07 - Paso 1: Buscar ocupantes
     @GetMapping("/ocupantes")
     public ResponseEntity<?> obtenerHuespedesParaFacturacion(
-            @RequestParam String habitacion, // Ejemplo: "IE101", "SFP606"
+            @RequestParam String habitacion,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") Date fechaSalida) {
         try {
-            // Lógica de presentación: Separar el string de habitación
             if (habitacion == null || habitacion.length() < 4) {
-                return ResponseEntity.badRequest().body("Formato de habitación inválido. Debe ser Tipo+Numero (ej: IE101)");
+                return ResponseEntity.badRequest().body("Formato inválido");
             }
-
-            // Los últimos 3 caracteres son el número, el resto es el tipo
             String tipoStr = habitacion.substring(0, habitacion.length() - 3);
             String numeroStr = habitacion.substring(habitacion.length() - 3);
 
-            // Crear y configurar HabitacionDTO
             HabitacionDTO habitacionDTO = new HabitacionDTO();
             habitacionDTO.setNumero(Integer.parseInt(numeroStr));
             habitacionDTO.setTipo(TipoHabitacion.fromString(tipoStr));
 
-            // Crear y configurar EstadiaDTO con la fecha que llega del front
             EstadiaDTO estadiaDTO = new EstadiaDTO();
             estadiaDTO.setFechaFin(fechaSalida);
 
-            // Llamada a la fachada
             List<HuespedDTO> huespedes = fachada.obtenerHuespedesParaFacturacion(estadiaDTO, habitacionDTO);
-
             return ResponseEntity.ok(huespedes);
-
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error buscando ocupantes: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
-    // CU07 - Paso 2: Obtener ítems pendientes
     @PostMapping("/generar")
     public ResponseEntity<?> generarFactura(@RequestBody GenerarFacturaRequest request) {
         try {
             ContenedorEstadiaYFacturaDTO contenedor = fachada.generarFactura(
-                    request.getHuesped(),
-                    request.getCuit(),
-                    request.getEstadia(),
-                    request.getHabitacion()
+                    request.getHuesped(), request.getCuit(), request.getEstadia(), request.getHabitacion()
             );
-            System.out.println("La lista de consumos es de tamaño:");
-            System.out.println(contenedor.getEstadia().getConsumos().size());
-            System.out.println(contenedor.getEstadia().getConsumos().getClass().getName());
+            // Sin System.out.println para evitar NullPointer
             return ResponseEntity.ok(contenedor);
-
         } catch (EdadInsuficienteException e) {
-            // Captura específica para el error de edad
-            return ResponseEntity.badRequest().body(
-                Map.of("error", e.getMessage())
-            );
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al generar factura: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
-
-    // CU07 - Paso final: Confirmar Factura
     @PostMapping("/confirmar")
     public ResponseEntity<?> confirmarFactura(@RequestBody ConfirmarFacturaRequest request) {
         try {
-            // Llamada a la fachada
-             System.out.println("aca llegoOOOOO");
+            // Pasamos también la lista de pagos
             FacturaDTO facturaConfirmada = fachada.confirmarFactura(
                     request.getIdEstadia(),
                     request.getFactura(),
                     request.getHuesped(),
                     request.getResponsable(),
-                    request.getConsumos()
+                    request.getConsumos(),
+                    request.getFormasPago()
             );
             return ResponseEntity.ok(facturaConfirmada);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error al confirmar factura: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error al confirmar: " + e.getMessage());
         }
     }
 
-    // CU12 - Alta de Responsable de Pago (Persona Jurídica)
     @PostMapping("/responsable")
     public ResponseEntity<?> darDeAltaResponsable(@RequestBody PersonaJuridicaDTO request) {
         try {
-            PersonaJuridicaDTO nuevoResponsable = fachada.darDeAltaResponsablePago(
-                    request
-            );
-
+            PersonaJuridicaDTO nuevoResponsable = fachada.darDeAltaResponsablePago(request);
             return ResponseEntity.ok(nuevoResponsable);
-
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.badRequest().body("Error al dar de alta el responsable: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Error alta responsable: " + e.getMessage());
         }
     }
 }

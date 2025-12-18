@@ -16,39 +16,57 @@ public class EstadiaDTO {
     private float precio;
     private Date fechaInicio;
     private Date fechaFin;
-    private Factura factura;
-    @JsonIgnore // rompe bucle infinito
+    private Factura factura; // Ojo: Esto es una Entidad, idealmente debería ser FacturaDTO, pero lo dejamos
+                             // para que compile.
+
+    @JsonIgnore
     private ReservaDTO reserva;
+
     private List<ConsumoDTO> consumos;
     private int id;
 
     public void agregarConsumo(Consumo c) {
+        if (this.consumos == null)
+            this.consumos = new ArrayList<>();
         ConsumoDTO consumoDTO = new ConsumoDTO(c);
         consumos.add(consumoDTO);
     }
 
-    // consutructores
+    // constructores
     public EstadiaDTO() {
     }
 
-    public EstadiaDTO(Estadia estadia){
+    public EstadiaDTO(Estadia estadia) {
         this.id = estadia.getId();
         this.habitacion = new HabitacionDTO(estadia.getHabitacion());
         this.precio = estadia.getPrecio();
         this.fechaInicio = estadia.getFechaInicio();
         this.fechaFin = estadia.getFechaFin();
-        this.reserva = new ReservaDTO(estadia.getReserva());
+
+        // --- CORRECCIÓN CRÍTICA AQUÍ ---
+        // Verificamos si la estadía tiene reserva antes de convertirla
+        if (estadia.getReserva() != null) {
+            this.reserva = new ReservaDTO(estadia.getReserva());
+        } else {
+            this.reserva = null;
+        }
+        // -------------------------------
+
         this.consumos = this.transformarConsumos(estadia.getConsumos());
     }
-        
+
     public EstadiaDTO(Reserva reserva, Date fechaInicio) {
-        this.reserva = new ReservaDTO(reserva);
+        if (reserva != null) {
+            this.reserva = new ReservaDTO(reserva);
+        }
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<>();
     }
 
     public EstadiaDTO(Reserva reserva, Date fechaInicio, Date fechaFin) {
-        this.reserva = new ReservaDTO(reserva);
+        if (reserva != null) {
+            this.reserva = new ReservaDTO(reserva);
+        }
         this.fechaInicio = fechaInicio;
         this.fechaFin = fechaFin;
         consumos = new ArrayList<>();
@@ -56,11 +74,13 @@ public class EstadiaDTO {
 
     // getters
     public TipoHabitacion geTipoHabitacion() {
-        return habitacion.getTipo();
+        return habitacion != null ? habitacion.getTipo() : null;
     }
+
     public int getId() {
         return id;
     }
+
     public float getPrecio() {
         return precio;
     }
@@ -94,20 +114,20 @@ public class EstadiaDTO {
         if (consumosEstadia == null) {
             return new ArrayList<>();
         }
-    List<ConsumoDTO> consumosTransformados = new ArrayList<>();
-    for (Consumo consumo : consumosEstadia) {
-        ConsumoDTO consumoDTO = new ConsumoDTO(consumo);
-        consumosTransformados.add(consumoDTO);
-    }
-    return consumosTransformados;
+        List<ConsumoDTO> consumosTransformados = new ArrayList<>();
+        for (Consumo consumo : consumosEstadia) {
+            ConsumoDTO consumoDTO = new ConsumoDTO(consumo);
+            consumosTransformados.add(consumoDTO);
+        }
+        return consumosTransformados;
     }
 
     public void setId(int id) {
         this.id = id;
     }
-    
-    public TipoHabitacion getTipoHabitacion() { 
-        return habitacion.getTipo();
+
+    public TipoHabitacion getTipoHabitacion() {
+        return habitacion != null ? habitacion.getTipo() : null;
     }
 
     public void setFechaInicio(Date fechaInicio) {
@@ -125,5 +145,4 @@ public class EstadiaDTO {
     public void setReserva(ReservaDTO reserva) {
         this.reserva = reserva;
     }
-
 }
