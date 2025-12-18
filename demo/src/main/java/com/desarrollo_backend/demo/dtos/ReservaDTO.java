@@ -1,40 +1,52 @@
 package com.desarrollo_backend.demo.dtos;
+
 import com.desarrollo_backend.demo.modelo.habitacion.Reserva;
 import com.desarrollo_backend.demo.modelo.habitacion.Habitacion;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class ReservaDTO {
+    private int id;
     private String nombre;
     private String apellido;
     private String telefono;
-    private Date fechaIngreso;
+
+    // CAMBIO: Ahora son String para recibir lo que manda el Front tal cual
+    private String fechaIngreso;
     private String horaIngreso;
-    private Date fechaEgreso;
+    private String fechaEgreso;
     private String horaEgreso;
+
     private List<HabitacionDTO> habitacionesReservadas;
 
-    public ReservaDTO(String nombre, String apellido, String telefono, Date fechaIngreso, String horaIngreso,
-            Date fechaEgreso, String horaEgreso, List<HabitacionDTO> habitacionesReservadas) {
-        this.nombre = nombre;
-        this.apellido = apellido;
-        this.telefono = telefono;
-        this.fechaIngreso = fechaIngreso;
-        this.horaIngreso = horaIngreso;
-        this.fechaEgreso = fechaEgreso;
-        this.horaEgreso = horaEgreso;
-        this.habitacionesReservadas = habitacionesReservadas;
+    public ReservaDTO() {
     }
+
     public ReservaDTO(Reserva reserva) {
+        this.id = reserva.getId();
         this.nombre = reserva.getNombre();
         this.apellido = reserva.getApellido();
         this.telefono = reserva.getTelefono();
-        this.fechaIngreso = reserva.getFechaIngreso();
+
+        // Convertimos Date -> String para devolver al front
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        this.fechaIngreso = reserva.getFechaIngreso() != null ? sdf.format(reserva.getFechaIngreso()) : null;
+        this.fechaEgreso = reserva.getFechaEgreso() != null ? sdf.format(reserva.getFechaEgreso()) : null;
+
         this.horaIngreso = reserva.getHoraIngreso();
-        this.fechaEgreso = reserva.getFechaEgreso();
         this.horaEgreso = reserva.getHoraEgreso();
         this.habitacionesReservadas = convertirADTO(reserva.getHabitacionesReservadas());
+    }
+
+    // Getters y Setters
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -61,12 +73,21 @@ public class ReservaDTO {
         this.telefono = telefono;
     }
 
-    public Date getFechaIngreso() {
+    // Getters/Setters ahora de tipo String
+    public String getFechaIngreso() {
         return fechaIngreso;
     }
 
-    public void setFechaIngreso(Date fechaIngreso) {
+    public void setFechaIngreso(String fechaIngreso) {
         this.fechaIngreso = fechaIngreso;
+    }
+
+    public String getFechaEgreso() {
+        return fechaEgreso;
+    }
+
+    public void setFechaEgreso(String fechaEgreso) {
+        this.fechaEgreso = fechaEgreso;
     }
 
     public String getHoraIngreso() {
@@ -77,14 +98,6 @@ public class ReservaDTO {
         this.horaIngreso = horaIngreso;
     }
 
-    public Date getFechaEgreso() {
-        return fechaEgreso;
-    }
-
-    public void setFechaEgreso(Date fechaEgreso) {
-        this.fechaEgreso = fechaEgreso;
-    }
-
     public String getHoraEgreso() {
         return horaEgreso;
     }
@@ -92,34 +105,35 @@ public class ReservaDTO {
     public void setHoraEgreso(String horaEgreso) {
         this.horaEgreso = horaEgreso;
     }
-    public List<HabitacionDTO> getHabitacionesReservadasDTO() {
+
+    public List<HabitacionDTO> getHabitacionesReservadas() {
         return habitacionesReservadas;
     }
 
-    public List<Habitacion> getHabitacionesReservadas() {
-        return convertirFromDTO(habitacionesReservadas);
-    }
     public void setHabitacionesReservadas(List<HabitacionDTO> habitacionesReservadas) {
         this.habitacionesReservadas = habitacionesReservadas;
     }
 
-    /**
-         * Metodo que mapea una lista de clases de capa lógica a una lista de clases DTO
-         */
-    public List<HabitacionDTO> convertirADTO(List<Habitacion> listaOriginal){
-
-        List<HabitacionDTO> salida = new ArrayList<>();
-        for(Habitacion h : listaOriginal){
-            salida.add(new HabitacionDTO(h));
-        }
-
-        return salida;
-
+    // Auxiliar para pasar a entidades
+    public List<Habitacion> getHabitacionesReservadasEntidad() {
+        return convertirFromDTO(habitacionesReservadas);
     }
 
-    public List<Habitacion> convertirFromDTO(List<HabitacionDTO> listaDTO){ 
+    public List<HabitacionDTO> convertirADTO(List<Habitacion> listaOriginal) {
+        if (listaOriginal == null)
+            return new ArrayList<>();
+        List<HabitacionDTO> salida = new ArrayList<>();
+        for (Habitacion h : listaOriginal) {
+            salida.add(new HabitacionDTO(h));
+        }
+        return salida;
+    }
+
+    public List<Habitacion> convertirFromDTO(List<HabitacionDTO> listaDTO) {
+        if (listaDTO == null)
+            return new ArrayList<>();
         List<Habitacion> salida = new ArrayList<>();
-        for(HabitacionDTO hDTO : listaDTO){
+        for (HabitacionDTO hDTO : listaDTO) {
             salida.add(new Habitacion(hDTO));
         }
         return salida;

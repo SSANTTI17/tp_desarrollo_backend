@@ -127,10 +127,16 @@ public class GestorReservas {
             throw new ReservaNotFoundException("Ingrese apellido");
 
         List<Reserva> reservas = new ArrayList<>();
-        if (nombre == null || nombre.isBlank())
-            reservas = reservaRepo.findByApellido(apellido);
-        else
-            reservas = reservaRepo.findByApellidoAndNombre(apellido, nombre);
+
+        // --- CAMBIO AQUÍ: USAR BÚSQUEDA FLEXIBLE ---
+        if (nombre == null || nombre.isBlank()) {
+            // Busca coincidencias parciales e ignora mayúsculas en el apellido
+            reservas = reservaRepo.findByApellidoContainingIgnoreCase(apellido);
+        } else {
+            // Busca coincidencias parciales en ambos campos
+            reservas = reservaRepo.findByApellidoContainingIgnoreCaseAndNombreContainingIgnoreCase(apellido, nombre);
+        }
+        // --------------------------------------------
 
         if (reservas.isEmpty())
             throw new ReservaNotFoundException("No hay reservas a nombre de " + apellido + ", " + nombre);

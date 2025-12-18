@@ -2,7 +2,6 @@ package com.desarrollo_backend.demo.modelo.habitacion;
 
 import java.util.Date;
 import java.util.List;
-
 import java.util.ArrayList;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.ReservaDTO;
@@ -10,6 +9,7 @@ import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.text.SimpleDateFormat;
 
 @Entity(name = "reservas")
 public class Reserva {
@@ -23,7 +23,6 @@ public class Reserva {
     private String telefono;
     private Date fechaIngreso;
 
-    // Atributos en minúscula (Estándar Java)
     private String horaIngreso;
     private Date fechaEgreso;
     private String horaEgreso;
@@ -33,15 +32,15 @@ public class Reserva {
             @JoinColumn(name = "habitacion_numero", referencedColumnName = "numero"),
             @JoinColumn(name = "habitacion_tipo", referencedColumnName = "tipo")
     })
-    @JsonIgnoreProperties("reservas") // Evita bucle infinito al enviar al front
+    @JsonIgnoreProperties("reservas")
     private List<Habitacion> habitacionesReservadas;
 
     @OneToOne(mappedBy = "reserva")
     private Estadia estadia;
 
-
     public Reserva() {
     }
+
     public Reserva(String nombre, String apellido, String telefono, Date fechaIngreso, String horaIngreso,
             Date fechaEgreso, String horaEgreso, List<Habitacion> habitacionesReservadas) {
         this.nombre = nombre;
@@ -53,19 +52,29 @@ public class Reserva {
         this.horaEgreso = horaEgreso;
         this.habitacionesReservadas = habitacionesReservadas;
     }
+
+    // --- CORRECCIÓN: Parseamos las fechas de String a Date ---
     public Reserva(ReservaDTO reservaDTO) {
         this.nombre = reservaDTO.getNombre();
         this.apellido = reservaDTO.getApellido();
         this.telefono = reservaDTO.getTelefono();
-        this.fechaIngreso = reservaDTO.getFechaIngreso();
         this.horaIngreso = reservaDTO.getHoraIngreso();
-        this.fechaEgreso = reservaDTO.getFechaEgreso();
         this.horaEgreso = reservaDTO.getHoraEgreso();
-        this.habitacionesReservadas = reservaDTO.getHabitacionesReservadas();
+        this.habitacionesReservadas = convertirFromDTO(reservaDTO.getHabitacionesReservadas());
+
+        // Parseo de fechas (puede venir yyyy-MM-dd o dd/MM/yyyy)
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            if (reservaDTO.getFechaIngreso() != null)
+                this.fechaIngreso = sdf.parse(reservaDTO.getFechaIngreso());
+            if (reservaDTO.getFechaEgreso() != null)
+                this.fechaEgreso = sdf.parse(reservaDTO.getFechaEgreso());
+        } catch (Exception e) {
+            // Fallback o manejo de error silencioso (idealmente loggear)
+            System.out.println("Error parseando fecha en Reserva Constructor: " + e.getMessage());
+        }
     }
-
-
-    // --- GETTERS Y SETTERS CORREGIDOS (CamelCase) ---
+    // -----------------------
 
     public int getId() {
         return id;
@@ -107,7 +116,6 @@ public class Reserva {
         this.fechaIngreso = fechaIngreso;
     }
 
-    // CORREGIDO: De gethoraIngreso a getHoraIngreso
     public String getHoraIngreso() {
         return horaIngreso;
     }
@@ -124,7 +132,6 @@ public class Reserva {
         this.fechaEgreso = fechaEgreso;
     }
 
-    // CORREGIDO: De gethoraEgreso a getHoraEgreso
     public String getHoraEgreso() {
         return horaEgreso;
     }
@@ -149,12 +156,13 @@ public class Reserva {
         this.estadia = estadia;
     }
 
-    public List<Habitacion> convertirFromDTO(List<HabitacionDTO> listaDTO){ 
+    public List<Habitacion> convertirFromDTO(List<HabitacionDTO> listaDTO) {
         List<Habitacion> salida = new ArrayList<>();
-        for(HabitacionDTO hDTO : listaDTO){
+        if (listaDTO == null)
+            return salida;
+        for (HabitacionDTO hDTO : listaDTO) {
             salida.add(new Habitacion(hDTO));
         }
         return salida;
     }
-
 }

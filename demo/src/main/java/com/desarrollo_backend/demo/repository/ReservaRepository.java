@@ -13,17 +13,23 @@ import java.util.List;
 @Repository
 public interface ReservaRepository extends JpaRepository<Reserva, Integer> {
 
-    List<Reserva> findByApellido(String apellido);
+       // --- BÚSQUEDA EXACTA (VIEJO - LO DEJAMOS POR SI ACASO) ---
+       List<Reserva> findByApellido(String apellido);
 
-    List<Reserva> findByApellidoAndNombre(String apellido, String nombre);
+       List<Reserva> findByApellidoAndNombre(String apellido, String nombre);
 
-    @Query("SELECT r FROM reservas r JOIN r.habitacionesReservadas h " +
-           "WHERE h.id.numero = :numero " +
-           "AND h.id.tipo = :tipo " +
-           "AND :fecha = r.fechaEgreso")
-    Reserva ReservasPorHabitacionYFecha(
-            @Param("numero") int numero,
-            @Param("tipo") TipoHabitacion tipo,
-            @Param("fecha") Date fecha); 
+       // --- NUEVO: BÚSQUEDA FLEXIBLE (LIKE %texto% + Ignorar Mayúsculas) ---
+       List<Reserva> findByApellidoContainingIgnoreCase(String apellido);
+
+       List<Reserva> findByApellidoContainingIgnoreCaseAndNombreContainingIgnoreCase(String apellido, String nombre);
+
+       @Query("SELECT r FROM reservas r JOIN r.habitacionesReservadas h " +
+                     "WHERE h.id.numero = :numero " +
+                     "AND h.id.tipo = :tipo " +
+                     "AND :fecha = r.fechaEgreso")
+       Reserva ReservasPorHabitacionYFecha(
+                     @Param("numero") int numero,
+                     @Param("tipo") TipoHabitacion tipo,
+                     @Param("fecha") Date fecha);
 
 }
