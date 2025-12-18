@@ -23,11 +23,18 @@ public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
     // 2. Unificamos los nombres de los parámetros (:numero, :tipo, :fecha).
     // 3. La lógica busca si la fecha ingresada cae DENTRO del rango [inicio, fin]
     // de la estadía.
-    @Query("SELECT e FROM Estadia e WHERE e.habitacion.id.numero = :numero " +
-          "AND e.habitacion.id.tipo = :tipo " +
-          "AND :fecha >= e.fechaInicio " +
-          "AND :fecha <= e.fechaFin " +
-          "AND e.facturadaEstadia = false")
+      @Query("""
+      SELECT DISTINCT e
+      FROM Estadia e
+      LEFT JOIN e.consumos c
+      WHERE e.habitacion.id.numero = :numero
+        AND e.habitacion.id.tipo = :tipo
+        AND :fecha BETWEEN e.fechaInicio AND e.fechaFin
+        AND (
+              e.facturadaEstadia = false
+              OR c.facturado = false
+            )
+      """)
     Optional<Estadia> buscarPorHabitacionYFechaFin(
           @Param("numero") int numero,
           @Param("tipo") TipoHabitacion tipo,

@@ -1,5 +1,6 @@
 package com.desarrollo_backend.demo.gestores;
 
+import org.hibernate.mapping.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.repository.PersonaFisicaRepository;
 import com.desarrollo_backend.demo.repository.PersonaJuridicaRepository;
 import com.desarrollo_backend.demo.repository.ResponsablePagoRepository;
+import com.desarrollo_backend.demo.modelo.estadias.Consumo;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.factura.FormaDePago;
@@ -22,8 +24,8 @@ import com.desarrollo_backend.demo.repository.FacturaRepository;
 import com.desarrollo_backend.demo.repository.FormaDePagoRepository;
 import com.desarrollo_backend.demo.dtos.*;
 import com.desarrollo_backend.demo.exceptions.EdadInsuficienteException;
-
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 
@@ -317,14 +319,14 @@ public class GestorContable {
     @Transactional
     public void actualizarConsumosEstadia(Estadia estadia, List<ConsumoDTO> consumosDTO) {
 
-        for (ConsumoDTO dto : consumosDTO) {
-        estadia.getConsumos().stream()
-            .filter(consumo -> consumo.getId() == dto.getId()) 
-            .findFirst()
-            .ifPresent(consumoEncontrado -> {
-                // Actualizamos el estado a facturado
-                consumoEncontrado.setFacturado(true);
-            });
+       List<Integer> idsSeleccionados = consumosDTO.stream()
+            .map(ConsumoDTO::getId)
+            .collect(Collectors.toList());
+
+        for (Consumo consumo : estadia.getConsumos()) {
+        if (idsSeleccionados.contains(consumo.getId())) {
+            consumo.setFacturado(true);
+        }
     }
         estadiaRepository.save(estadia);
     }
