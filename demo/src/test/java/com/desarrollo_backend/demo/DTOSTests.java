@@ -12,6 +12,7 @@ import com.desarrollo_backend.demo.dtos.EstadiaDTO;
 import com.desarrollo_backend.demo.dtos.FacturaDTO;
 import com.desarrollo_backend.demo.dtos.LocalidadDTO;
 import com.desarrollo_backend.demo.dtos.ProvinciaDTO;
+import com.desarrollo_backend.demo.dtos.ConsumoDTO;
 import com.desarrollo_backend.demo.dtos.DireccionDTO;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -101,7 +102,7 @@ class FacturaDTOTest {
 
 class EstadiaDTOTest {
 
-    // 1. Testear Constructor que convierte Entidad -> DTO (El más importante)
+    // 1. Testear Constructor que convierte Entidad -> DTO
     @Test
     void testConstructorDesdeEntidad_MapeaTodosLosCampos() {
         // GIVEN: Una entidad Estadia con datos completos
@@ -114,47 +115,71 @@ class EstadiaDTOTest {
         entidad.setFechaInicio(fechaInicio);
         entidad.setFechaFin(fechaFin);
 
+        // Configuramos la habitación
         Habitacion hab = new Habitacion(TipoHabitacion.DE, 202, 5000f);
         entidad.setHabitacion(hab);
 
+        // Configuramos la reserva
         Reserva reserva = new Reserva();
+        // reserva.setId(1); // Si Reserva tiene ID, sería ideal setearlo para comparar IDs luego
         entidad.setReserva(reserva);
 
-        // Simulamos consumos en la entidad
+        // Simulamos consumos en la entidad (Entidad usa List<Consumo>)
         Consumo c1 = new Consumo();
         entidad.agregarConsumo(c1);
 
-        // WHEN: Creamos el DTO
+        // WHEN: Creamos el DTO a partir de la entidad
         EstadiaDTO dto = new EstadiaDTO(entidad);
 
-        // THEN: Verificamos que todo se copió bien
+        // THEN: Verificamos que los tipos de datos simples se copiaron bien
         assertEquals(100, dto.getId());
         assertEquals(15000f, dto.getPrecio());
         assertEquals(fechaInicio, dto.getFechaInicio());
         assertEquals(fechaFin, dto.getFechaFin());
-        assertEquals(TipoHabitacion.DE, dto.geTipoHabitacion()); // Nota: Usé tu nombre con typo 'geTipo'
+        
+        // Usamos el getter correcto (getTipoHabitacion)
+        assertEquals(TipoHabitacion.DE, dto.getTipoHabitacion()); 
 
-        assertEquals(reserva, dto.getReserva());
-
-        // Verificamos la lista (asumiendo que agregás el getter al DTO, ver nota abajo)
-        // assertEquals(1, dto.getConsumos().size());
+        // --- ADAPTACIÓN AL DTO ---
+        // No podemos comparar 'reserva' (Entidad) con 'dto.getReserva()' (DTO) directamente.
+        // Verificamos que se haya creado el objeto DTO.
+        assertNotNull(dto.getReserva(), "El DTO de reserva no debería ser null");
+        
+        // Verificamos la lista de consumos
+        // El DTO transformó la lista de Entidades a lista de DTOs internamente
+        assertNotNull(dto.getConsumos());
+        assertEquals(1, dto.getConsumos().size(), "La lista de consumos en el DTO debería tener 1 elemento");
+        // Opcional: verificar que sea instancia de ConsumoDTO
+        assertTrue(dto.getConsumos().get(0) instanceof ConsumoDTO);
     }
 
     // 2. Testear Constructor para Nueva Estadia (Reserva + Fechas)
     @Test
     void testConstructorDesdeReserva_InicializaLista() {
+        // GIVEN
         Reserva r = new Reserva();
         Date inicio = new Date();
 
+        // WHEN
         EstadiaDTO dto = new EstadiaDTO(r, inicio);
 
-        assertEquals(r, dto.getReserva());
+        // THEN
+        // Verificamos que el DTO de reserva se creó correctamente
+        assertNotNull(dto.getReserva()); 
+        
         assertEquals(inicio, dto.getFechaInicio());
 
-        // Probamos agregar consumo para asegurar que la lista no es null
-        // Si la lista fuera null, esto lanzaría NullPointerException
+        // Verificamos que la lista de consumos se inicializó vacía (no null)
+        assertNotNull(dto.getConsumos());
+        assertEquals(0, dto.getConsumos().size());
+
+        // Probamos agregar consumo
+        // El método agregarConsumo(Consumo c) del DTO recibe una entidad y la convierte a DTO
         Consumo c = new Consumo();
         assertDoesNotThrow(() -> dto.agregarConsumo(c));
+        
+        // Validamos que se agregó
+        assertEquals(1, dto.getConsumos().size());
     }
 
     // 3. Testear Setters y Getters simples
