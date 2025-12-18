@@ -77,48 +77,81 @@ public class GestorContable {
         personaFisicaRepository.save(nuevaPF);
     }
 
-    public void modificarHuesped(HuespedDTO dto){
-        
-        // Recuperamos el Huésped
+    @Transactional
+    public void modificarHuesped(HuespedDTO dto, HuespedPK pkAnterior, boolean modificoPK) {
+
+        // 1. Obtener el Huésped "Nuevo" o Actual (al que le asignaremos el CUIT)
         HuespedPK idHuesped = new HuespedPK(dto.getTipo_documento(), dto.getNroDocumento());
         Huesped huesped = gestorHuesped.obtenerHuespedPorId(idHuesped);
 
-        // Buscamos si ya tiene una PersonaFisica asignada
-        PersonaFisica pfExistente = personaFisicaRepository.findByRefHuesped(huesped).orElse(null);
+        if (huesped == null) return; // Validación de seguridad
 
+        // 2. Limpieza y preparación de datos del CUIT
         String nuevoCuit = dto.getCUIT();
-        String nuevaPosicionIVA = dto.getPosicionIVA(); 
-
-        // Validamos si viene un CUIT real (no nulo y no vacío)
+        if (nuevoCuit != null) {
+            String cuitLimpio = nuevoCuit.replaceAll("[^0-9]", "");
+            if (cuitLimpio.length() == 11) {
+                nuevoCuit = cuitLimpio.substring(0, 2) + "-" +
+                        cuitLimpio.substring(2, 10) + "-" +
+                        cuitLimpio.substring(10, 11);
+            }
+        }
+        String nuevaPosicionIVA = dto.getPosicionIVA();
         boolean tieneCuitNuevo = nuevoCuit != null && !nuevoCuit.trim().isEmpty();
 
-        if (pfExistente == null) {
-            // CASO A: No tenía datos previos.
-            // Solo creamos si ahora SÍ trae CUIT.
+
+        // 3. Lógica Principal
+        if (modificoPK) {
+            // --- ESCENARIO A: CAMBIO DE IDENTIDAD (Se modificó DNI o Tipo) ---
+            
+            // Paso A.1: Buscar y eliminar la PersonaFisica asociada al Huesped ANTERIOR
+            if (pkAnterior != null) {
+                Huesped huespedAnterior = gestorHuesped.obtenerHuespedPorId(pkAnterior);
+                // Buscamos si el huésped viejo tenía un responsable fiscal
+                if (huespedAnterior != null) {
+                    personaFisicaRepository.findByRefHuesped(huespedAnterior)
+                        .ifPresent(pfAnterior -> {
+                            // Eliminamos la relación vieja para liberar el CUIT 
+                            // (o simplemente limpiar datos huérfanos)
+                            personaFisicaRepository.delete(pfAnterior);
+                            personaFisicaRepository.flush(); // Vital si el CUIT se reutiliza
+                        });
+                }
+            }
+
+            // Paso A.2: Crear la nueva PersonaFisica para el NUEVO Huesped
             if (tieneCuitNuevo) {
                 PersonaFisica nuevaPF = new PersonaFisica(nuevaPosicionIVA, nuevoCuit, huesped);
                 personaFisicaRepository.save(nuevaPF);
             }
-        
+
         } else {
-            // CASO B: Ya tenía datos fiscales.
-            if (!tieneCuitNuevo) {
-                // Si ahora el usuario borró el CUIT, eliminamos el registro fiscal existente.
-                personaFisicaRepository.delete(pfExistente);
+            // --- ESCENARIO B: MISMO HUESPED (Solo cambian datos fiscales) ---
+            
+            PersonaFisica pfExistente = personaFisicaRepository.findByRefHuesped(huesped).orElse(null);
+
+            if (pfExistente == null) {
+                // No tenía datos previos, creamos si corresponde
+                if (tieneCuitNuevo) {
+                    personaFisicaRepository.save(new PersonaFisica(nuevaPosicionIVA, nuevoCuit, huesped));
+                }
             } else {
-                // Trae CUIT. Verificamos si cambió.
-                if (!pfExistente.getCUIT().equals(nuevoCuit)) {
-                    // Cambió el CUIT (que es el ID). Debemos borrar y crear de nuevo.
+                // Ya tenía datos previos
+                if (!tieneCuitNuevo) {
+                    // Borraron el CUIT -> Eliminar registro
                     personaFisicaRepository.delete(pfExistente);
-                    personaFisicaRepository.flush(); // Forzamos el borrado inmediato
-
-                    PersonaFisica nuevaPF = new PersonaFisica(nuevaPosicionIVA, nuevoCuit, huesped);
-                    personaFisicaRepository.save(nuevaPF);
-
                 } else {
-                    // El CUIT es el mismo. Solo actualizamos el IVA.
-                    pfExistente.setPosicionIVA(nuevaPosicionIVA);
-                    personaFisicaRepository.save(pfExistente);
+                    // Hay CUIT, verificamos si cambió el número
+                    if (!pfExistente.getCUIT().equals(nuevoCuit)) {
+                        // CUIT Distinto (Cambio de ID) -> Borrar viejo + Flush + Crear nuevo
+                        personaFisicaRepository.delete(pfExistente);
+                        personaFisicaRepository.flush();
+                        personaFisicaRepository.save(new PersonaFisica(nuevaPosicionIVA, nuevoCuit, huesped));
+                    } else {
+                        // Mismo CUIT -> Update simple de campos
+                        pfExistente.setPosicionIVA(nuevaPosicionIVA);
+                        personaFisicaRepository.save(pfExistente);
+                    }
                 }
             }
         }

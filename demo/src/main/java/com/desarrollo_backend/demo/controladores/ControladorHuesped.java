@@ -129,7 +129,9 @@ public class ControladorHuesped {
             }
 
             gestorHuesped.modificarHuesped(modificado, pkAnterior, modificoPK);
-            gestorContable.modificarHuesped(modificado);
+            if(modificado.getCUIT()!=null){// si viene vacio no se modifica
+                gestorContable.modificarHuesped(modificado, pkAnterior, modificoPK);
+            }
 
             return ResponseEntity.ok(Map.of("message", "La operación ha culminado con éxito"));
 
