@@ -91,16 +91,26 @@ public class GestorHuespedTest {
     @Test
     public void testEliminarHuesped_Exito() {
         String dni = "55555555";
+        // 1. Guardamos un huésped de prueba (estado activo por defecto)
         guardarHuesped("Eliminar", "Me", dni);
 
         HuespedDTO dtoEliminar = new HuespedDTO();
         dtoEliminar.setTipo_documento(TipoDoc.DNI);
         dtoEliminar.setNroDocumento(dni);
 
+        // 2. Ejecutamos la eliminación lógica
         gestorHuesped.eliminarHuesped(dtoEliminar);
 
-        assertFalse(huespedRepository.existsById(new HuespedPK(TipoDoc.DNI, dni)),
-                "El huésped no debería existir en BD");
+        // 3. Recuperamos la entidad de la base de datos
+        Huesped huespedEnBD = huespedRepository.findById(new HuespedPK(TipoDoc.DNI, dni))
+                .orElse(null);
+
+        // 4. Validaciones
+        // A. Verificamos que el registro SIGUE existiendo físicamente
+        assertNotNull(huespedEnBD, "El huésped debería seguir existiendo en la base de datos (borrado lógico)");
+        
+        // B. Verificamos que el flag de borrado lógico esté marcado como TRUE
+        assertTrue(huespedEnBD.getBorradoLogico(), "El flag de borrado lógico debería estar en TRUE");
     }
 
     @Test

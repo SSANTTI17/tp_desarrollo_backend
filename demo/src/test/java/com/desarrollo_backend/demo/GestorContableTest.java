@@ -17,6 +17,8 @@ import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.modelo.responsablePago.PersonaFisica;
 import com.desarrollo_backend.demo.repository.*;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,8 @@ public class GestorContableTest {
     private EstadiaRepository estadiaRepository;
     @Autowired
     private HabitacionRepository habitacionRepository;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Test
     public void testRegistrarPersonaFisica() {
@@ -131,73 +135,67 @@ public class GestorContableTest {
 
     @Test
     public void testModificarHuesped_CambioIdentidad_ReasignaResponsable() {
-        // GIVEN
-        
-        // 1. PREPARACIÓN: Crear el Huésped "Anterior" (con DNI incorrecto o viejo)
-        Huesped huespedViejo = new Huesped();
-        huespedViejo.setNombre("Maria");
-        huespedViejo.setApellido("Cambio");
-        huespedViejo.setDocumento(TipoDoc.DNI, "11111111"); // <--- DNI VIEJO
-        huespedViejo.setFechaDeNacimiento(Date.from(Instant.now()));
-        huespedViejo.setDireccion("Calle 1");
-        huespedViejo.setNacionalidad("Arg");
-        huespedViejo.setOcupacion("Test");
-        huespedViejo.setTelefono("123");
-        huespedViejo.setAlojado(false);
+        // --- GIVEN ---
+        // CAMBIO CLAVE: Usamos IDs que NO existen en data.sql para evitar colisiones
+        String cuit = "27-99999999-4"; 
+        String dniViejo = "99999001"; 
+        String dniNuevo = "99999002"; 
+
+        // 1. Crear Huésped "Anterior"
+        Huesped huespedViejo = new Huesped("Maria", "Cambio", TipoDoc.DNI, dniViejo, 
+                Date.from(Instant.now()), "Arg", "old@mail.com", "111", "Test", false, "Calle 1", false);
         huespedRepository.save(huespedViejo);
 
-        // 2. PREPARACIÓN: Asignarle un Responsable de Pago (Persona Física)
-        // Usamos un CUIT que querremos conservar
-        String cuit = "27-11111111-4";
+        // 2. Asignar Responsable Fiscal (Persona Física)
         PersonaFisica pfVieja = new PersonaFisica("Monotributo", cuit, huespedViejo);
         personaFisicaRepository.save(pfVieja);
 
-        // 3. PREPARACIÓN: Crear el Huésped "Nuevo" 
-        // (Simulamos que GestorHuesped YA creó la nueva identidad en la BD antes de llamar al GestorContable)
-        Huesped huespedNuevo = new Huesped();
-        huespedNuevo.setNombre("Maria");
-        huespedNuevo.setApellido("Cambio");
-        huespedNuevo.setDocumento(TipoDoc.DNI, "22222222"); // <--- DNI NUEVO / CORREGIDO
-        huespedNuevo.setFechaDeNacimiento(Date.from(Instant.now()));
-        huespedNuevo.setDireccion("Calle 1");
-        huespedNuevo.setNacionalidad("Arg");
-        huespedNuevo.setOcupacion("Test");
-        huespedNuevo.setTelefono("123");
-        huespedNuevo.setAlojado(false);
+        // 3. Crear Huésped "Nuevo" (El destino del cambio)
+        Huesped huespedNuevo = new Huesped("Maria", "Cambio", TipoDoc.DNI, dniNuevo, 
+                Date.from(Instant.now()), "Arg", "new@mail.com", "111", "Test", false, "Calle 1", false);
         huespedRepository.save(huespedNuevo);
 
-        // 4. PREPARACIÓN: Configurar el DTO con los datos de la NUEVA identidad
+        // Limpiamos caché para simular estado real de BD
+        entityManager.flush(); 
+        entityManager.clear(); 
+
+        // 4. Preparar el DTO con los datos de la NUEVA identidad
         HuespedDTO dtoCambio = new HuespedDTO();
         dtoCambio.setTipo_documento(TipoDoc.DNI);
-        dtoCambio.setNroDocumento("22222222"); // Apunta al nuevo DNI
-        dtoCambio.setCUIT(cuit); // Mantenemos el MISMO CUIT (esto probará que se liberó del anterior)
-        dtoCambio.setPosicionIVA("Responsable Inscripto"); // Cambiamos IVA para verificar update completo
+        dtoCambio.setNroDocumento(dniNuevo);       // Apunta al nuevo ID
+        dtoCambio.setCUIT(cuit);                   // Mismo CUIT (clave del test)
+        dtoCambio.setPosicionIVA("Responsable Inscripto"); 
 
-        // 5. PREPARACIÓN: Definir la PK Anterior para que el gestor sepa a quién borrarle la PF
-        HuespedPK pkAnterior = new HuespedPK(TipoDoc.DNI, "11111111");
+        // 5. PK Anterior
+        HuespedPK pkAnterior = new HuespedPK(TipoDoc.DNI, dniViejo);
 
-        // WHEN
-        // Llamamos indicando que SÍ hubo cambio de PK (true) y pasamos la PK vieja
+        // --- WHEN ---
         gestorContable.modificarHuesped(dtoCambio, pkAnterior, true);
+        
+        entityManager.flush();
+        entityManager.clear();
 
-        // THEN
+        // --- THEN ---
         
-        // A. Validar que el huésped viejo YA NO tiene Persona Física asociada
-        // (Esto confirma que el delete() funcionó y liberó el CUIT)
-        PersonaFisica pfBusquedaVieja = personaFisicaRepository.findByRefHuesped(huespedViejo).orElse(null);
-        assertNull(pfBusquedaVieja, "El huésped anterior (DNI 111) no debería tener responsable fiscal asociado");
+        // A. Validar que se liberó el huésped viejo
+        Huesped huespedViejoBD = huespedRepository.findById(new HuespedPK(TipoDoc.DNI, dniViejo)).orElseThrow();
+        PersonaFisica pfBusquedaVieja = personaFisicaRepository.findByRefHuesped(huespedViejoBD).orElse(null);
+        
+        assertNull(pfBusquedaVieja, "El huésped anterior NO debería tener responsable fiscal asociado");
 
-        // B. Validar que el huésped nuevo AHORA TIENE la Persona Física asignada
-        PersonaFisica pfBusquedaNueva = personaFisicaRepository.findByRefHuesped(huespedNuevo).orElse(null);
-        assertNotNull(pfBusquedaNueva, "El nuevo huésped (DNI 222) debería tener el responsable fiscal asignado");
+        // B. Validar que se asignó al nuevo
+        Huesped huespedNuevoBD = huespedRepository.findById(new HuespedPK(TipoDoc.DNI, dniNuevo)).orElseThrow();
+        PersonaFisica pfBusquedaNueva = personaFisicaRepository.findByRefHuesped(huespedNuevoBD).orElse(null);
         
-        // C. Validar integridad de los datos
-        assertEquals(cuit, pfBusquedaNueva.getCUIT(), "El CUIT debe conservarse");
-        assertEquals("Responsable Inscripto", pfBusquedaNueva.getPosicionIVA(), "La posición IVA debió actualizarse");
+        assertNotNull(pfBusquedaNueva, "El nuevo huésped SÍ debería tener el responsable fiscal asignado");
         
-        // D. Validar que apunta al huésped correcto en la relación inversa
-        assertEquals("22222222", pfBusquedaNueva.getHuesped().getNroDocumento());
+        // C. Validar integridad
+        assertEquals(cuit, pfBusquedaNueva.getCUIT());
+        assertEquals("Responsable Inscripto", pfBusquedaNueva.getPosicionIVA());
+        assertEquals(dniNuevo, pfBusquedaNueva.getHuesped().getNroDocumento());
     }
+
+
 
     @Test
     public void testGenerarFacturao() throws Exception {
