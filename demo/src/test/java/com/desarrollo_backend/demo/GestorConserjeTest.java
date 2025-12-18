@@ -98,4 +98,65 @@ public class GestorConserjeTest {
         assertEquals("admin", resultado.get(0).getUsuario(), "El usuario admin no se guardó correctamente");
         assertEquals("admin", resultado.get(0).getContrasenia(), "La contraseña admin no se guardó correctamente");
     }
+
+    @Test
+    public void testListarTodos_TraeCorrectamente() {
+        // GIVEN: Limpiamos y guardamos datos de prueba reales en la BD
+        // Nota: Si tienes un data.sql inicial, la base no estará vacía, por eso guardamos y chequeamos existencia.
+        conserjeRepo.deleteAll(); 
+        
+        conserjeRepo.save(new Conserje("adminTest", "123"));
+        conserjeRepo.save(new Conserje("userTest", "abc"));
+
+        // WHEN
+        List<Conserje> lista = gestorConserje.listarTodos();
+
+        // THEN
+        assertEquals(2, lista.size());
+        assertTrue(lista.stream().anyMatch(c -> c.getUsuario().equals("adminTest")));
+        assertTrue(lista.stream().anyMatch(c -> c.getUsuario().equals("userTest")));
+    }
+
+    @Test
+    public void testCrearConserje_UsuarioNuevo_SePersisteEnBD() {
+        // GIVEN
+        String usuario = "nuevo_conserje";
+        String pass = "pass_segura";
+
+        // Aseguramos que no exista
+        assertFalse(conserjeRepo.findByUsuario(usuario).isPresent());
+
+        // WHEN
+        Conserje creado = gestorConserje.crearConserje(usuario, pass);
+
+        // THEN
+        assertNotNull(creado);
+        assertEquals(usuario, creado.getUsuario());
+
+        // Verificamos directamente en el Repositorio que se haya guardado
+        Conserje enBaseDeDatos = conserjeRepo.findByUsuario(usuario).orElse(null);
+        assertNotNull(enBaseDeDatos, "El conserje debería estar guardado en la BD");
+        assertEquals(pass, enBaseDeDatos.getContrasenia());
+    }
+
+    @Test
+    public void testCrearConserje_UsuarioDuplicado_LanzaExcepcion() {
+        // GIVEN: Creamos un conserje previo
+        String usuario = "duplicado";
+        conserjeRepo.save(new Conserje(usuario, "passOriginal"));
+
+        // WHEN & THEN: Intentamos crear otro con el mismo usuario
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            gestorConserje.crearConserje(usuario, "otraPass");
+        });
+
+        assertEquals("El usuario ya existe", exception.getMessage());
+        
+        // Verificamos que no se haya duplicado ni modificado el original
+        long cantidad = conserjeRepo.findAll().stream()
+                .filter(c -> c.getUsuario().equals(usuario))
+                .count();
+        assertEquals(1, cantidad, "No debería haber duplicados");
+    }
+
 }

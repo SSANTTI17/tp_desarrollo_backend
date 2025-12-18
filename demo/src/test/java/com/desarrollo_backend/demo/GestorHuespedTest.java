@@ -57,6 +57,24 @@ public class GestorHuespedTest {
     }
 
     @Test
+    public void testBuscarHuespedes_PorDocumento_Exito() {
+        // GIVEN
+        guardarHuesped("Buscado", "Doc", "11122233");
+        guardarHuesped("Otro", "Doc", "99988877");
+
+        // WHEN: Filtramos específicamente por ese DNI
+        HuespedDTO filtro = new HuespedDTO();
+        filtro.setTipo_documento(TipoDoc.DNI);
+        filtro.setNroDocumento("11122233");
+
+        List<Huesped> resultados = gestorHuesped.buscarHuespedes(filtro);
+
+        // THEN
+        assertEquals(1, resultados.size());
+        assertEquals("Buscado", resultados.get(0).getNombre());
+    }
+
+    @Test
     public void testHuespedIsAlojado_Exito() {
         Huesped h = new Huesped("Juan", "Alojado", TipoDoc.DNI, "99999999", new Date(), "Arg", "mail", "123", "Ocup",
                 true, "Dir", false);
@@ -147,6 +165,23 @@ public class GestorHuespedTest {
     public void testDarDeAltaHuesped_Null_RetornaNull() {
         Huesped resultado = gestorHuesped.darDeAltaHuesped(null);
         assertNull(resultado);
+    }
+
+    @Test
+    public void testHuespedIsAlojado_RetornaFalse() {
+        // GIVEN: Creamos un huésped explícitamente NO alojado (false)
+        // Usamos el constructor directo para asegurar el estado inicial
+        Huesped h = new Huesped("Pedro", "Libre", TipoDoc.DNI, "55667788", new Date(), "Arg", "mail", "123", "Ocup", 
+                false, "Dir", false); // El anteúltimo parámetro es 'alojado' -> false
+        huespedRepository.save(h);
+
+        HuespedDTO dto = huespedMapper.toDto(h);
+
+        // WHEN
+        boolean estaAlojado = gestorHuesped.huespedIsAlojado(dto);
+
+        // THEN
+        assertFalse(estaAlojado, "El huésped no debería figurar como alojado");
     }
 
     @Test
