@@ -41,7 +41,7 @@ public class Estadia {
     private Reserva reserva;
 
     @OneToMany(mappedBy = "estadia")
-    private List<Consumo> consumos;
+    private List<Consumo> consumos = new ArrayList<Consumo>();
 
     @ManyToMany
     private List<Huesped> huespedes;

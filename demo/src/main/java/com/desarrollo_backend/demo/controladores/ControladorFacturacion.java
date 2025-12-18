@@ -72,6 +72,9 @@ public class ControladorFacturacion {
                     request.getEstadia(),
                     request.getHabitacion()
             );
+            System.out.println("La lista de consumos es de tamaño:");
+            System.out.println(contenedor.getEstadia().getConsumos().size());
+            System.out.println(contenedor.getEstadia().getConsumos().getClass().getName());
             return ResponseEntity.ok(contenedor);
 
         } catch (EdadInsuficienteException e) {
@@ -90,6 +93,7 @@ public class ControladorFacturacion {
     public ResponseEntity<?> confirmarFactura(@RequestBody ConfirmarFacturaRequest request) {
         try {
             // Llamada a la fachada
+             System.out.println("aca llegoOOOOO");
             FacturaDTO facturaConfirmada = fachada.confirmarFactura(
                     request.getIdEstadia(),
                     request.getFactura(),
