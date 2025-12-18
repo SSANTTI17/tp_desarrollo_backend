@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.time.LocalDate;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,10 +16,12 @@ import com.desarrollo_backend.demo.gestores.*;
 import com.desarrollo_backend.demo.mappers.HuespedMapper;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
+import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
+import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
 
 @Service
@@ -293,7 +296,7 @@ public class FachadaHotel {
     }
 
     /**
-     * Busca huéspedes que coincidan con los filtros proporcionados.
+     * Busca huéspedes según los criterios del DTO de filtro.
      */
     public List<HuespedDTO> buscarHuespedes(HuespedDTO filtro) {
         List<Huesped> resultados = gestorHuespedes.buscarHuespedes(filtro);
@@ -325,41 +328,101 @@ public class FachadaHotel {
     }
 
     /**
-     * Modifica un huésped existente.
+     * Modifica un huésped coordinando validaciones, cambio de PK y actualización
+     * contable.
      */
-    public void modificarHuesped(HuespedDTO dto, boolean modificoPK, String oldTipoStr, String oldDni) {
-        com.desarrollo_backend.demo.modelo.huesped.HuespedPK pkAnterior = null;
+    @Transactional
+    public void modificarHuesped(HuespedDTO modificado, boolean modificoPK, String oldTipoStr, String oldDni) {
 
-        if (modificoPK) {
-            if (oldTipoStr == null || oldDni == null) {
-                throw new RuntimeException("Faltan datos del documento anterior para realizar la modificación.");
-            }
-            try {
-                com.desarrollo_backend.demo.modelo.huesped.TipoDoc oldTipo = com.desarrollo_backend.demo.modelo.huesped.TipoDoc
-                        .valueOf(oldTipoStr);
-                pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(oldTipo, oldDni);
-            } catch (IllegalArgumentException e) {
-                throw new RuntimeException("Tipo de documento anterior inválido.");
-            }
-        } else {
-            pkAnterior = new com.desarrollo_backend.demo.modelo.huesped.HuespedPK(dto.getTipo_documento(),
-                    dto.getNroDocumento());
+        // 1. Validación de integridad de datos para cambio de PK
+        if (modificoPK && (oldTipoStr == null || oldDni == null)) {
+            throw new RuntimeException("Si se modifica la clave, debe enviar oldTipo y oldDni");
         }
 
-        gestorHuespedes.modificarHuesped(dto, pkAnterior, modificoPK);
+        // 2. Validación de duplicados (Si cambió la PK, verificar que la nueva no
+        // exista)
+        if (modificoPK) {
+            HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
+
+            // Usamos el gestor para verificar existencia
+            // Nota: Asumo que tu gestor devuelve null si no existe, o maneja la excepción
+            // internamente
+            Huesped huespedExistente = gestorHuespedes
+                    .obtenerHuespedPorId(idNuevo);
+
+            if (huespedExistente != null && !Boolean.TRUE.equals(huespedExistente.getBorradoLogico())) {
+                throw new RuntimeException(
+                        "El nuevo tipo y número de documento ya están ocupados por otro huésped activo.");
+            }
+        }
+
+        // 3. Construcción de la PK Anterior
+        HuespedPK pkAnterior = null;
+        if (modificoPK) {
+            try {
+                TipoDoc tipoAnteriorEnum = TipoDoc.valueOf(oldTipoStr);
+                pkAnterior = new HuespedPK(tipoAnteriorEnum, oldDni);
+            } catch (IllegalArgumentException e) {
+                throw new RuntimeException("Tipo de documento anterior inválido");
+            }
+        } else {
+            // Si no modificó PK, la "anterior" es igual a la actual (del DTO)
+            pkAnterior = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
+        }
+
+        // 4. Delegar modificaciones a los Gestores
+        gestorHuespedes.modificarHuesped(modificado, pkAnterior, modificoPK);
+
+        // Si tiene CUIT, actualizamos también en el módulo contable
+        if (modificado.getCUIT() != null) {
+            gestorContable.modificarHuesped(modificado, pkAnterior, modificoPK);
+        }
     }
 
     /**
-     * Elimina un huésped del sistema.
+     * Verifica si un huésped puede ser eliminado.
+     * Retorna un mapa con 'puedeEliminar' (boolean) y 'mensaje' (String).
      */
-    public void eliminarHuesped(String tipoDocStr, String nroDocumento) {
-        HuespedDTO dtoEliminar = new HuespedDTO();
-        try {
-            dtoEliminar.setTipo_documento(com.desarrollo_backend.demo.modelo.huesped.TipoDoc.valueOf(tipoDocStr));
-            dtoEliminar.setNroDocumento(nroDocumento);
-            gestorHuespedes.eliminarHuesped(dtoEliminar);
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Tipo de documento inválido para eliminación.");
+    public Map<String, Object> verificarBaja(HuespedDTO huespedDTO) {
+
+        // 1. Preguntamos al Gestor si el huésped estuvo alojado alguna vez
+        boolean alojado = gestorHuespedes.huespedIsAlojado(huespedDTO);
+
+        // 2. Construimos la respuesta lógica
+        if (alojado) {
+            return Map.of(
+                    "puedeEliminar", false,
+                    "mensaje",
+                    "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad. PRESIONE CUALQUIER TECLA PARA CONTINUAR…");
+        } else {
+            String mensaje = String.format(
+                    "Los datos del huésped %s %s, %s y %s serán eliminados del sistema",
+                    huespedDTO.getNombre(),
+                    huespedDTO.getApellido(),
+                    huespedDTO.getTipo_documento(),
+                    huespedDTO.getNroDocumento());
+
+            return Map.of(
+                    "puedeEliminar", true,
+                    "mensaje", mensaje);
         }
+
     }
+
+    /**
+     * Elimina al huésped y devuelve el mensaje de confirmación formateado.
+     */
+    public String eliminarHuesped(HuespedDTO huespedDTO) {
+        // 1. Delegamos la baja al gestor
+        gestorHuespedes.eliminarHuesped(huespedDTO);
+
+        // 2. Construimos el mensaje de éxito
+        return String.format(
+                "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema. PRESIONE CUALQUIER TECLA PARA CONTINUAR…",
+                huespedDTO.getNombre(),
+                huespedDTO.getApellido(),
+                huespedDTO.getTipo_documento(),
+                huespedDTO.getNroDocumento());
+    }
+
 }

@@ -14,6 +14,7 @@ import com.desarrollo_backend.demo.mappers.HuespedMapper; // Importamos el Mappe
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
+import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 
 @RestController
@@ -28,7 +29,10 @@ public class ControladorHuesped {
     private GestorContable gestorContable;
 
     @Autowired
-    private HuespedMapper huespedMapper; // Inyectamos el Mapper
+    private HuespedMapper huespedMapper;
+
+    @Autowired
+    private FachadaHotel fachadaHotel;
 
     @GetMapping("/buscar")
     public ResponseEntity<List<HuespedDTO>> buscarHuespedesAPI(
@@ -37,8 +41,7 @@ public class ControladorHuesped {
             @RequestParam(required = false) String tipoDocumento,
             @RequestParam(required = false) String documento) {
 
-        // Creamos el filtro manualmente (el DTO vacío sí funciona por el
-        // @NoArgsConstructor)
+        // 1. Construimos el DTO filtro con los datos que vienen del Front
         HuespedDTO filtro = new HuespedDTO();
 
         if (nombre != null && !nombre.isEmpty())
@@ -52,18 +55,16 @@ public class ControladorHuesped {
                 filtro.setTipo_documento(TipoDoc.valueOf(tipoDocumento));
             } catch (IllegalArgumentException e) {
                 System.out.println("Tipo de documento inválido: " + tipoDocumento);
+                // Podrías retornar un Bad Request aquí si prefieres ser estricto
             }
         }
 
         if (documento != null && !documento.isEmpty())
             filtro.setNroDocumento(documento);
 
-        List<Huesped> resultados = gestorHuesped.buscarHuespedes(filtro);
-
-        // CORRECCIÓN: Transformación usando el mapper
-        List<HuespedDTO> dtos = resultados.stream()
-                .map(huespedMapper::toDto)
-                .collect(Collectors.toList());
+        // 2. Llamamos a la Fachada
+        // La fachada ya se encarga de llamar al gestor y mappear los resultados a DTO
+        List<HuespedDTO> dtos = fachadaHotel.buscarHuespedes(filtro);
 
         return ResponseEntity.ok(dtos);
     }
@@ -71,19 +72,17 @@ public class ControladorHuesped {
     @PostMapping("/crear")
     public ResponseEntity<?> crearHuespedAPI(@RequestBody ContenedorDeAltaHuesped request) {
         try {
-            // El gestor ya usa el mapper internamente para el alta
-            Huesped huespedGuardado = gestorHuesped.darDeAltaHuesped(request.getHuesped());
+            // 1. Extraemos el DTO del huesped que viene en el contenedor
+            // Ignoramos la parte de PersonaFisica/Juridica como pediste
+            HuespedDTO huespedDTO = request.getHuesped();
 
-            if (request.getPersonaFisica() != null &&
-                    request.getPersonaFisica().getCUIT() != null &&
-                    !request.getPersonaFisica().getCUIT().isEmpty()) {
+            // 2. Usamos el método simple que YA TENÍAS en la fachada
+            HuespedDTO creado = fachadaHotel.registrarHuesped(huespedDTO);
 
-                gestorContable.registrarPersonaFisica(
-                        request.getPersonaFisica(), huespedGuardado);
-            }
-
-            return ResponseEntity.ok().body(
-                    Map.of("message", "Huesped y Responsable creados exitosamente"));
+            // 3. Retornamos el huésped creado (o un mensaje si prefieres)
+            return ResponseEntity.ok().body(Map.of(
+                    "message", "Huésped creado exitosamente",
+                    "huesped", creado));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,83 +98,42 @@ public class ControladorHuesped {
             @RequestParam(required = false) String oldTipo,
             @RequestParam(required = false) String oldDni) {
 
-        if (modificoPK && (oldTipo == null || oldDni == null)) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Si se modifica la clave, debe enviar oldTipo y oldDni"));
-        }
-
-        if (modificoPK) {
-            HuespedPK idNuevo = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
-            Huesped huespedExistente = gestorHuesped.obtenerHuespedPorId(idNuevo);
-
-            if (huespedExistente != null && !Boolean.TRUE.equals(huespedExistente.getBorradoLogico())) {
-                return ResponseEntity.badRequest()
-                        .body(Map.of("error",
-                                "El nuevo tipo y número de documento ya están ocupados por otro huésped activo."));
-            }
-        }
-
         try {
-            HuespedPK pkAnterior = null;
-            if (modificoPK) {
-                try {
-                    TipoDoc tipoAnteriorEnum = TipoDoc.valueOf(oldTipo);
-                    pkAnterior = new HuespedPK(tipoAnteriorEnum, oldDni);
-                } catch (IllegalArgumentException e) {
-                    return ResponseEntity.badRequest().body(Map.of("error", "Tipo de documento anterior inválido"));
-                }
-            } else {
-                pkAnterior = new HuespedPK(modificado.getTipo_documento(), modificado.getNroDocumento());
-            }
-
-            gestorHuesped.modificarHuesped(modificado, pkAnterior, modificoPK);
-            if(modificado.getCUIT()!=null){// si viene vacio no se modifica
-                gestorContable.modificarHuesped(modificado, pkAnterior, modificoPK);
-            }
+            // Delegamos toda la lógica compleja a la Fachada
+            fachadaHotel.modificarHuesped(modificado, modificoPK, oldTipo, oldDni);
 
             return ResponseEntity.ok(Map.of("message", "La operación ha culminado con éxito"));
 
         } catch (Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(); // Para ver el error en consola del servidor
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Error al procesar la modificación: " + e.getMessage()));
+                    .body(Map.of("error", e.getMessage()));
         }
     }
 
     @PostMapping("/verificar-baja")
     public ResponseEntity<?> verificarBaja(@RequestBody HuespedDTO huespedDTO) {
-        boolean alojado = gestorHuesped.huespedIsAlojado(huespedDTO);
+        try {
+            // Delegamos todo a la Fachada
+            Map<String, Object> respuesta = fachadaHotel.verificarBaja(huespedDTO);
 
-        if (alojado) {
-            return ResponseEntity.ok(Map.of(
-                    "puedeEliminar", false,
-                    "mensaje",
-                    "El huésped no puede ser eliminado pues se ha alojado en el Hotel en alguna oportunidad. PRESIONE CUALQUIER TECLA PARA CONTINUAR…"));
-        } else {
-            String mensaje = String.format(
-                    "Los datos del huésped %s %s, %s y %s serán eliminados del sistema",
-                    huespedDTO.getNombre(),
-                    huespedDTO.getApellido(),
-                    huespedDTO.getTipo_documento(),
-                    huespedDTO.getNroDocumento());
+            return ResponseEntity.ok(respuesta);
 
-            return ResponseEntity.ok(Map.of(
-                    "puedeEliminar", true,
-                    "mensaje", mensaje));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
 
     @DeleteMapping("/eliminar")
     public ResponseEntity<?> eliminar(@RequestBody HuespedDTO huespedDTO) {
-        gestorHuesped.eliminarHuesped(huespedDTO);
+        try {
+            // Llamamos a la fachada y obtenemos el mensaje listo
+            String mensaje = fachadaHotel.eliminarHuesped(huespedDTO);
 
-        String mensaje = String.format(
-                "Los datos del huésped %s %s, %s y %s han sido eliminados del sistema. PRESIONE CUALQUIER TECLA PARA CONTINUAR…",
-                huespedDTO.getNombre(),
-                huespedDTO.getApellido(),
-                huespedDTO.getTipo_documento(),
-                huespedDTO.getNroDocumento());
+            return ResponseEntity.ok(Map.of("mensaje", mensaje));
 
-        return ResponseEntity.ok(Map.of("mensaje", mensaje));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
     }
 }
