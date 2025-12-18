@@ -426,6 +426,6 @@ public class FachadaHotel {
                 huespedDTO.getApellido(),
                 huespedDTO.getTipo_documento(),
                 huespedDTO.getNroDocumento());
-    }
+        }
 
 }

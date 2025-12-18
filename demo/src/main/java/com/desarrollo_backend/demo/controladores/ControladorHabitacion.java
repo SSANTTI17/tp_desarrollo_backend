@@ -29,14 +29,9 @@ public class ControladorHabitacion {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 
         // El controlador recibe la petición Web y llama a la Fachada
-<<<<<<< Updated upstream
-        return fachadaHotel.consultarEstadoHabitaciones(desde, hasta);
-    }
-=======
         return fachadaHotel.getEstadoHabitaciones(desde, hasta);
     }
 
 
->>>>>>> Stashed changes
 
 }
