@@ -231,30 +231,29 @@ public class FachadaHotel {
      * @return FacturaDTO confirmado y procesado.
      */
     public FacturaDTO confirmarFactura(Integer idEstadia, FacturaDTO factura, HuespedDTO h, PersonaJuridicaDTO resp,
-            List<ConsumoDTO> consumos) {
-       
+            List<ConsumoDTO> consumos, List<FormaDePagoDTO> formasPago) {
+
         Estadia estadia = gestorContable.buscarEstadia(idEstadia);
         Huesped entidad = null;
-        ResponsablePago respPago = null;
-        // fijarme si cuit != null entonces es nombre de un tercero y busco el
-        // responsable pago
-        // si cuit == null entonces es el huesped y busco el responsable pago asociado
-        // al huesped
 
         Factura facturaReal = new Factura(factura, estadia);
         if (resp != null && resp.getCUIT() != null) {
-            respPago = gestorContable.buscarResponsablePorCuit(resp.getCUIT()); // El CUIT es el ID
+            ResponsablePago respPago = gestorContable.buscarResponsablePorCuit(resp.getCUIT());
             facturaReal.setResponsablePago(respPago);
         } else {
             List<Huesped> entidades = gestorHuespedes.buscarHuespedes(h);
-            entidad = entidades.get(0);
-            facturaReal.setResponsablePago(gestorContable.buscarResponsablePorHuesped(entidad));
+            if (!entidades.isEmpty()) {
+                entidad = entidades.get(0);
+                facturaReal.setResponsablePago(gestorContable.buscarResponsablePorHuesped(entidad));
+            }
         }
 
         gestorContable.actualizarConsumosEstadia(estadia, consumos);
-        gestorContable.crearFacturaReal(facturaReal, estadia);
-        return factura;
 
+        // Pasamos las formas de pago al gestor
+        gestorContable.crearFacturaReal(facturaReal, estadia, formasPago);
+
+        return new FacturaDTO(facturaReal);
     }
 
     public PersonaJuridicaDTO darDeAltaResponsablePago(PersonaJuridicaDTO dto) {
