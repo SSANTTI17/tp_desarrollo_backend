@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.desarrollo_backend.demo.gestores.GestorHabitaciones;
 import com.desarrollo_backend.demo.dtos.HabitacionDTO;
 import com.desarrollo_backend.demo.dtos.OcuparDTO;
+import com.desarrollo_backend.demo.facade.FachadaHotel;
+
 import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.util.List;
@@ -18,23 +20,28 @@ public class ControladorHabitacion {
     @Autowired
     private GestorHabitaciones gestorHabitaciones;
 
+    @Autowired
+    private FachadaHotel fachadaHotel;
+
     @GetMapping("/estado")
     public List<HabitacionDTO> getEstadoHabitaciones(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
-        return gestorHabitaciones.mostrarEstadoHabitaciones(desde, hasta);
+
+        // El controlador recibe la petición Web y llama a la Fachada
+        return fachadaHotel.getEstadoHabitaciones(desde, hasta);
     }
 
     @PostMapping("/ocupar")
     public ResponseEntity<?> ocuparHabitacion(@RequestBody OcuparDTO ocupacionDTO) {
         try {
-            gestorHabitaciones.registrarOcupacion(ocupacionDTO);
+            // Llamamos a la fachada
+            fachadaHotel.ocuparHabitacion(ocupacionDTO);
+
             return ResponseEntity.ok("{\"mensaje\": \"Ocupación registrada con éxito\"}");
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
     }
 
-    
 }
