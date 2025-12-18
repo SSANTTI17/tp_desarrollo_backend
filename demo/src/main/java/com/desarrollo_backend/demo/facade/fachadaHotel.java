@@ -20,6 +20,7 @@ import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.modelo.responsablePago.PersonaJuridica;
 import com.desarrollo_backend.demo.modelo.responsablePago.ResponsablePago;
 import com.desarrollo_backend.demo.modelo.factura.Factura;
+import com.desarrollo_backend.demo.modelo.conserje.Conserje;
 import com.desarrollo_backend.demo.modelo.estadias.Estadia;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 import com.desarrollo_backend.demo.exceptions.ReservaNotFoundException;
@@ -261,6 +262,15 @@ public class FachadaHotel {
     }
 
     // METODOS CONSERJE
+    public List<Conserje> listarConserjes() {
+        return gestorConserje.listarTodos();
+    }
+
+    public void registrarNuevoConserje(String usuario, String contrasenia) {
+        gestorConserje.crearConserje(usuario, contrasenia);
+    }
+    
+    //SOBRAN
 
     // Autentica al conserje verificando usuario y contraseña.
     public boolean autenticarConserje(String usuario, String password) {

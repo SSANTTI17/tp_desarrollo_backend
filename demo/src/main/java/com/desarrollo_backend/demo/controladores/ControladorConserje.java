@@ -1,7 +1,7 @@
 package com.desarrollo_backend.demo.controladores;
 
+import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.modelo.conserje.Conserje;
-import com.desarrollo_backend.demo.repository.ConserjeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,12 +15,13 @@ import java.util.Map;
 public class ControladorConserje {
 
     @Autowired
-    private ConserjeRepository conserjeRepo;
+    private FachadaHotel fachadaHotel; // <--- Comunicación con la Fachada
 
-    // Listar (para saber si hay usuarios al inicio)
+    // Listar
     @GetMapping
-    public List<Conserje> listar() {
-        return conserjeRepo.findAll();
+    public ResponseEntity<List<Conserje>> listar() {
+        List<Conserje> lista = fachadaHotel.listarConserjes();
+        return ResponseEntity.ok(lista);
     }
 
     // Crear Nuevo Conserje
@@ -31,21 +32,20 @@ public class ControladorConserje {
             String pass = body.get("contrasenia");
 
             if (usuario == null || pass == null) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Faltan datos"));
+                return ResponseEntity.badRequest().body(Map.of("error", "Faltan datos (usuario o contrasenia)"));
             }
 
-            if (conserjeRepo.findByUsuario(usuario).isPresent()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "El usuario ya existe"));
-            }
-
-            Conserje nuevo = new Conserje(usuario, pass);
-            conserjeRepo.save(nuevo);
+            // Delegamos la operación a la fachada
+            fachadaHotel.registrarNuevoConserje(usuario, pass);
 
             return ResponseEntity.ok(Map.of("message", "Conserje creado con éxito"));
 
+        } catch (IllegalArgumentException e) {
+            // Capturamos validaciones de negocio (ej: usuario duplicado)
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.internalServerError().body(Map.of("error", "Error interno del servidor: " + e.getMessage()));
         }
     }
 }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -13,6 +14,23 @@ public class GestorConserje {
 
     @Autowired
     private ConserjeRepository conserjeRepository;
+
+    public List<Conserje> listarTodos() {
+        return conserjeRepository.findAll();
+    }
+
+    @Transactional
+    public Conserje crearConserje(String usuario, String contrasenia) throws IllegalArgumentException {
+        // Validar si ya existe
+        if (conserjeRepository.findByUsuario(usuario).isPresent()) {
+            throw new IllegalArgumentException("El usuario ya existe");
+        }
+
+        Conserje nuevo = new Conserje(usuario, contrasenia);
+        return conserjeRepository.save(nuevo);
+    }
+
+    //BORRAR    
 
     /**
      * Verifica si el usuario y contraseña son correctos contra la Base de Datos.
