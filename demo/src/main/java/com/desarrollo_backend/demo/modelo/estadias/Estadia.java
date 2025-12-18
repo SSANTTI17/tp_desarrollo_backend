@@ -1,7 +1,6 @@
 package com.desarrollo_backend.demo.modelo.estadias;
 
 import java.util.Date;
-import com.desarrollo_backend.demo.modelo.factura.*;
 import com.desarrollo_backend.demo.modelo.habitacion.*;
 import com.desarrollo_backend.demo.modelo.huesped.Huesped;
 
@@ -34,9 +33,6 @@ public class Estadia {
     @Column(nullable = false)
     private Date fechaFin;
 
-    @OneToMany(mappedBy = "estadia")
-    private List<Factura> facturas;
-
     @Column(nullable = false)
     private boolean facturadaEstadia = false;
 
@@ -58,9 +54,6 @@ public class Estadia {
         huespedes.add(h);
     }
 
-    public void agregarFactura(Factura f) {
-        facturas.add(f);
-    }
 
     public float totalConsumos() {
         float total = 0;
@@ -75,7 +68,6 @@ public class Estadia {
     public Estadia() {
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
-        facturas = new ArrayList<Factura>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio) {
@@ -83,7 +75,6 @@ public class Estadia {
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
-        facturas = new ArrayList<Factura>();
     }
 
     public Estadia(Reserva reserva, Date fechaInicio, Date fechaFin) {
@@ -91,7 +82,6 @@ public class Estadia {
         this.fechaInicio = fechaInicio;
         consumos = new ArrayList<Consumo>();
         huespedes = new ArrayList<Huesped>();
-        facturas = new ArrayList<Factura>();
     }
 
     // getters
@@ -113,10 +103,6 @@ public class Estadia {
 
     public Date getFechaFin() {
         return fechaFin;
-    }
-
-    public List<Factura> getFactura() {
-        return facturas;
     }
 
     public Reserva getReserva() {
@@ -171,10 +157,6 @@ public class Estadia {
 
     public void setFechaFin(Date fechaFin) {
         this.fechaFin = fechaFin;
-    }
-
-    public void setFactura(List<Factura> factura) {
-        this.facturas = factura;
     }
 
     public void setReserva(Reserva reserva) {

@@ -51,21 +51,22 @@ public class Factura {
     }
 
     // creo q esto es lo mínimo idkkk
-    public Factura(ResponsablePago responsablePago, int valorEstadia, float totalAPagar) {
+    public Factura(ResponsablePago responsablePago, int valorEstadia, float totalAPagar, Estadia estadia) {
         this.responsablePago = responsablePago;
         this.totalAPagar = totalAPagar;
         this.valorEstadia = valorEstadia;
+        this.estadia = estadia;
         formasDePago = new ArrayList<>();
     }
 
-    public Factura(FacturaDTO FacturaDTO){
+    public Factura(FacturaDTO FacturaDTO, Estadia estadia) {
         this.tipoFactura = FacturaDTO.getTipoFactura();
         this.valorEstadia = FacturaDTO.getValorEstadia();   
         this.totalAPagar = FacturaDTO.getTotalAPagar();
         this.vuelto = FacturaDTO.getVuelto();
         this.pagado = FacturaDTO.getPagado();
         this.responsablePago = FacturaDTO.getResponsablePago();
-
+        this.estadia = estadia;
     }
 
     public int getId() {

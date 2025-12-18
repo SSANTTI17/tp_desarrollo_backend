@@ -15,11 +15,19 @@ import com.desarrollo_backend.demo.modelo.habitacion.TipoHabitacion;
 public interface EstadiaRepository extends JpaRepository<Estadia, Integer> {
     List<Estadia> findByFechaFin(Date fechaFin);
     Optional<Estadia> findByReserva(Reserva reserva);
-    @Query("SELECT e FROM Estadia e " +
-           "WHERE e.habitacion.id.numero = :numero " +
-           "AND e.habitacion.id.tipo = :tipo " +
-           "AND e.fechaFin = :fecha " +
-           "AND e.factura IS NULL") // Opcional: Solo traer las no facturadas
+       @Query("""
+       SELECT e
+       FROM Estadia e
+       WHERE e.habitacion.id.numero = :numero
+       AND e.habitacion.id.tipo = :tipo
+       AND e.fechaFin = :fecha
+       AND NOT EXISTS (
+          SELECT f
+          FROM Factura f
+          WHERE f.estadia = e
+       )
+       """)
+
     Optional<Estadia> buscarPorHabitacionYFechaFin(
             @Param("numero") int numero, 
             @Param("tipo") TipoHabitacion tipo, 

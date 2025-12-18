@@ -185,7 +185,7 @@ public class GestorContable {
         factura.setPagado(false); // Aún no se paga
         factura.setVuelto(0);
 
-        estadia.agregarFactura(factura);
+        factura.setEstadia(estadia);
         return factura;
     }
     /**
@@ -234,7 +234,6 @@ public class GestorContable {
     @Transactional
     public void crearFacturaReal(Factura factura, Estadia estadia) {
         
-        estadia.agregarFactura(factura);
         if(factura.getValorEstadia()!=0){
             estadia.setFacturadaEstadia(true);
         }

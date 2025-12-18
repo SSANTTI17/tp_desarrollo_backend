@@ -73,7 +73,7 @@ class FacturaDTOTest {
         dto.setResponsablePago(responsableMock);
 
         // WHEN: Usamos el constructor de la Entidad que recibe un DTO
-        Factura entidad = new Factura(dto);
+        Factura entidad = new Factura(dto, null);
 
         // THEN
         assertEquals(TipoFactura.B, entidad.getTipoFactura());
@@ -117,9 +117,6 @@ class EstadiaDTOTest {
         Habitacion hab = new Habitacion(TipoHabitacion.DE, 202, 5000f);
         entidad.setHabitacion(hab);
 
-        Factura factura = new Factura(); // Suponiendo constructor vacío
-        entidad.agregarFactura(factura);
-
         Reserva reserva = new Reserva();
         entidad.setReserva(reserva);
 
@@ -136,7 +133,7 @@ class EstadiaDTOTest {
         assertEquals(fechaInicio, dto.getFechaInicio());
         assertEquals(fechaFin, dto.getFechaFin());
         assertEquals(TipoHabitacion.DE, dto.geTipoHabitacion()); // Nota: Usé tu nombre con typo 'geTipo'
-        assertEquals(factura, dto.getFactura());
+
         assertEquals(reserva, dto.getReserva());
 
         // Verificamos la lista (asumiendo que agregás el getter al DTO, ver nota abajo)

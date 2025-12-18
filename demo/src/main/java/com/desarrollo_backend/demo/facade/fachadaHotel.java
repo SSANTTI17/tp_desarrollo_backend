@@ -183,7 +183,7 @@ public class FachadaHotel {
         // responsable pago
         // si cuit == null entonces es el huesped y busco el responsable pago asociado
         // al huesped
-        Factura facturaReal = new Factura(factura);
+        Factura facturaReal = new Factura(factura, estadia);
         if (resp != null && resp.getCUIT() != null) {
             respPago = gestorContable.buscarResponsablePorCuit(resp.getCUIT()); // El CUIT es el ID
             facturaReal.setResponsablePago(respPago);
