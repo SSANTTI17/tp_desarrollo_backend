@@ -116,7 +116,7 @@ public class FachadaHotel {
      * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en
      *         el rango especificado.
      */
-    public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
+    public List<HabitacionDTO> getEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
     }
 

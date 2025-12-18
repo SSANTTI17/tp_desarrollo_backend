@@ -7,15 +7,23 @@ public class ConsumoDTO {
     private TipoConsumo tipo;
     private float monto;
     private Moneda moneda;
-    private Estadia estadia;
+    private EstadiaDTO estadiaDTO;
 
     //consutructores
     public ConsumoDTO(){}
-    public ConsumoDTO(TipoConsumo tipo, float monto, Moneda moneda, Estadia estadia){
+    public ConsumoDTO(TipoConsumo tipo, float monto, Moneda moneda, EstadiaDTO estadia){
         this.tipo = tipo;
         this.monto = monto;
         this.moneda = moneda;
-        this.estadia = estadia;
+        this.estadiaDTO = estadia;
+    }
+
+    public ConsumoDTO(Consumo consumo){
+        this.id = consumo.getId();
+        this.tipo = consumo.getTipo();
+        this.monto = consumo.getMonto();
+        this.moneda = consumo.getMoneda();
+        this.estadiaDTO = this.transformarDTO(consumo.getEstadia());
     }
 
     //getter
@@ -23,13 +31,16 @@ public class ConsumoDTO {
     public TipoConsumo getTipo() { return tipo; }
     public float getMonto() { return monto; }
     public Moneda getMoneda() { return moneda; }
-    public Estadia getEstadia() { return estadia; }
+    public EstadiaDTO getEstadia() { return estadiaDTO; }
 
     //setter
+    private EstadiaDTO transformarDTO(Estadia estadia) {
+        return new EstadiaDTO(estadia);
+    }
     public void setId(int id) { this.id = id; }
     public void setTipo(TipoConsumo tipo) { this.tipo = tipo; }
     public void setMonto(float monto) { this.monto = monto; }
     public void setMoneda(Moneda moneda) { this.moneda = moneda; }
-    public void setEstadia(Estadia estadia) { this.estadia = estadia; }
+    public void setEstadia(EstadiaDTO estadia) { this.estadiaDTO = estadia; }
 
 }

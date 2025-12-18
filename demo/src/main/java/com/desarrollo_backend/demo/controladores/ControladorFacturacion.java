@@ -2,6 +2,7 @@ package com.desarrollo_backend.demo.controladores;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -79,8 +80,8 @@ public class ControladorFacturacion {
 
         } catch (EdadInsuficienteException e) {
             // Captura específica para el error de edad
-            return ResponseEntity.badRequest().body( "Validación de edad fallida"
-                + e.getMessage() // "El huésped seleccionado es menor de edad..."
+            return ResponseEntity.badRequest().body(
+                Map.of("error", e.getMessage())
             );
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error al generar factura: " + e.getMessage());

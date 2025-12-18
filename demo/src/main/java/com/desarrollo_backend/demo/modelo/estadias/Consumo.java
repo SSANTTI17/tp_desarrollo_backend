@@ -1,5 +1,7 @@
 package com.desarrollo_backend.demo.modelo.estadias;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -26,6 +28,7 @@ public class Consumo {
 
     @ManyToOne
     @JoinColumn(name = "estadia_id")
+    @JsonIgnore
     private Estadia estadia;
 
     // consutructores
@@ -53,6 +56,10 @@ public class Consumo {
 
     public Moneda getMoneda() {
         return moneda;
+    }
+
+    public Estadia getEstadia() {
+        return estadia;
     }
 
     public boolean isFacturado() {

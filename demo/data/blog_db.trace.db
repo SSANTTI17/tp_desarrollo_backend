@@ -3685,3 +3685,291 @@ create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integ
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
 Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
 create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:37.138058-03:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:46:37.142059-03:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:37.143060-03:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:37.144060-03:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:43.384478-03:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:46:43.385480-03:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:43.385480-03:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:46:43.389480-03:00 jdbc[23]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:31.878052-03:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:58:31.878052-03:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:31.879052-03:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:31.880052-03:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:44.153440-03:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:58:44.154440-03:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:44.154440-03:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:58:44.156440-03:00 jdbc[43]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:28.896044-03:00 jdbc[53]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:59:28.896044-03:00 jdbc[53]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:28.897043-03:00 jdbc[53]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:28.898044-03:00 jdbc[53]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:58.448825-03:00 jdbc[63]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 00:59:58.455827-03:00 jdbc[63]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:58.456827-03:00 jdbc[63]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 00:59:58.458827-03:00 jdbc[63]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:05.630909-03:00 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:00:05.630909-03:00 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:05.631910-03:00 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:05.632910-03:00 jdbc[73]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:31.144895-03:00 jdbc[83]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:00:31.145896-03:00 jdbc[83]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:31.146896-03:00 jdbc[83]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:31.147896-03:00 jdbc[83]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:39.297865-03:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:00:39.298866-03:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:39.298866-03:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:00:39.299866-03:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:01:03.693030-03:00 jdbc[103]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:01:03.694030-03:00 jdbc[103]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:01:03.694030-03:00 jdbc[103]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:01:03.696030-03:00 jdbc[103]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:02:03.598027-03:00 jdbc[113]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:02:03.599027-03:00 jdbc[113]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:02:03.599027-03:00 jdbc[113]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:02:03.600028-03:00 jdbc[113]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:03:02.502539-03:00 jdbc[123]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:03:02.503539-03:00 jdbc[123]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:03:02.504540-03:00 jdbc[123]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:03:02.505540-03:00 jdbc[123]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:04:17.723014-03:00 jdbc[133]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:04:17.724014-03:00 jdbc[133]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:04:17.724014-03:00 jdbc[133]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:04:17.726013-03:00 jdbc[133]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:14:14.465943-03:00 jdbc[143]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:14:14.465943-03:00 jdbc[143]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:14:14.466943-03:00 jdbc[143]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:14:14.471945-03:00 jdbc[143]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:29.661892-03:00 jdbc[153]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:15:29.661892-03:00 jdbc[153]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:29.662891-03:00 jdbc[153]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:29.663891-03:00 jdbc[153]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:31.762677-03:00 jdbc[163]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:15:31.762677-03:00 jdbc[163]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:31.763677-03:00 jdbc[163]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:15:31.764678-03:00 jdbc[163]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:08.888454-03:00 jdbc[173]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:20:08.889455-03:00 jdbc[173]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:08.889455-03:00 jdbc[173]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:08.891456-03:00 jdbc[173]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:15.034028-03:00 jdbc[183]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HT_RESPONSABLE_PAGO" ya existe
+Table "HT_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HT_responsable_pago(cuit varchar(255) not null, primary key (cuit)) transactional [42101-240]
+2025-12-18 01:20:15.035029-03:00 jdbc[183]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_RESPONSABLE_PAGO" ya existe
+Table "HTE_RESPONSABLE_PAGO" already exists; SQL statement:
+create global temporary table HTE_responsable_pago(rn_ integer not null, CUIT varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:15.035029-03:00 jdbc[183]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_JURIDICAS" ya existe
+Table "HTE_PERSONAS_JURIDICAS" already exists; SQL statement:
+create global temporary table HTE_personas_juridicas(Telefono integer, rn_ integer not null, RazonSocial varchar(100), CUIT varchar(255), direccion varchar(255), primary key (rn_)) transactional [42101-240]
+2025-12-18 01:20:15.036029-03:00 jdbc[183]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Tabla "HTE_PERSONAS_FISICAS" ya existe
+Table "HTE_PERSONAS_FISICAS" already exists; SQL statement:
+create global temporary table HTE_personas_fisicas(rn_ integer not null, refHuesped_id_nroDocumento varchar(10), PosicionIVA varchar(100), CUIT varchar(255), refHuesped_id_tipo_documento enum ('DNI','LC','LE','OTRO','PASAPORTE'), primary key (rn_)) transactional [42101-240]
