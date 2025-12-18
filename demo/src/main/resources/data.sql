@@ -259,4 +259,6 @@ INSERT INTO estados (fecha, numero, tipo, hora_inicio, fecha_fin, hora_fin, esta
 INSERT INTO estados (fecha, numero, tipo, hora_inicio, fecha_fin, hora_fin, estado) VALUES ('2025-12-19', 201, 'DE', '14:00', '2025-12-23', '10:00', 'Ocupada');
 INSERT INTO estados (fecha, numero, tipo, hora_inicio, fecha_fin, hora_fin, estado) VALUES ('2025-12-20', 102, 'IE', '14:00', '2025-12-22', '10:00', 'Ocupada');
 
-
+ALTER TABLE reservas ALTER COLUMN id RESTART WITH 21;
+ALTER TABLE estadias ALTER COLUMN id RESTART WITH 21; 
+ALTER TABLE facturas ALTER COLUMN id RESTART WITH 2021;
