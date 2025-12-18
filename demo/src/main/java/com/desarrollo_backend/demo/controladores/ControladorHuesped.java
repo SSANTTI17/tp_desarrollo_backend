@@ -2,17 +2,11 @@ package com.desarrollo_backend.demo.controladores;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.desarrollo_backend.demo.gestores.GestorContable;
-import com.desarrollo_backend.demo.gestores.GestorHuesped;
-import com.desarrollo_backend.demo.mappers.HuespedMapper; // Importamos el Mapper
-import com.desarrollo_backend.demo.modelo.huesped.Huesped;
-import com.desarrollo_backend.demo.modelo.huesped.HuespedPK;
 import com.desarrollo_backend.demo.dtos.HuespedDTO;
 import com.desarrollo_backend.demo.facade.FachadaHotel;
 import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
@@ -21,15 +15,6 @@ import com.desarrollo_backend.demo.modelo.huesped.TipoDoc;
 @RequestMapping("/api/huespedes")
 @CrossOrigin(origins = "http://localhost:3000")
 public class ControladorHuesped {
-
-    @Autowired
-    private GestorHuesped gestorHuesped;
-
-    @Autowired
-    private GestorContable gestorContable;
-
-    @Autowired
-    private HuespedMapper huespedMapper;
 
     @Autowired
     private FachadaHotel fachadaHotel;

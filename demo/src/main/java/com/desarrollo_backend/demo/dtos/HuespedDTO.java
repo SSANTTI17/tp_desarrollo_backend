@@ -29,7 +29,7 @@ public class HuespedDTO {
     private String email;
     private String telefono;
     private String ocupacion;
-    private boolean alojado;
+    private Boolean alojado;
     private String direccion;
 
     // Datos fiscales opcionales
