@@ -45,8 +45,6 @@ public class FachadaHotel {
     @Autowired
     private HuespedMapper huespedMapper;
 
-    // CONTROLADOR RESERVA ---------------------------------------------
-
     public ReservaDTO crearReserva(String nombre, String apellido, String telefono,
             List<Habitacion> habitacionesSolicitadas,
             String fechaInicioStr, String fechaFinStr) {
@@ -107,8 +105,6 @@ public class FachadaHotel {
         return this.eliminarReserva(reservaDummy);
     }
 
-    // ---------------------------------------------
-
     /**
      * Llama al gestor de habitaciones para obtener el estado de todas las
      * habitaciones
@@ -119,32 +115,27 @@ public class FachadaHotel {
      * @return Lista de {@link HabitacionDTO} con el estado de las habitaciones en
      *         el rango especificado.
      */
-    public List<HabitacionDTO> getEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
+    public List<HabitacionDTO> consultarEstadoHabitaciones(LocalDate fechaInicio, LocalDate fechaFin) {
         return gestorHabitaciones.mostrarEstadoHabitaciones(fechaInicio, fechaFin);
     }
 
     /**
-     * Registra una ocupación delegando al Gestor de Habitaciones.
-     * Recibe el DTO directamente desde el controlador.
-     */
-    public void ocuparHabitacion(OcuparDTO ocupacionDTO) throws Exception {
-        gestorHabitaciones.registrarOcupacion(ocupacionDTO);
-    }
-
-    /**
+     * 
+     * 
      * que realiza el check-out en la fecha indicada.
      * Este método es el paso inicial para seleccionar a nombre de quién se rea
      * izará la facturación.
      * Es mejor usar reservas en nuestro caso ya que estadia no tiene huespedes
      * asociados como atributo.
      * 
-     * @param estadiaDTO    DTO que contiene la fecha de finalización (check-out) de
-     *                      la estadía.
+     * @param estadiaDTO    DTO que contiene la fecha de finalización (chec
+     *                      -out) de la estadía.
      * @param habitacionDTO DTO con el número y tipo de habitación a consultar.
+     * 
+     * 
      * @return Lista de {@link HuespedDTO} con los ocupantes asociados a la reserva.
      * 
      */
-
     /**
      * Obtiene los huéspedes para facturación buscando la estadía que finaliza en la
      * fecha dada.
@@ -155,7 +146,6 @@ public class FachadaHotel {
                 habitacionDTO.getNumero(),
                 habitacionDTO.getTipo(),
                 estadiaDTO.getFechaFin());
-
         if (estadia == null) {
             return new ArrayList<>();
         }
@@ -211,7 +201,9 @@ public class FachadaHotel {
 
         Factura factura = null;
 
+
         factura = gestorContable.generarFacturaParaHuesped(entidad, CUIT, estadiaReal);
+
         ContenedorEstadiaYFacturaDTO contenedor = new ContenedorEstadiaYFacturaDTO(estadiaReal, factura);
         return contenedor;
     }
@@ -237,7 +229,7 @@ public class FachadaHotel {
      */
     public FacturaDTO confirmarFactura(Integer idEstadia, FacturaDTO factura, HuespedDTO h, PersonaJuridicaDTO resp,
             List<ConsumoDTO> consumos) {
-
+       
         Estadia estadia = gestorContable.buscarEstadia(idEstadia);
         Huesped entidad = null;
         ResponsablePago respPago = null;
@@ -245,6 +237,7 @@ public class FachadaHotel {
         // responsable pago
         // si cuit == null entonces es el huesped y busco el responsable pago asociado
         // al huesped
+
         Factura facturaReal = new Factura(factura, estadia);
         if (resp != null && resp.getCUIT() != null) {
             respPago = gestorContable.buscarResponsablePorCuit(resp.getCUIT()); // El CUIT es el ID

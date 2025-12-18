@@ -77,6 +77,10 @@ public class EstadiaDTO {
         return reserva;
     }
 
+    public List<Consumo> getConsumos() {
+        return consumos;
+    }
+
     // setters
     public void setPrecio(float precio) {
         this.precio = precio;

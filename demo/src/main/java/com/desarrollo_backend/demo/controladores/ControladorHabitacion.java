@@ -29,19 +29,7 @@ public class ControladorHabitacion {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta) {
 
         // El controlador recibe la petición Web y llama a la Fachada
-        return fachadaHotel.getEstadoHabitaciones(desde, hasta);
-    }
-
-    @PostMapping("/ocupar")
-    public ResponseEntity<?> ocuparHabitacion(@RequestBody OcuparDTO ocupacionDTO) {
-        try {
-            // Llamamos a la fachada
-            fachadaHotel.ocuparHabitacion(ocupacionDTO);
-
-            return ResponseEntity.ok("{\"mensaje\": \"Ocupación registrada con éxito\"}");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
-        }
+        return fachadaHotel.consultarEstadoHabitaciones(desde, hasta);
     }
 
 }

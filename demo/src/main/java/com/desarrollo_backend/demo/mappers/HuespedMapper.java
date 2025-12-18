@@ -60,7 +60,7 @@ public class HuespedMapper {
         entity.setEmail(dto.getEmail());
         entity.setTelefono(dto.getTelefono());
         entity.setOcupacion(dto.getOcupacion());
-        entity.setAlojado(dto.isAlojado());
+        entity.setAlojado(dto.getAlojado());
 
         // Manejo de fecha (Date a Date)
         entity.setFechaDeNacimiento(dto.getFechaDeNacimiento());

@@ -15,7 +15,9 @@ public class ContenedorEstadiaYFacturaDTO {
 
     public ContenedorEstadiaYFacturaDTO(Estadia estadia, Factura factura) {
         this.estadia = new EstadiaDTO(estadia);
+        
         this.factura = new FacturaDTO(factura);
+        
     }
 
     // getters

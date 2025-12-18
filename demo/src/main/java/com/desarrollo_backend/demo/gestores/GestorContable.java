@@ -177,18 +177,20 @@ public class GestorContable {
                         + huesped.calcularEdad() + " años) y no puede ser responsable de pago.");
             }
         }
-
+        
         // 2. OBTENER RESPONSABLE DE PAGO
         ResponsablePago responsable = null;
 
         if (huesped != null) {
             responsable = this.buscarResponsablePorHuesped(huesped);
+
         } else if (CUIT != null && !CUIT.isEmpty()) {
             responsable = this.buscarResponsablePorCuit(CUIT);
         }
 
         // No se encontró responsable (Huesped es null y Cuit es null)
         if (responsable == null) {
+            System.out.println(responsable==null);
             return null; // Retornar NULL indicará al Controller que debe redirigir a "Alta Responsable"
         }
 
@@ -198,8 +200,11 @@ public class GestorContable {
             valorEstadia = estadia.getPrecio();
         }
         // Consumos
+
         float totalConsumos = estadia.totalConsumos(); 
+
         float totalAPagar = valorEstadia + totalConsumos;
+
 
         // 5. DETERMINAR TIPO FACTURA (A o B)
         TipoFactura tipoFactura;
@@ -219,6 +224,7 @@ public class GestorContable {
         factura.setVuelto(0);
 
         factura.setEstadia(estadia);
+        System.out.println(factura.getValorEstadia());
         return factura;
     }
     /**
